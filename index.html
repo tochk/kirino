@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
+        <!--link type="text/static/css" rel="stylesheet" href="/static/css/bootstrap-theme.min.css"-->
+        <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
+        <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
+        <link type="text/css" rel="stylesheet" href="/static/css/template.css">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/static/css?family=Roboto:300,400,500,700" type="text/css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <body>
+       <div class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Kirino</a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="/">This page</a></li>
+        <li><a href="javascript:void(0)">Another page</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+ 
+        <form class="form-horizontal" method="post" action="/generatePdf/">
+  <fieldset id="form_cont">
+    <div class="input_forms">
+        <h2 class='title'>User1<h2>
+        <div class="form-group">
+          <label for="inputMac" class="col-md-2 control-label">Mac</label>
+
+          <div class="col-md-10">
+            <input type="mac" name="mac1" class="form-control" id="inputEmail" placeholder="Mac" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputName" class="col-md-2 control-label">Name</label>
+
+          <div class="col-md-10">
+            <input type="name" name="user1" class="form-control" id="inputPassword" placeholder="Ф.И.О" required>       
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputPassword" class="col-md-2 control-label">Phone Number</label>
+
+          <div class="col-md-10">
+            <input type="telnumber" name="tel1" class="form-control" id="inputPassword" placeholder="Номер телефона" required>       
+          </div>
+        </div> 
+    </div>
+    <div class="form-group">
+        
+            <a id="addNew" href="#" class="btn btn-raised btn-info">Add New<div class="ripple-container"></div></a>
+        
+    </div>
+    <div class="form-group">
+      <div class="col-md-10 col-md-offset-2">
+        <button type="button" id="cancel" class="btn btn-default">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </fieldset>
+</form>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/ripples.min.js"></script>
+        <script src="/static/js/material.min.js"></script>
+        <script src="/static/js/material.js"></script>
+        <script src="/static/js/template.js"></script>
+        <script>
+$.material.init();
+</script>
+        <script src="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+    </body>
+</html>

@@ -53,3 +53,4 @@ src/
 pkg/
 examples/
 conf.json
+userFiles/

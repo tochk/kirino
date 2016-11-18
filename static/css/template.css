@@ -1,0 +1,11 @@
+.form-horizontal{
+    width: 900px;
+    margin: 0 auto;
+}
+.btn-info{
+    float: right;
+    background-color: #3f51b5 !important;
+}
+.btn-primary{
+    color: #3f51b5 !important;
+}
