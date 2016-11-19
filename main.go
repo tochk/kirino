@@ -110,21 +110,28 @@ func generatePdf(path string) {
 	cmd.Start()
 }
 
+func userFilesHandler(w http.ResponseWriter, r *http.Request) {
+	path := "." + r.URL.Path
+	log.Print(path)
+	if f, err := os.Stat(path); err == nil && !f.IsDir() {
+		http.ServeFile(w, r, path)
+		return
+	}
+	http.NotFound(w, r)
+}
+
 func main() {
 	log.Print("Starting...")
 	err := loadConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-	generateLatexFile([]UserData{{MacAddr: "148814881488", UserName: "tochk imba", PhoneNumber: "88005553535"}}, "hashZHIRHY")
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "index.html")
 	})
-
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	fs2 := http.FileServer(http.Dir("userFiles"))
-	http.Handle("/userFiles/", http.StripPrefix("/userFiles/", fs2))
+	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", generatePdfHandler)
 	http.ListenAndServe(":8080", nil)
 }
