@@ -112,7 +112,6 @@ func generatePdf(path string) {
 
 func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 	path := "." + r.URL.Path
-	log.Print(path)
 	if f, err := os.Stat(path); err == nil && !f.IsDir() {
 		http.ServeFile(w, r, path)
 		return
