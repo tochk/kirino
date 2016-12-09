@@ -65,13 +65,10 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
 	hashStr := r.PostFormValue("mac1") + strconv.Itoa(r1.Intn(1000000))
-	log.Print(hashStr)
 	hasher.Write([]byte(hashStr))
 	hash := hex.EncodeToString(hasher.Sum(nil))
-	log.Print(hash)
 	pathToTex := generateLatexFile(list, hash)
 	generatePdf(pathToTex)
-	log.Print(list)
 	fmt.Fprint(w, "<a href='/userFiles/" + hash + ".pdf'>Link</a>")
 }
 
@@ -85,7 +82,6 @@ func generateLatexTable(list []UserData) Table {
 }
 
 func generateLatexFile(list []UserData, hashStr string) string {
-	log.Print("Generating latex file")
 	latexTemplate := template.New("Latex template")
 	latexTemplate, err := template.ParseFiles("latex/wifi.tex")
 	if err != nil {
@@ -132,5 +128,5 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", generatePdfHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":4001", nil)
 }
