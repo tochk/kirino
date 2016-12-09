@@ -13,8 +13,7 @@
     <div class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse"
-                        data-target=".navbar-responsive-collapse">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -28,7 +27,6 @@
             </div>
         </div>
     </div>
-
     <form class="form-horizontal" action="/generatePdf/" method="post">
         <fieldset id="form_cont">
             <legend>Создание служебной записки</legend>
@@ -37,36 +35,28 @@
                     <h2>
                         <div class="form-group">
                             <label for="inputMac" class="col-md-2 control-label">Mac</label>
-
                             <div class="col-md-10">
-                                <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputEmail"
-                                       placeholder="Mac" required>
+                                <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputEmail" placeholder="Mac" required>
                                 <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
-
                             <div class="col-md-10">
-                                <input type="name" name="user1" class="form-control name" id="inputPassword"
-                                       placeholder="Ф.И.О" required>
+                                <input type="name" name="user1" class="form-control name" id="inputPassword" placeholder="Ф.И.О" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputPassword" class="col-md-2 control-label">Номер телефона</label>
-
                             <div class="col-md-10">
-                                <input type="telnumber" name="tel1" class="form-control phone" id="inputPassword"
-                                       placeholder="Номер телефона" required>
+                                <input type="telnumber" name="tel1" class="form-control phone" id="inputPassword" placeholder="Номер телефона" required>
                             </div>
                         </div>
             </div>
             <div class="form-group">
-
                 <a id="addNew" href="#" class="btn btn-raised btn-info addNew">Добавить устройство
                     <div class="ripple-container"></div>
                 </a>
-
             </div>
             <div class="form-group">
                 <div class="col-md-10 col-md-offset-2">
@@ -78,7 +68,6 @@
     </form>
 </div>
 <div class="conteiner_for_windows">
-
     <div id="window" class="window">
         <div class="closee"></div>
         <div class="bs-component">
@@ -100,9 +89,7 @@
                     Откроется окно командной строки:
                     <img src="/static/win2.jpg">
                     В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
-
                     <b>ipconfig /all</b>
-
                     и нажать клавишу «Enter».
                     <img src="/static/win3.jpg">
                     В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
@@ -139,9 +126,139 @@
     <script src="/static/js/material.min.js"></script>
     <script src="/static/js/template.js"></script>
     <script src="/static/js/jquery.maskedinput.min.js"></script>
-    <script>
-        $.material.init();
-    </script>
+    <script>$.material.init();</script>
+    <script src="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+</body>
+</html><html>
+<head>
+    <title>Kirino - wifi_sl_gen application</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<div id="blurr">
+    <div class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Kirino</a>
+            </div>
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <form class="form-horizontal" action="/generatePdf/" method="post">
+        <fieldset id="form_cont">
+            <legend>Создание служебной записки</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1
+                    <h2>
+                        <div class="form-group">
+                            <label for="inputMac" class="col-md-2 control-label">Mac</label>
+                            <div class="col-md-10">
+                                <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputEmail" placeholder="Mac" required>
+                                <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
+                            <div class="col-md-10">
+                                <input type="name" name="user1" class="form-control name" id="inputPassword" placeholder="Ф.И.О" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-md-2 control-label">Номер телефона</label>
+                            <div class="col-md-10">
+                                <input type="telnumber" name="tel1" class="form-control phone" id="inputPassword" placeholder="Номер телефона" required>
+                            </div>
+                        </div>
+            </div>
+            <div class="form-group">
+                <a id="addNew" href="#" class="btn btn-raised btn-info addNew">Добавить устройство
+                    <div class="ripple-container"></div>
+                </a>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="button" id="cancel" class="btn btn-default">Удалить последнее устройство</button>
+                    <button type="submit" disabled="disabled" id="sbm" class="btn btn-primary">Отправить заявку</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win4.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="black-block">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/ripples.min.js"></script>
+    <script src="/static/js/material.min.js"></script>
+    <script src="/static/js/template.js"></script>
+    <script src="/static/js/jquery.maskedinput.min.js"></script>
+    <script>$.material.init();</script>
     <script src="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
 </body>
