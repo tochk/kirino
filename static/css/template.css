@@ -55,7 +55,7 @@
 	margin:0 auto;
 }
 .window .closee:hover{
-	background-image: url("/krest.png");
+	background-image: url("/static/krest.png");
 }
 .window .closee{
     display: block;
@@ -65,7 +65,7 @@
     width: 20px;
     height: 20px;
     /* background-color: black; */
-    background-image: url("/close.png");
+    background-image: url("/static/close.png");
 	background-size:cover;
 	top:-60px;
 	right:-50px;
