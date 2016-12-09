@@ -14,7 +14,6 @@ import (
 	"math/rand"
 	"time"
 	"strconv"
-	"fmt"
 )
 
 var config struct {
@@ -54,7 +53,8 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded generatePdf page from %s", r.RemoteAddr)
 	err := r.ParseForm()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	var list []UserData
 	for i := 1; i <= len(r.Form) / 3; i++ {
@@ -67,9 +67,23 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	hashStr := r.PostFormValue("mac1") + strconv.Itoa(r1.Intn(1000000))
 	hasher.Write([]byte(hashStr))
 	hash := hex.EncodeToString(hasher.Sum(nil))
-	pathToTex := generateLatexFile(list, hash)
+	pathToTex, err := generateLatexFile(list, hash)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	generatePdf(pathToTex)
-	fmt.Fprint(w, "<a href='/userFiles/" + hash + ".pdf'>Link</a>")
+	w.Header().Set("Location", "/userFiles/" + hash + ".pdf")
+	for {
+		_, err := template.ParseFiles("userFiles/" + hash + ".pdf")
+		if err != nil {
+			time.Sleep(time.Millisecond * 100)
+		} else {
+			time.Sleep(time.Millisecond * 100) //for not locking pdf while write
+			break
+		}
+	}
+	http.Redirect(w, r, "/userFiles/" + hash + ".pdf", 302)
 }
 
 func generateLatexTable(list []UserData) Table {
@@ -81,24 +95,23 @@ func generateLatexTable(list []UserData) Table {
 	return Table{Table: table}
 }
 
-func generateLatexFile(list []UserData, hashStr string) string {
+func generateLatexFile(list []UserData, hashStr string) (string, error) {
 	latexTemplate := template.New("Latex template")
 	latexTemplate, err := template.ParseFiles("latex/wifi.tex")
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	defer outputLatexFile.Close()
 	err = latexTemplate.ExecuteTemplate(outputLatexFile, "wifi.tex", generateLatexTable(list))
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-
 	pathToTexFile := "userFiles\\" + hashStr + ".tex"
-	return pathToTexFile
+	return pathToTexFile, nil
 }
 
 func generatePdf(path string) {
@@ -116,7 +129,6 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Print("Starting...")
 	err := loadConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -128,5 +140,6 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", generatePdfHandler)
+	log.Print("Server started at port 4001")
 	http.ListenAndServe(":4001", nil)
 }
