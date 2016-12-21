@@ -76,10 +76,8 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Location", "/userFiles/" + hash + ".pdf")
 	for {
 		_, err := template.ParseFiles("userFiles/" + hash + ".pdf")
-		if err != nil {
-			time.Sleep(time.Millisecond * 100)
-		} else {
-			time.Sleep(time.Millisecond * 100) //for not locking pdf while write
+		time.Sleep(time.Millisecond * 100)
+		if err == nil {
 			break
 		}
 	}
