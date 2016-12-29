@@ -78,12 +78,10 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Location", "/userFiles/" + hash + ".pdf")
-	for {
-		_, err := template.ParseFiles("userFiles/" + hash + ".pdf")
-		time.Sleep(time.Millisecond * 100)
-		if err == nil {
-			break
-		}
+	_, err = template.ParseFiles("userFiles/" + hash + ".pdf")
+	if err != nil {
+		log.Println(err)
+		return
 	}
 	http.Redirect(w, r, "/userFiles/" + hash + ".pdf", 302)
 }
@@ -118,7 +116,7 @@ func generateLatexFile(list []UserData, hashStr string) (string, error) {
 
 func generatePdf(path string) error {
 	cmd := exec.Command("pdflatex", "--interaction=errorstopmode", "--synctex=-1", "-output-directory=userFiles", path)
-	err := cmd.Start()
+	err := cmd.Run()
 	return err
 }
 
