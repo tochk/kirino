@@ -123,9 +123,9 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	var list []UserData
 	for i := 1; i <= len(r.Form)/3; i++ {
 		tempUserData := UserData{
-			MacAddr:     r.PostFormValue("mac" + strconv.Itoa(i)),
-			UserName:    r.PostFormValue("user" + strconv.Itoa(i)),
-			PhoneNumber: r.PostFormValue("tel" + strconv.Itoa(i)),
+			MacAddr:     texEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
+			UserName:    texEscape(r.PostFormValue("user" + strconv.Itoa(i))),
+			PhoneNumber: texEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
 		}
 		list = append(list, tempUserData)
 	}
