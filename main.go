@@ -88,20 +88,37 @@ func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb
 }
 
 func (s *server) writeUserDataToDb(data []UserData, hash string) (int, error) {
-	stmt, err := s.Db.PrepareNamed("INSERT INTO memorandums (userCount) VALUES (:userCount) RETURNING id")
+	for {
+		tx, err := s.Db.Beginx()
+		if err != nil {
+			return 0, err
+		}
+		id, err := s.tryWriteUserDataToDb(tx, data, hash)
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+		if err = tx.Commit(); err == nil {
+			return id, nil
+		}
+	}
+}
+
+func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []UserData, hash string) (int, error) {
+	var memorandumId int
+	if err := tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
+		return 0, err
+	}
+	memorandumId++
+	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id) VALUES (?)"), memorandumId); err != nil {
+		return 0, err
+	}
+
+	stmt, err := tx.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId)")
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
-	var memorandumId int
-	if err = stmt.Get(&memorandumId, MemorandumData{UserCount: len(data)}); err != nil {
-		return 0, err
-	}
-	stmt2, err := s.Db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId)")
-	if err != nil {
-		return 0, err
-	}
-	defer stmt2.Close()
 	for _, element := range data {
 		if _, err = stmt.Exec(convertDataForDb(element, hash, memorandumId)); err != nil {
 			return 0, err
