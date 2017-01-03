@@ -14,6 +14,10 @@ import (
 	"math/rand"
 	"time"
 	"strconv"
+
+	_ "github.com/lib/pq"
+	"github.com/jmoiron/sqlx"
+	"strings"
 )
 
 var config struct {
@@ -38,9 +42,31 @@ type UserData struct {
 	PhoneNumber string
 }
 
+type DataForDb struct {
+	MacAddr      string `db:"mac"`
+	UserName     string `db:"userName"`
+	PhoneNumber  string `db:"phoneNumber"`
+	Hash         string `db:"hash"`
+	MemorandumId int `db:"memorandumId"`
+}
+
+type MemorandumData struct {
+	UserCount int `db:"userCount"`
+}
+
 var (
 	configFile = flag.String("config", "conf.json", "Where to read the config from")
 )
+
+func texEscape(s string) string {
+	s = strings.Replace(s, "%", "\\%", -1)
+	s = strings.Replace(s, "$", "\\$", -1)
+	s = strings.Replace(s, "_", "\\_", -1)
+	s = strings.Replace(s, "{", "\\{", -1)
+	s = strings.Replace(s, "#", "\\#", -1)
+	s = strings.Replace(s, "&", "\\&", -1)
+	return s
+}
 
 func loadConfig() error {
 	jsonData, err := ioutil.ReadFile(*configFile)
@@ -50,7 +76,40 @@ func loadConfig() error {
 	return json.Unmarshal(jsonData, &config)
 }
 
+func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb {
+	return DataForDb{MacAddr:oldData.MacAddr,
+		UserName:        oldData.UserName,
+		PhoneNumber:     oldData.PhoneNumber,
+		Hash:            hash,
+		MemorandumId:    memorandumId,
+	}
+}
+
 func writeUserDataToDb(data []UserData, hash string) (int, error) {
+	db, err := sqlx.Connect("postgres", "host=192.168.153.129 port=3307 user=root dbname=kirino sslmode=disable")
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+	stmt, err := db.PrepareNamed("INSERT INTO memorandums (userCount) VALUES (:userCount) RETURNING id")
+	if err != nil {
+		return 0, err
+	}
+	var id int
+	err = stmt.Get(&id, MemorandumData{UserCount:len(data)})
+	log.Println(id)
+	//tx := db.MustBegin()
+	for _, element := range data {
+		dataForDb := convertDataForDb(element, hash, id)
+		//tx.NamedExec("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash) VALUES (:mac, :userName, :phoneNumber, :hash) RETURNING id", dataForDb)
+		stmt, err := db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId) RETURNING id")
+		if err != nil {
+			return 0, err
+		}
+		var id int
+		err = stmt.Get(&id, dataForDb)
+	}
+	//tx.Commit()
 
 	return -1, nil
 }
