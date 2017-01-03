@@ -87,13 +87,8 @@ func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb
 	}
 }
 
-func writeUserDataToDb(data []UserData, hash string) (int, error) {
-	db, err := sqlx.Connect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword+" sslmode=disable")
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
-	stmt, err := db.PrepareNamed("INSERT INTO memorandums (userCount) VALUES (:userCount) RETURNING id")
+func (s *server) writeUserDataToDb(data []UserData, hash string) (int, error) {
+	stmt, err := s.Db.PrepareNamed("INSERT INTO memorandums (userCount) VALUES (:userCount) RETURNING id")
 	if err != nil {
 		return 0, err
 	}
@@ -104,7 +99,7 @@ func writeUserDataToDb(data []UserData, hash string) (int, error) {
 	}
 	for _, element := range data {
 		dataForDb := convertDataForDb(element, hash, memorandumId)
-		stmt, err := db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId) RETURNING id")
+		stmt, err := s.Db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId) RETURNING id")
 		if err != nil {
 			return 0, err
 		}
@@ -114,7 +109,7 @@ func writeUserDataToDb(data []UserData, hash string) (int, error) {
 	return memorandumId, nil
 }
 
-func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded generatePdf page from %s", r.RemoteAddr)
 	err := r.ParseForm()
 	if err != nil {
@@ -136,7 +131,7 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	hashStr := r.PostFormValue("mac1") + strconv.Itoa(r1.Intn(1000000))
 	hasher.Write([]byte(hashStr))
 	hash := hex.EncodeToString(hasher.Sum(nil))
-	memorandumId, err := writeUserDataToDb(list, hash)
+	memorandumId, err := s.writeUserDataToDb(list, hash)
 	if err != nil {
 		log.Println(err)
 		return
@@ -203,6 +198,10 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
+type server struct {
+	Db *sqlx.DB
+}
+
 func main() {
 	err := loadConfig()
 	if err != nil {
@@ -213,8 +212,14 @@ func main() {
 	})
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	s := server{
+		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword+" sslmode=disable"),
+	}
+	defer s.Db.Close()
+
 	http.HandleFunc("/userFiles/", userFilesHandler)
-	http.HandleFunc("/generatePdf/", generatePdfHandler)
+	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
 	log.Print("Server started at port 4001")
 	err = http.ListenAndServe(":4001", nil)
 	if err != nil {
