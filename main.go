@@ -21,10 +21,11 @@ import (
 )
 
 var config struct {
-	MysqlLogin    string `json:"mysqlLogin"`
-	MysqlPassword string `json:"mysqlPassword"`
-	MysqlHost     string `json:"mysqlHost"`
-	MysqlDb       string `json:"mysqlDb"`
+	DbLogin    string `json:"dbLogin"`
+	DbPassword string `json:"dbPassword"`
+	DbHost     string `json:"dbHost"`
+	DbDb       string `json:"dbDb"`
+	DbPort     string `json:"dbPort"`
 }
 
 type Temp struct {
@@ -47,7 +48,7 @@ type DataForDb struct {
 	UserName     string `db:"userName"`
 	PhoneNumber  string `db:"phoneNumber"`
 	Hash         string `db:"hash"`
-	MemorandumId int `db:"memorandumId"`
+	MemorandumId int    `db:"memorandumId"`
 }
 
 type MemorandumData struct {
@@ -86,7 +87,7 @@ func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb
 }
 
 func writeUserDataToDb(data []UserData, hash string) (int, error) {
-	db, err := sqlx.Connect("postgres", "host=192.168.153.129 port=3307 user=root dbname=kirino sslmode=disable")
+	db, err := sqlx.Connect("postgres", "host="+ config.DbHost + " port="+ config.DbPort +" user=" + config.DbLogin +" dbname="+config.DbDb+" password=" + config.DbPassword + " sslmode=disable")
 	if err != nil {
 		return 0, err
 	}
@@ -95,23 +96,21 @@ func writeUserDataToDb(data []UserData, hash string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	var id int
-	err = stmt.Get(&id, MemorandumData{UserCount:len(data)})
-	log.Println(id)
-	//tx := db.MustBegin()
+	var memorandumId int
+	err = stmt.Get(&memorandumId, MemorandumData{UserCount:len(data)})
+	if err != nil {
+		return 0, err
+	}
 	for _, element := range data {
-		dataForDb := convertDataForDb(element, hash, id)
-		//tx.NamedExec("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash) VALUES (:mac, :userName, :phoneNumber, :hash) RETURNING id", dataForDb)
+		dataForDb := convertDataForDb(element, hash, memorandumId)
 		stmt, err := db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId) RETURNING id")
 		if err != nil {
 			return 0, err
 		}
-		var id int
-		err = stmt.Get(&id, dataForDb)
+		stmt.QueryRow(dataForDb)
 	}
-	//tx.Commit()
 
-	return -1, nil
+	return memorandumId, nil
 }
 
 func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
