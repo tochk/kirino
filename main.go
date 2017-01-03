@@ -92,18 +92,20 @@ func (s *server) writeUserDataToDb(data []UserData, hash string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer stmt.Close()
 	var memorandumId int
-	err = stmt.Get(&memorandumId, MemorandumData{UserCount: len(data)})
+	if err = stmt.Get(&memorandumId, MemorandumData{UserCount: len(data)}); err != nil {
+		return 0, err
+	}
+	stmt2, err := s.Db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId)")
 	if err != nil {
 		return 0, err
 	}
+	defer stmt2.Close()
 	for _, element := range data {
-		dataForDb := convertDataForDb(element, hash, memorandumId)
-		stmt, err := s.Db.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId) RETURNING id")
-		if err != nil {
+		if _, err = stmt.Exec(convertDataForDb(element, hash, memorandumId)); err != nil {
 			return 0, err
 		}
-		stmt.QueryRow(dataForDb)
 	}
 
 	return memorandumId, nil
