@@ -1,23 +1,24 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"flag"
-	"io/ioutil"
-	"encoding/json"
-	"text/template"
-	"os"
-	"os/exec"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
+	"flag"
+	"io/ioutil"
+	"log"
 	"math/rand"
-	"time"
+	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
+	"strings"
+	"text/template"
+	"time"
+
+	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq"
-	"github.com/jmoiron/sqlx"
-	"strings"
 )
 
 var config struct {
@@ -78,16 +79,16 @@ func loadConfig() error {
 }
 
 func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb {
-	return DataForDb{MacAddr:oldData.MacAddr,
-		UserName:        oldData.UserName,
-		PhoneNumber:     oldData.PhoneNumber,
-		Hash:            hash,
-		MemorandumId:    memorandumId,
+	return DataForDb{MacAddr: oldData.MacAddr,
+		UserName:     oldData.UserName,
+		PhoneNumber:  oldData.PhoneNumber,
+		Hash:         hash,
+		MemorandumId: memorandumId,
 	}
 }
 
 func writeUserDataToDb(data []UserData, hash string) (int, error) {
-	db, err := sqlx.Connect("postgres", "host="+ config.DbHost + " port="+ config.DbPort +" user=" + config.DbLogin +" dbname="+config.DbDb+" password=" + config.DbPassword + " sslmode=disable")
+	db, err := sqlx.Connect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword+" sslmode=disable")
 	if err != nil {
 		return 0, err
 	}
@@ -97,7 +98,7 @@ func writeUserDataToDb(data []UserData, hash string) (int, error) {
 		return 0, err
 	}
 	var memorandumId int
-	err = stmt.Get(&memorandumId, MemorandumData{UserCount:len(data)})
+	err = stmt.Get(&memorandumId, MemorandumData{UserCount: len(data)})
 	if err != nil {
 		return 0, err
 	}
@@ -165,7 +166,7 @@ func generateLatexTable(list []UserData, memorandumId int) LatexData {
 		stringInTable := tempData.MacAddr + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
 		table += stringInTable
 	}
-	return LatexData{Table: table, MemorandumId:memorandumId}
+	return LatexData{Table: table, MemorandumId: memorandumId}
 }
 
 func generateLatexFile(list []UserData, hashStr string, memorandumId int) (string, error) {
