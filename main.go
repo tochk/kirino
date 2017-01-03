@@ -27,8 +27,9 @@ type Temp struct {
 	Content string
 }
 
-type Table struct {
-	Table string
+type LatexData struct {
+	Table        string
+	MemorandumId int
 }
 
 type UserData struct {
@@ -49,6 +50,11 @@ func loadConfig() error {
 	return json.Unmarshal(jsonData, &config)
 }
 
+func writeUserDataToDb(data []UserData, hash string) (int, error) {
+
+	return -1, nil
+}
+
 func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded generatePdf page from %s", r.RemoteAddr)
 	err := r.ParseForm()
@@ -57,9 +63,13 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var list []UserData
-	for i := 1; i <= len(r.Form) / 3; i++ {
-		tempData := UserData{MacAddr: r.PostFormValue("mac" + strconv.Itoa(i)), UserName: r.PostFormValue("user" + strconv.Itoa(i)), PhoneNumber: r.PostFormValue("tel" + strconv.Itoa(i))}
-		list = append(list, tempData)
+	for i := 1; i <= len(r.Form)/3; i++ {
+		tempUserData := UserData{
+			MacAddr:     r.PostFormValue("mac" + strconv.Itoa(i)),
+			UserName:    r.PostFormValue("user" + strconv.Itoa(i)),
+			PhoneNumber: r.PostFormValue("tel" + strconv.Itoa(i)),
+		}
+		list = append(list, tempUserData)
 	}
 	hasher := sha256.New()
 	s1 := rand.NewSource(time.Now().UnixNano())
@@ -67,7 +77,12 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	hashStr := r.PostFormValue("mac1") + strconv.Itoa(r1.Intn(1000000))
 	hasher.Write([]byte(hashStr))
 	hash := hex.EncodeToString(hasher.Sum(nil))
-	pathToTex, err := generateLatexFile(list, hash)
+	memorandumId, err := writeUserDataToDb(list, hash)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	pathToTex, err := generateLatexFile(list, hash, memorandumId)
 	if err != nil {
 		log.Println(err)
 		return
@@ -77,25 +92,25 @@ func generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	w.Header().Set("Location", "/userFiles/" + hash + ".pdf")
+	w.Header().Set("Location", "/userFiles/"+hash+".pdf")
 	_, err = template.ParseFiles("userFiles/" + hash + ".pdf")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	http.Redirect(w, r, "/userFiles/" + hash + ".pdf", 302)
+	http.Redirect(w, r, "/userFiles/"+hash+".pdf", 302)
 }
 
-func generateLatexTable(list []UserData) Table {
+func generateLatexTable(list []UserData, memorandumId int) LatexData {
 	table := ""
 	for _, tempData := range list {
 		stringInTable := tempData.MacAddr + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
 		table += stringInTable
 	}
-	return Table{Table: table}
+	return LatexData{Table: table, MemorandumId:memorandumId}
 }
 
-func generateLatexFile(list []UserData, hashStr string) (string, error) {
+func generateLatexFile(list []UserData, hashStr string, memorandumId int) (string, error) {
 	latexTemplate := template.New("Latex template")
 	latexTemplate, err := template.ParseFiles("latex/wifi.tex")
 	if err != nil {
@@ -106,7 +121,7 @@ func generateLatexFile(list []UserData, hashStr string) (string, error) {
 		return "", err
 	}
 	defer outputLatexFile.Close()
-	err = latexTemplate.ExecuteTemplate(outputLatexFile, "wifi.tex", generateLatexTable(list))
+	err = latexTemplate.ExecuteTemplate(outputLatexFile, "wifi.tex", generateLatexTable(list, memorandumId))
 	if err != nil {
 		return "", err
 	}
@@ -142,5 +157,8 @@ func main() {
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", generatePdfHandler)
 	log.Print("Server started at port 4001")
-	http.ListenAndServe(":4001", nil)
+	err = http.ListenAndServe(":4001", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
