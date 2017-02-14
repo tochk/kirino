@@ -80,10 +80,10 @@ func loadConfig() error {
 
 func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb {
 	return DataForDb{MacAddr: oldData.MacAddr,
-		UserName:     oldData.UserName,
-		PhoneNumber:  oldData.PhoneNumber,
-		Hash:         hash,
-		MemorandumId: memorandumId,
+		UserName:         oldData.UserName,
+		PhoneNumber:      oldData.PhoneNumber,
+		Hash:             hash,
+		MemorandumId:     memorandumId,
 	}
 }
 
@@ -110,7 +110,8 @@ func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []UserData, hash string)
 		return 0, err
 	}
 	memorandumId++
-	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id) VALUES (?)"), memorandumId); err != nil {
+	userCount := len(data)
+	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id, UserCount) VALUES (?, ?)"), memorandumId, userCount); err != nil {
 		return 0, err
 	}
 
@@ -233,7 +234,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	s := server{
-		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword+" sslmode=disable"),
+		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
 	}
 	defer s.Db.Close()
 
