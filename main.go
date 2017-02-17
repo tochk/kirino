@@ -56,8 +56,12 @@ type MemorandumData struct {
 }
 
 type MemorandumDataForPage struct {
-	UsersData []DataForDb
-	UserCount int
+	Id        int `db:"id"`
+	UserCount *int `db:"userCount"`
+}
+
+type DataForWriteToAdminTempltate struct {
+	Memorandums []MemorandumDataForPage
 }
 
 var (
@@ -229,8 +233,26 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, "kek21")
+	tx, err := s.Db.Beginx()
 	if err != nil {
+		log.Println(err)
+		return
+	}
+	memorandums := make([]MemorandumDataForPage, 0)
+	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums"); err != nil {
+		log.Println(err)
+		return
+	}
+	err = latexTemplate.Execute(w, DataForWriteToAdminTempltate{Memorandums:memorandums})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
+	memorandums := make([]MemorandumDataForPage, 0)
+	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums"); err != nil {
 		log.Println(err)
 		return
 	}
@@ -259,6 +281,7 @@ func main() {
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
 	http.HandleFunc("/memorandums/", s.showMemorandumsHandler)
+	http.HandleFunc("/checkMemorandum/", s.checkMemorandumHandler)
 	log.Print("Server started at port 4001")
 	err = http.ListenAndServe(":4001", nil)
 	if err != nil {
