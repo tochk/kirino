@@ -252,6 +252,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
+	tx.Commit()
 }
 
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
@@ -276,6 +277,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
+	tx.Commit()
 }
 
 type server struct {
