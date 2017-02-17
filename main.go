@@ -14,10 +14,9 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-	"time"
-
 	"github.com/jmoiron/sqlx"
-
+	htemplate "html/template"
+	"time"
 	_ "github.com/lib/pq"
 )
 
@@ -54,6 +53,11 @@ type DataForDb struct {
 
 type MemorandumData struct {
 	UserCount int `db:"userCount"`
+}
+
+type MemorandumDataForPage struct {
+	UsersData []DataForDb
+	UserCount int
 }
 
 var (
@@ -218,6 +222,20 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 	http.NotFound(w, r)
 }
 
+func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
+	latexTemplate := htemplate.New("Main design")
+	latexTemplate, err := htemplate.ParseFiles("templates/design.tmpl")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = latexTemplate.Execute(w, "kek21")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 type server struct {
 	Db *sqlx.DB
 }
@@ -240,6 +258,7 @@ func main() {
 
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
+	http.HandleFunc("/memorandums/", s.showMemorandumsHandler)
 	log.Print("Server started at port 4001")
 	err = http.ListenAndServe(":4001", nil)
 	if err != nil {
