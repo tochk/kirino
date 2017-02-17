@@ -64,6 +64,10 @@ type DataForWriteToAdminTempltate struct {
 	Memorandums []MemorandumDataForPage
 }
 
+type DataForWriteToCheckMemTempltate struct {
+	Clients []DataForDb
+}
+
 var (
 	configFile = flag.String("config", "conf.json", "Where to read the config from")
 )
@@ -251,8 +255,24 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
-	memorandums := make([]MemorandumDataForPage, 0)
-	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums"); err != nil {
+	memId := r.URL.Path[len("/checkMemorandum/"):]
+	tx, err := s.Db.Beginx()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	clientsInMemorandum := make([]DataForDb, 0)
+	if err := tx.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+		log.Println(err)
+		return
+	}
+	latexTemplate, err := htemplate.ParseFiles("templates/checkMem.tmpl")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients:clientsInMemorandum})
+	if err != nil {
 		log.Println(err)
 		return
 	}

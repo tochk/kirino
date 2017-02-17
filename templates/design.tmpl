@@ -34,10 +34,10 @@
       <tr>
         <th>Id</th>
         <th>Users Count</th>
+        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-
       {{ range .Memorandums}}
       <tr>
         <td>{{ .Id }}</td>
@@ -45,9 +45,6 @@
         <td><a href="/checkMemorandum/{{ .Id }}">Check memorandum</a></td>
       </tr>
       {{ end }}
-
-
-
       </tbody>
     </table>
 
