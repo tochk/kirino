@@ -68,6 +68,10 @@ type DataForWriteToCheckMemTempltate struct {
 	Clients []DataForDb
 }
 
+type DataForGeneratedPdf struct {
+	PdfUrl string
+}
+
 var (
 	configFile = flag.String("config", "conf.json", "Where to read the config from")
 )
@@ -184,7 +188,22 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	http.Redirect(w, r, "/userFiles/"+hash+".pdf", 302)
+	http.Redirect(w, r, "/generatedPdf/?hash="+hash, 302)
+}
+
+func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	latexTemplate := htemplate.New("Main design")
+	latexTemplate, err := htemplate.ParseFiles("templates/generatedPdf.tmpl")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl:r.Form.Get("hash")})
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func generateLatexTable(list []UserData, memorandumId int) LatexData {
@@ -247,7 +266,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForWriteToAdminTempltate{Memorandums:memorandums})
+	err = latexTemplate.Execute(w, DataForWriteToAdminTempltate{Memorandums: memorandums})
 	if err != nil {
 		log.Println(err)
 		return
@@ -272,7 +291,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients:clientsInMemorandum})
+	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients: clientsInMemorandum})
 	if err != nil {
 		log.Println(err)
 		return
@@ -304,6 +323,7 @@ func main() {
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
 	http.HandleFunc("/memorandums/", s.showMemorandumsHandler)
 	http.HandleFunc("/checkMemorandum/", s.checkMemorandumHandler)
+	http.HandleFunc("/generatedPdf/", s.generatedPdfHandler)
 	log.Print("Server started at port 4001")
 	err = http.ListenAndServe(":4001", nil)
 	if err != nil {
