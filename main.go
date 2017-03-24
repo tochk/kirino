@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"flag"
+	htemplate "html/template"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -14,9 +15,9 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-	"github.com/jmoiron/sqlx"
-	htemplate "html/template"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
@@ -199,7 +200,7 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl:r.Form.Get("hash")})
+	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl: r.Form.Get("hash")})
 	if err != nil {
 		log.Println(err)
 		return
