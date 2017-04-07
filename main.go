@@ -154,11 +154,11 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var list []UserData
-	for i := 1; i <= len(r.Form)/3; i++ {
+	for i := 1; i <= len(r.Form)/2; i++ {
 		tempUserData := UserData{
 			MacAddr:     texEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
 			UserName:    texEscape(r.PostFormValue("user" + strconv.Itoa(i))),
-			PhoneNumber: texEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
+			PhoneNumber: "hek",
 		}
 		list = append(list, tempUserData)
 	}
@@ -210,7 +210,7 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 func generateLatexTable(list []UserData, memorandumId int) LatexData {
 	table := ""
 	for _, tempData := range list {
-		stringInTable := tempData.MacAddr + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
+		stringInTable := tempData.MacAddr + " & " + tempData.UserName + " & \\\\ \n \\hline \n"
 		table += stringInTable
 	}
 	return LatexData{Table: table, MemorandumId: memorandumId}
