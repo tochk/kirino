@@ -19,6 +19,10 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/gorilla/sessions"
+	"gopkg.in/ldap.v2"
+	"fmt"
+	"errors"
 )
 
 var config struct {
@@ -27,6 +31,8 @@ var config struct {
 	DbHost     string `json:"dbHost"`
 	DbDb       string `json:"dbDb"`
 	DbPort     string `json:"dbPort"`
+	LdapUser      string `json:"ldapUser"`
+	LdapPassword  string `json:"ldapPassword"`
 }
 
 type Temp struct {
@@ -49,7 +55,9 @@ type DataForDb struct {
 	UserName     string `db:"userName"`
 	PhoneNumber  string `db:"phoneNumber"`
 	Hash         string `db:"hash"`
-	MemorandumId int    `db:"memorandumId"`
+	MemorandumId int `db:"memorandumId"`
+	Accepted     int `db:"accepted"`
+	Disabled     int `db:"disabled"`
 }
 
 type MemorandumData struct {
@@ -59,6 +67,8 @@ type MemorandumData struct {
 type MemorandumDataForPage struct {
 	Id        int `db:"id"`
 	UserCount *int `db:"userCount"`
+	Accepted  int `db:"accepted"`
+	Disabled  int `db:"disabled"`
 }
 
 type DataForWriteToAdminTempltate struct {
@@ -67,6 +77,7 @@ type DataForWriteToAdminTempltate struct {
 
 type DataForWriteToCheckMemTempltate struct {
 	Clients []DataForDb
+	Id      string
 }
 
 type DataForGeneratedPdf struct {
@@ -194,7 +205,6 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	latexTemplate := htemplate.New("Main design")
 	latexTemplate, err := htemplate.ParseFiles("templates/generatedPdf.tmpl")
 	if err != nil {
 		log.Println(err)
@@ -217,7 +227,6 @@ func generateLatexTable(list []UserData, memorandumId int) LatexData {
 }
 
 func generateLatexFile(list []UserData, hashStr string, memorandumId int) (string, error) {
-	latexTemplate := template.New("Latex template")
 	latexTemplate, err := template.ParseFiles("latex/wifi.tex")
 	if err != nil {
 		return "", err
@@ -251,8 +260,12 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
-	latexTemplate := htemplate.New("Main design")
-	latexTemplate, err := htemplate.ParseFiles("templates/design.tmpl")
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+	latexTemplate, err := htemplate.ParseFiles("templates/memorandums.tmpl")
 	if err != nil {
 		log.Println(err)
 		return
@@ -263,7 +276,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	memorandums := make([]MemorandumDataForPage, 0)
-	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums"); err != nil {
+	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums ORDER BY id DESC"); err != nil {
 		log.Println(err)
 		return
 	}
@@ -275,8 +288,32 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	tx.Commit()
 }
 
+func (s *server) addMemorandum(id string) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id)
+	if err != nil {
+		return
+	}
+	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 1 WHERE id = $1", id)
+	return
+}
+
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
-	memId := r.URL.Path[len("/checkMemorandum/"):]
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+	memId := r.URL.Path[len("/admin/checkMemorandum/"):]
+	if len(memId) > len("add/") {
+		if memId[0:len("add/")] == "add/" {
+			memId = memId[len("add/"):]
+			err := s.addMemorandum(memId)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}
+	}
 	tx, err := s.Db.Beginx()
 	if err != nil {
 		log.Println(err)
@@ -292,7 +329,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients: clientsInMemorandum})
+	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients: clientsInMemorandum, Id: memId})
 	if err != nil {
 		log.Println(err)
 		return
@@ -302,6 +339,93 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 
 type server struct {
 	Db *sqlx.DB
+}
+
+func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] != nil {
+		http.Redirect(w, r, "/servers/", 302)
+		return
+	}
+	log.Println("Loaded admin login page from " + r.RemoteAddr)
+	latexTemplate, err := template.ParseFiles("templates/admin.tmpl")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = latexTemplate.Execute(w, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+
+
+func auth(login, password string) (username string, err error) {
+	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "main.sgu.ru", 389))
+	if err != nil {
+		return
+	}
+	defer l.Close()
+
+	err = l.Bind(config.LdapUser, config.LdapPassword)
+	if err != nil {
+		return
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		"dc=main,dc=sgu,dc=ru",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		"(&(sAMAccountName="+login+"))",
+		[]string{"cn"},
+		nil,
+	)
+
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		return
+	}
+
+	if len(sr.Entries) == 1 {
+		username = sr.Entries[0].GetAttributeValue("cn")
+	} else {
+		err = errors.New("User not found")
+		return
+	}
+
+	err = l.Bind(username, password)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+var store = sessions.NewCookieStore([]byte("applicationDataLP"))
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Loaded login page from " + r.RemoteAddr)
+	r.ParseForm()
+	session, _ := store.Get(r, "applicationData")
+	userName, err := auth(r.Form["login"][0], r.Form["password"][0])
+	if err != nil {
+		http.Redirect(w, r, "/admin/", 302)
+	} else {
+		session, _ = store.Get(r, "applicationData")
+		session.Values["userName"] = userName
+		session.Save(r, w)
+		http.Redirect(w, r, "/admin/memorandums/", 302)
+	}
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Loaded logout page from " + r.RemoteAddr)
+	session, _ := store.Get(r, "applicationData")
+	session, _ = store.Get(r, "applicationData")
+	session.Values["userName"] = nil
+	session.Save(r, w)
+	http.Redirect(w, r, "/admin/", 302)
 }
 
 func main() {
@@ -322,9 +446,14 @@ func main() {
 
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
-	http.HandleFunc("/memorandums/", s.showMemorandumsHandler)
-	http.HandleFunc("/checkMemorandum/", s.checkMemorandumHandler)
 	http.HandleFunc("/generatedPdf/", s.generatedPdfHandler)
+
+	http.HandleFunc("/admin/", s.adminHandler)
+	http.HandleFunc("/admin/login/", loginHandler)
+	http.HandleFunc("/admin/logout/", logoutHandler)
+	http.HandleFunc("/admin/memorandums/", s.showMemorandumsHandler)
+	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
+
 	log.Print("Server started at port 4001")
 	err = http.ListenAndServe(":4001", nil)
 	if err != nil {
