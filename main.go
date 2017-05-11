@@ -276,7 +276,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	memorandums := make([]MemorandumDataForPage, 0)
-	if err := tx.Select(&memorandums, "SELECT id, userCount FROM memorandums ORDER BY id DESC"); err != nil {
+	if err := tx.Select(&memorandums, "SELECT id, userCount, accepted FROM memorandums ORDER BY id DESC"); err != nil {
 		log.Println(err)
 		return
 	}
@@ -320,7 +320,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	clientsInMemorandum := make([]DataForDb, 0)
-	if err := tx.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+	if err := tx.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
@@ -344,7 +344,7 @@ type server struct {
 func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] != nil {
-		http.Redirect(w, r, "/servers/", 302)
+		http.Redirect(w, r, "/admin/memorandums/", 302)
 		return
 	}
 	log.Println("Loaded admin login page from " + r.RemoteAddr)

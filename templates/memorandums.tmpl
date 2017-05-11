@@ -30,6 +30,7 @@
         <th>Id</th>
         <th>Users Count</th>
         <th>Check</th>
+        <th>Accepted</th>
       </tr>
       </thead>
       <tbody>
@@ -38,6 +39,7 @@
         <td>{{ .Id }}</td>
         <td>{{ .UserCount }}</td>
         <td><a href="/admin/checkMemorandum/{{ .Id }}">Check memorandum</a></td>
+        <td>{{ .Accepted }}</td>
       </tr>
       {{ end }}
       </tbody>
