@@ -21,10 +21,15 @@
                 </button>
                 <a class="navbar-brand" href="/">Kirino</a>
             </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                      <ul class="nav navbar-nav">
+                      <li><a href="/admin/memorandums/">Memorandums</a></li>
+                      </ul>
+                </div>
         </div>
     </div>
 
-    <a style="text-align:center" href="/admin/checkMemorandum/add/{{ .Id }}">Add memorandum</a>
+    <a style="text-align:center;display: block;" href="/admin/checkMemorandum/add/{{ .Id }}">Add memorandum</a>
 
     <table class="table table-striped table-hover ">
       <thead>
