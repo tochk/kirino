@@ -6,15 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
-	"fmt"
-	htemplate "html/template"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
-	"text/template"
 	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/latex"
@@ -32,10 +30,8 @@ var config struct {
 	DbPort       string `json:"dbPort"`
 	LdapUser     string `json:"ldapUser"`
 	LdapPassword string `json:"ldapPassword"`
-}
-
-type Temp struct {
-	Content string
+	LdapServer   string `json:"ldapServer"`
+	LdapBaseDN   string `json:"ldapBaseDN"`
 }
 
 type DataForDb struct {
@@ -73,7 +69,9 @@ type DataForGeneratedPdf struct {
 }
 
 var (
-	configFile = flag.String("config", "conf.json", "Where to read the config from")
+	configFile  = flag.String("config", "conf.json", "Where to read the config from")
+	servicePort = flag.Int("Port", 4001, "Service port number")
+	store       = sessions.NewCookieStore([]byte("applicationDataLP"))
 )
 
 func loadConfig() error {
@@ -179,7 +177,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	token := r.URL.Path[len("/generatedPdf/"):]
-	latexTemplate, err := htemplate.ParseFiles("templates/generatedPdf.tmpl")
+	latexTemplate, err := template.ParseFiles("templates/generatedPdf.tmpl")
 	if err != nil {
 		log.Println(err)
 		return
@@ -206,7 +204,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	latexTemplate, err := htemplate.ParseFiles("templates/memorandums.tmpl")
+	latexTemplate, err := template.ParseFiles("templates/memorandums.tmpl")
 	if err != nil {
 		log.Println(err)
 		return
@@ -265,7 +263,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	latexTemplate, err := htemplate.ParseFiles("templates/checkMem.tmpl")
+	latexTemplate, err := template.ParseFiles("templates/checkMem.tmpl")
 	if err != nil {
 		log.Println(err)
 		return
@@ -301,54 +299,45 @@ func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func auth(login, password string) (username string, err error) {
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "main.sgu.ru", 389))
+func auth(login, password string) (string, error) {
+	username := ""
+	l, err := ldap.Dial("tcp", config.LdapServer)
 	if err != nil {
-		return
+		return username, err
 	}
 	defer l.Close()
 
 	err = l.Bind(config.LdapUser, config.LdapPassword)
 	if err != nil {
-		return
+		return username, err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		"dc=main,dc=sgu,dc=ru",
+		config.LdapBaseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},
 		nil,
 	)
 
-	sr, err := l.Search(searchRequest)
-	if err != nil {
-		return
-	}
-
-	if len(sr.Entries) == 1 {
-		username = sr.Entries[0].GetAttributeValue("cn")
-	} else {
+	if sr, err := l.Search(searchRequest); err != nil || len(sr.Entries) != 1 {
 		err = errors.New("User not found")
-		return
+		return username, err
+	} else {
+		username = sr.Entries[0].GetAttributeValue("cn")
 	}
 
 	err = l.Bind(username, password)
-	if err != nil {
-		return
-	}
 
-	return
+	return username, err
 }
 
-var store = sessions.NewCookieStore([]byte("applicationDataLP"))
-
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Loaded login page from " + r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	r.ParseForm()
 	session, _ := store.Get(r, "applicationData")
-	userName, err := auth(r.Form["login"][0], r.Form["password"][0])
-	if err != nil {
+
+	if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
 		http.Redirect(w, r, "/admin/", 302)
 	} else {
 		session, _ = store.Get(r, "applicationData")
@@ -359,7 +348,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Loaded logout page from " + r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
 	session, _ = store.Get(r, "applicationData")
 	session.Values["userName"] = nil
@@ -368,20 +357,24 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	err := loadConfig()
-	if err != nil {
+	flag.Parse()
+	if err := loadConfig(); err != nil {
 		log.Fatal(err)
 	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	log.Println("Config loaded from", *configFile)
 
 	s := server{
 		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
 	}
 	defer s.Db.Close()
+
+	log.Printf("Connected to database on %s", config.DbHost)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
@@ -393,9 +386,9 @@ func main() {
 	http.HandleFunc("/admin/memorandums/", s.showMemorandumsHandler)
 	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
 
-	log.Print("Server started at port 4001")
-	err = http.ListenAndServe(":4001", nil)
-	if err != nil {
+	port := strconv.Itoa(*servicePort)
+	log.Println("Server started at port", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
 }
