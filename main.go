@@ -196,7 +196,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	
+
 	latexTemplate, err := template.ParseFiles("templates/html/memorandums.tmpl.html")
 	if err != nil {
 		log.Println(err)
