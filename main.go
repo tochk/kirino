@@ -13,12 +13,11 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
+	"git.stingr.net/stingray/kirino_wifi/latex"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -37,17 +36,6 @@ var config struct {
 
 type Temp struct {
 	Content string
-}
-
-type LatexData struct {
-	Table        string
-	MemorandumId int
-}
-
-type UserData struct {
-	MacAddr     string
-	UserName    string
-	PhoneNumber string
 }
 
 type DataForDb struct {
@@ -88,16 +76,6 @@ var (
 	configFile = flag.String("config", "conf.json", "Where to read the config from")
 )
 
-func texEscape(s string) string {
-	s = strings.Replace(s, "%", "\\%", -1)
-	s = strings.Replace(s, "$", "\\$", -1)
-	s = strings.Replace(s, "_", "\\_", -1)
-	s = strings.Replace(s, "{", "\\{", -1)
-	s = strings.Replace(s, "#", "\\#", -1)
-	s = strings.Replace(s, "&", "\\&", -1)
-	return s
-}
-
 func loadConfig() error {
 	jsonData, err := ioutil.ReadFile(*configFile)
 	if err != nil {
@@ -106,16 +84,16 @@ func loadConfig() error {
 	return json.Unmarshal(jsonData, &config)
 }
 
-func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb {
-	return DataForDb{MacAddr: oldData.MacAddr,
-		UserName:     oldData.UserName,
-		PhoneNumber:  oldData.PhoneNumber,
-		Hash:         hash,
-		MemorandumId: memorandumId,
+func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) DataForDb {
+	return DataForDb{MacAddr: oldData.MacAddress,
+		UserName:         oldData.UserName,
+		PhoneNumber:      oldData.PhoneNumber,
+		Hash:             hash,
+		MemorandumId:     memorandumId,
 	}
 }
 
-func (s *server) writeUserDataToDb(data []UserData, hash string) (int, error) {
+func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
 	for {
 		tx, err := s.Db.Beginx()
 		if err != nil {
@@ -132,7 +110,7 @@ func (s *server) writeUserDataToDb(data []UserData, hash string) (int, error) {
 	}
 }
 
-func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []UserData, hash string) (int, error) {
+func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (int, error) {
 	var memorandumId int
 	if err := tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
 		return 0, err
@@ -157,97 +135,60 @@ func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []UserData, hash string)
 	return memorandumId, nil
 }
 
-func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded generatePdf page from %s", r.RemoteAddr)
-	err := r.ParseForm()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	var list []UserData
-	for i := 1; i <= len(r.Form)/3; i++ {
-		tempUserData := UserData{
-			MacAddr:     texEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
-			UserName:    texEscape(r.PostFormValue("user" + strconv.Itoa(i))),
-			PhoneNumber: texEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
-		}
-		list = append(list, tempUserData)
-	}
+func generateHash(firstMac string) string {
 	hasher := sha256.New()
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
-	hashStr := r.PostFormValue("mac1") + strconv.Itoa(r1.Intn(1000000))
+	hashStr := firstMac + strconv.Itoa(r1.Intn(1000000))
 	hasher.Write([]byte(hashStr))
-	hash := hex.EncodeToString(hasher.Sum(nil))
+	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	if err := r.ParseForm(); err != nil {
+		log.Println(err)
+		return
+	}
+	list := make([]latex.WifiUser, 0, 5)
+	for i := 1; i <= len(r.Form)/3; i++ {
+		tempUserData := latex.WifiUser{
+			MacAddress:  latex.TexEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
+			UserName:    latex.TexEscape(r.PostFormValue("user" + strconv.Itoa(i))),
+			PhoneNumber: latex.TexEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
+		}
+		list = append(list, tempUserData)
+	}
+
+	hash := generateHash(r.PostFormValue("mac1"))
+
 	memorandumId, err := s.writeUserDataToDb(list, hash)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	pathToTex, err := generateLatexFile(list, hash, memorandumId)
-	if err != nil {
+
+	if err = latex.GenerateWifiMemorandum(list, hash, memorandumId); err != nil {
 		log.Println(err)
 		return
 	}
-	err = generatePdf(pathToTex)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	w.Header().Set("Location", "/userFiles/"+hash+".pdf")
-	_, err = template.ParseFiles("userFiles/" + hash + ".pdf")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	http.Redirect(w, r, "/generatedPdf/?hash="+hash, 302)
+
+	http.Redirect(w, r, "/generatedPdf/"+hash, 302)
 }
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	token := r.URL.Path[len("/generatedPdf/"):]
 	latexTemplate, err := htemplate.ParseFiles("templates/generatedPdf.tmpl")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl: r.Form.Get("hash")})
+	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl: token})
 	if err != nil {
 		log.Println(err)
 		return
 	}
-}
-
-func generateLatexTable(list []UserData, memorandumId int) LatexData {
-	table := ""
-	for _, tempData := range list {
-		stringInTable := tempData.MacAddr + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
-		table += stringInTable
-	}
-	return LatexData{Table: table, MemorandumId: memorandumId}
-}
-
-func generateLatexFile(list []UserData, hashStr string, memorandumId int) (string, error) {
-	latexTemplate, err := template.ParseFiles("latex/wifi.tex")
-	if err != nil {
-		return "", err
-	}
-	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
-	if err != nil {
-		return "", err
-	}
-	defer outputLatexFile.Close()
-	err = latexTemplate.ExecuteTemplate(outputLatexFile, "wifi.tex", generateLatexTable(list, memorandumId))
-	if err != nil {
-		return "", err
-	}
-	pathToTexFile := "userFiles\\" + hashStr + ".tex"
-	return pathToTexFile, nil
-}
-
-func generatePdf(path string) error {
-	cmd := exec.Command("pdflatex", "--interaction=errorstopmode", "--synctex=-1", "-output-directory=userFiles", path)
-	err := cmd.Run()
-	return err
 }
 
 func userFilesHandler(w http.ResponseWriter, r *http.Request) {
