@@ -4,7 +4,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
+	"fmt"
 	htemplate "html/template"
 	"io/ioutil"
 	"log"
@@ -17,22 +19,20 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/gorilla/sessions"
 	"gopkg.in/ldap.v2"
-	"fmt"
-	"errors"
 )
 
 var config struct {
-	DbLogin    string `json:"dbLogin"`
-	DbPassword string `json:"dbPassword"`
-	DbHost     string `json:"dbHost"`
-	DbDb       string `json:"dbDb"`
-	DbPort     string `json:"dbPort"`
-	LdapUser      string `json:"ldapUser"`
-	LdapPassword  string `json:"ldapPassword"`
+	DbLogin      string `json:"dbLogin"`
+	DbPassword   string `json:"dbPassword"`
+	DbHost       string `json:"dbHost"`
+	DbDb         string `json:"dbDb"`
+	DbPort       string `json:"dbPort"`
+	LdapUser     string `json:"ldapUser"`
+	LdapPassword string `json:"ldapPassword"`
 }
 
 type Temp struct {
@@ -55,9 +55,9 @@ type DataForDb struct {
 	UserName     string `db:"userName"`
 	PhoneNumber  string `db:"phoneNumber"`
 	Hash         string `db:"hash"`
-	MemorandumId int `db:"memorandumId"`
-	Accepted     int `db:"accepted"`
-	Disabled     int `db:"disabled"`
+	MemorandumId int    `db:"memorandumId"`
+	Accepted     int    `db:"accepted"`
+	Disabled     int    `db:"disabled"`
 }
 
 type MemorandumData struct {
@@ -65,10 +65,10 @@ type MemorandumData struct {
 }
 
 type MemorandumDataForPage struct {
-	Id        int `db:"id"`
+	Id        int  `db:"id"`
 	UserCount *int `db:"userCount"`
-	Accepted  int `db:"accepted"`
-	Disabled  int `db:"disabled"`
+	Accepted  int  `db:"accepted"`
+	Disabled  int  `db:"disabled"`
 }
 
 type DataForWriteToAdminTempltate struct {
@@ -108,10 +108,10 @@ func loadConfig() error {
 
 func convertDataForDb(oldData UserData, hash string, memorandumId int) DataForDb {
 	return DataForDb{MacAddr: oldData.MacAddr,
-		UserName:         oldData.UserName,
-		PhoneNumber:      oldData.PhoneNumber,
-		Hash:             hash,
-		MemorandumId:     memorandumId,
+		UserName:     oldData.UserName,
+		PhoneNumber:  oldData.PhoneNumber,
+		Hash:         hash,
+		MemorandumId: memorandumId,
 	}
 }
 
@@ -359,8 +359,6 @@ func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-
 
 func auth(login, password string) (username string, err error) {
 	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "main.sgu.ru", 389))
