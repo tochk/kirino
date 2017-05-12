@@ -34,8 +34,12 @@ var config struct {
 	LdapBaseDN   string `json:"ldapBaseDN"`
 }
 
-type DataForDb struct {
-	MacAddr      string `db:"mac"`
+type server struct {
+	Db *sqlx.DB
+}
+
+type FullWifiUser struct {
+	MacAddress   string `db:"mac"`
 	UserName     string `db:"userName"`
 	PhoneNumber  string `db:"phoneNumber"`
 	Hash         string `db:"hash"`
@@ -44,28 +48,16 @@ type DataForDb struct {
 	Disabled     int    `db:"disabled"`
 }
 
-type MemorandumData struct {
-	UserCount int `db:"userCount"`
-}
-
-type MemorandumDataForPage struct {
+type FullWifiMemorandum struct {
 	Id        int  `db:"id"`
 	UserCount *int `db:"userCount"`
 	Accepted  int  `db:"accepted"`
 	Disabled  int  `db:"disabled"`
 }
 
-type DataForWriteToAdminTempltate struct {
-	Memorandums []MemorandumDataForPage
-}
-
-type DataForWriteToCheckMemTempltate struct {
-	Clients []DataForDb
-	Id      string
-}
-
-type DataForGeneratedPdf struct {
-	PdfUrl string
+type FullWifiMemorandumClientList struct {
+	Clients      []FullWifiUser
+	MemorandumId string
 }
 
 var (
@@ -82,12 +74,12 @@ func loadConfig() error {
 	return json.Unmarshal(jsonData, &config)
 }
 
-func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) DataForDb {
-	return DataForDb{MacAddr: oldData.MacAddress,
-		UserName:         oldData.UserName,
-		PhoneNumber:      oldData.PhoneNumber,
-		Hash:             hash,
-		MemorandumId:     memorandumId,
+func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) FullWifiUser {
+	return FullWifiUser{MacAddress: oldData.MacAddress,
+		UserName:               oldData.UserName,
+		PhoneNumber:            oldData.PhoneNumber,
+		Hash:                   hash,
+		MemorandumId:           memorandumId,
 	}
 }
 
@@ -108,9 +100,8 @@ func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, err
 	}
 }
 
-func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (int, error) {
-	var memorandumId int
-	if err := tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
+func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memorandumId int, err error) {
+	if err = tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
 		return 0, err
 	}
 	memorandumId++
@@ -177,12 +168,12 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	token := r.URL.Path[len("/generatedPdf/"):]
-	latexTemplate, err := template.ParseFiles("templates/generatedPdf.tmpl")
+	latexTemplate, err := template.ParseFiles("templates/html/generatedPdf.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForGeneratedPdf{PdfUrl: token})
+	err = latexTemplate.Execute(w, token)
 	if err != nil {
 		log.Println(err)
 		return
@@ -199,37 +190,33 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	latexTemplate, err := template.ParseFiles("templates/memorandums.tmpl")
+	
+	latexTemplate, err := template.ParseFiles("templates/html/memorandums.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	tx, err := s.Db.Beginx()
-	if err != nil {
+
+	memorandums := make([]FullWifiMemorandum, 0)
+	if err := s.Db.Select(&memorandums, "SELECT id, userCount, accepted FROM memorandums ORDER BY id DESC"); err != nil {
 		log.Println(err)
 		return
 	}
-	memorandums := make([]MemorandumDataForPage, 0)
-	if err := tx.Select(&memorandums, "SELECT id, userCount, accepted FROM memorandums ORDER BY id DESC"); err != nil {
+
+	if err = latexTemplate.Execute(w, memorandums); err != nil {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, DataForWriteToAdminTempltate{Memorandums: memorandums})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	tx.Commit()
 }
 
 func (s *server) addMemorandum(id string) (err error) {
-	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id)
-	if err != nil {
+	if _, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
 	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 1 WHERE id = $1", id)
@@ -237,6 +224,7 @@ func (s *server) addMemorandum(id string) (err error) {
 }
 
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
@@ -246,54 +234,42 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 	if len(memId) > len("add/") {
 		if memId[0:len("add/")] == "add/" {
 			memId = memId[len("add/"):]
-			err := s.addMemorandum(memId)
-			if err != nil {
+			if err := s.addMemorandum(memId); err != nil {
 				log.Println(err)
 				return
 			}
 		}
 	}
-	tx, err := s.Db.Beginx()
-	if err != nil {
+	clientsInMemorandum := make([]FullWifiUser, 0)
+	if err := s.Db.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
-	clientsInMemorandum := make([]DataForDb, 0)
-	if err := tx.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
-		log.Println(err)
-		return
-	}
-	latexTemplate, err := template.ParseFiles("templates/checkMem.tmpl")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	err = latexTemplate.Execute(w, DataForWriteToCheckMemTempltate{Clients: clientsInMemorandum, Id: memId})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	tx.Commit()
-}
 
-type server struct {
-	Db *sqlx.DB
+	latexTemplate, err := template.ParseFiles("templates/html/checkMemorandum.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, FullWifiMemorandumClientList{Clients: clientsInMemorandum, MemorandumId: memId}); err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] != nil {
 		http.Redirect(w, r, "/admin/memorandums/", 302)
 		return
 	}
-	log.Println("Loaded admin login page from " + r.RemoteAddr)
-	latexTemplate, err := template.ParseFiles("templates/admin.tmpl")
+	latexTemplate, err := template.ParseFiles("templates/html/admin.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, nil)
-	if err != nil {
+	if err = latexTemplate.Execute(w, nil); err != nil {
 		log.Println(err)
 		return
 	}
@@ -307,8 +283,7 @@ func auth(login, password string) (string, error) {
 	}
 	defer l.Close()
 
-	err = l.Bind(config.LdapUser, config.LdapPassword)
-	if err != nil {
+	if l.Bind(config.LdapUser, config.LdapPassword); err != nil {
 		return username, err
 	}
 
