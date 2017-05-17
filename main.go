@@ -132,7 +132,12 @@ func generateHash(firstMac string) string {
 	r1 := rand.New(s1)
 	hashStr := firstMac + strconv.Itoa(r1.Intn(1000000))
 	hasher.Write([]byte(hashStr))
-	return hex.EncodeToString(hasher.Sum(nil))
+	hashedStr := hex.EncodeToString(hasher.Sum(nil))
+	if file, err := os.Open("userFiles\\" + hashStr + ".tex"); err == nil {
+		defer file.Close()
+		hashedStr = generateHash(hashedStr)
+	}
+	return hashedStr
 }
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
