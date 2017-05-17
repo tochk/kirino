@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -12,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -147,6 +149,22 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 			PhoneNumber: latex.TexEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
 		}
 		list = append(list, tempUserData)
+	}
+
+	for index, user := range list {
+		r, err := regexp.Compile("[^a-z0-9]+")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
+		user.MacAddress = r.ReplaceAllString(user.MacAddress, "")
+		if len(user.MacAddress) != 12 {
+			err = errors.New("Invalid mac-address")
+			log.Println(err)
+			return
+		}
+		list[index] = user
 	}
 
 	hash := generateHash(r.PostFormValue("mac1"))
@@ -325,7 +343,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
-	session, _ = store.Get(r, "applicationData")
 	session.Values["userName"] = nil
 	session.Save(r, w)
 	http.Redirect(w, r, "/admin/", 302)
