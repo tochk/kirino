@@ -134,10 +134,30 @@ func generateHash(firstMac string) string {
 	hasher.Write([]byte(hashStr))
 	hashedStr := hex.EncodeToString(hasher.Sum(nil))
 	if file, err := os.Open("userFiles\\" + hashStr + ".tex"); err == nil {
-		defer file.Close()
+		file.Close()
 		hashedStr = generateHash(hashedStr)
 	}
 	return hashedStr
+}
+
+func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
+	newList := make([]latex.WifiUser, 0, len(list))
+		r, err := regexp.Compile("[^a-f0-9]+")
+	if err != nil {
+		log.Println(err)
+		return newList, err
+	}
+	for _, user := range list {
+		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
+		user.MacAddress = r.ReplaceAllString(user.MacAddress, "")
+		if len(user.MacAddress) != 12 {
+			err = errors.New("Invalid mac-address")
+			log.Println(err)
+			return newList, err
+		}
+		newList = append(newList, user)
+	}
+	return newList, nil
 }
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
@@ -156,25 +176,16 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		list = append(list, tempUserData)
 	}
 
-	for index, user := range list {
-		r, err := regexp.Compile("[^a-z0-9]+")
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
-		user.MacAddress = r.ReplaceAllString(user.MacAddress, "")
-		if len(user.MacAddress) != 12 {
-			err = errors.New("Invalid mac-address")
-			log.Println(err)
-			return
-		}
-		list[index] = user
-	}
 
 	hash := generateHash(r.PostFormValue("mac1"))
 
-	memorandumId, err := s.writeUserDataToDb(list, hash)
+	listForDb, err := checkMacAddresses(list)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	memorandumId, err := s.writeUserDataToDb(listForDb, hash)
 	if err != nil {
 		log.Println(err)
 		return
@@ -353,7 +364,19 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/", 302)
 }
 
+func checkFolders() {
+	if file, err := os.Open("userFiles"); err != nil {
+		file.Close()
+		err = os.Mkdir("userFiles", 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Creating directory for user files")
+	}
+}
+
 func main() {
+	checkFolders()
 	flag.Parse()
 	if err := loadConfig(); err != nil {
 		log.Fatal(err)
