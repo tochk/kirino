@@ -4,52 +4,54 @@
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
 </head>
 <body>
 <div id="blurr">
     <div class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
-                            <button type="button" class="navbar-toggle" data-toggle="collapse"
-                                    data-target=".navbar-responsive-collapse">
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <a class="navbar-brand" href="/">Kirino</a>
-                        </div>
-                            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                                  <ul class="nav navbar-nav">
-                                  <li><a href="/admin/memorandums/">Memorandums</a></li>
-                                  </ul>
-                            </div>
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Kirino</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/admin/memorandums/">Memorandums</a></li>
+                </ul>
+            </div>
         </div>
     </div>
-
-    <table class="table table-striped table-hover ">
-      <thead>
-      <tr>
-        <th>Id</th>
-        <th>Users Count</th>
-        <th>Check</th>
-        <th>Accepted</th>
-      </tr>
-      </thead>
-      <tbody>
-      {{ range . }}
-      <tr>
-        <td>{{ .Id }}</td>
-        <td>{{ .UserCount }}</td>
-        <td><a href="/admin/checkMemorandum/{{ .Id }}">Check memorandum</a></td>
-        <td>{{ .Accepted }}</td>
-      </tr>
-      {{ end }}
-      </tbody>
-    </table>
-
+    <div style="width: 80%; margin: 0 auto">
+        <table class="table table-striped table-hover ">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Users Count</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range . }}
+            <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}}>
+                <td style="padding: 15px;">{{ .Id }}</td>
+                <td style="padding: 15px;">{{ .UserCount }}</td>
+                <td><a href="/admin/checkMemorandum/{{ .Id }}" style="margin: 0;" class="btn btn-info">Check memorandum</a></td>
+                <td><a href="/admin/checkMemorandum/accept/{{ .Id }}" style="margin: 0;" class="btn btn-success {{if (eq .Accepted 1)}}disabled {{end}}">{{if (eq .Accepted 1)}}Accepted {{else}}Accept memorandum{{end}}</a></td>
+                <td><a href="/admin/checkMemorandum/reject/{{ .Id }}" style="margin: 0;" class="btn btn-danger  {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}Rejected {{else}}Reject memorandum{{end}}</a></td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
 </div>
 <div id="black-block"></div>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>

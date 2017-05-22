@@ -128,3 +128,7 @@
 #cancel {
     display: none
 }
+
+td {
+    padding: 15px;
+}

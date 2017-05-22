@@ -249,11 +249,19 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (s *server) addMemorandum(id string) (err error) {
+func (s *server) acceptMemorandum(id string) (err error) {
 	if _, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
 	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 1 WHERE id = $1", id)
+	return
+}
+
+func (s *server) rejectMemorandum(id string) (err error) {
+	if _, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 2 WHERE memorandumId = $1", id); err != nil {
+		return
+	}
+	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 2 WHERE id = $1", id)
 	return
 }
 
@@ -265,14 +273,22 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	memId := r.URL.Path[len("/admin/checkMemorandum/"):]
-	if len(memId) > len("add/") {
-		if memId[0:len("add/")] == "add/" {
-			memId = memId[len("add/"):]
-			if err := s.addMemorandum(memId); err != nil {
+	if len(memId) > len("accept/") {
+		if memId[0:len("accept/")] == "accept/" {
+			memId = memId[len("accept/"):]
+			if err := s.acceptMemorandum(memId); err != nil {
+				log.Println(err)
+				return
+			}
+		} else if memId[0:len("reject/")] == "reject/" {
+			memId = memId[len("reject/"):]
+			if err := s.rejectMemorandum(memId); err != nil {
 				log.Println(err)
 				return
 			}
 		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
 	}
 	clientsInMemorandum := make([]FullWifiUser, 0)
 	if err := s.Db.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
@@ -347,6 +363,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "applicationData")
 
 	if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
+		log.Println(err)
 		http.Redirect(w, r, "/admin/", 302)
 	} else {
 		session, _ = store.Get(r, "applicationData")
