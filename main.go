@@ -15,6 +15,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/latex"
@@ -22,7 +23,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gopkg.in/ldap.v2"
-	"strings"
 )
 
 var config struct {
@@ -52,10 +52,10 @@ type FullWifiUser struct {
 }
 
 type FullWifiMemorandum struct {
-	Id        int  `db:"id"`
-	AddTime   string `db:"addTime"`
-	Accepted  int  `db:"accepted"`
-	Disabled  int  `db:"disabled"`
+	Id       int  `db:"id"`
+	AddTime  string `db:"addTime"`
+	Accepted int  `db:"accepted"`
+	Disabled int  `db:"disabled"`
 }
 
 type FullWifiMemorandumClientList struct {
@@ -244,7 +244,6 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	for index, memorandum := range memorandums {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
-
 
 	if err = latexTemplate.Execute(w, memorandums); err != nil {
 		log.Println(err)

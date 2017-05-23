@@ -44,9 +44,14 @@
             <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}}>
                 <td style="padding: 15px;">{{ .Id }}</td>
                 <td style="padding: 15px;">{{ .AddTime }}</td>
-                <td><a href="/admin/checkMemorandum/{{ .Id }}" style="margin: 0;" class="btn btn-info">Check memorandum</a></td>
-                <td><a href="/admin/checkMemorandum/accept/{{ .Id }}" style="margin: 0;" class="btn btn-success {{if (eq .Accepted 1)}}disabled {{end}}">{{if (eq .Accepted 1)}}Accepted {{else}}Accept memorandum{{end}}</a></td>
-                <td><a href="/admin/checkMemorandum/reject/{{ .Id }}" style="margin: 0;" class="btn btn-danger  {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}Rejected {{else}}Reject memorandum{{end}}</a></td>
+                <td><a href="/admin/checkMemorandum/{{ .Id }}" style="margin: 0;" class="btn btn-info">Check
+                    memorandum</a></td>
+                <td><a href="/admin/checkMemorandum/accept/{{ .Id }}" style="margin: 0;"
+                       class="btn btn-success {{if (eq .Accepted 1)}}disabled {{end}}">{{if (eq .Accepted 1)}}Accepted
+                    {{else}}Accept memorandum{{end}}</a></td>
+                <td><a href="/admin/checkMemorandum/reject/{{ .Id }}" style="margin: 0;"
+                       class="btn btn-danger  {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}Rejected
+                    {{else}}Reject memorandum{{end}}</a></td>
             </tr>
             {{ end }}
             </tbody>
