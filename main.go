@@ -394,6 +394,24 @@ func checkFolders() {
 	}
 }
 
+func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, nil); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 func main() {
 	checkFolders()
 	flag.Parse()
@@ -423,6 +441,7 @@ func main() {
 	http.HandleFunc("/admin/login/", loginHandler)
 	http.HandleFunc("/admin/logout/", logoutHandler)
 	http.HandleFunc("/admin/memorandums/", s.showMemorandumsHandler)
+	http.HandleFunc("/admin/users/", s.usersHandler)
 	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
 
 	port := strconv.Itoa(*servicePort)
