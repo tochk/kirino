@@ -394,6 +394,21 @@ func checkFolders() {
 	}
 }
 
+func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
+	err = s.Db.Select(userList, "SELECT * FROM wifiUsers LIMIT ? OFFSET ?", limit, offset)
+	return
+}
+
+func (s *server) setDisabled(status int, mac string) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET `disabled` = ? WHERE mac = ?", status, mac)
+	return
+}
+
+func (s *server) setRejected(status int, mac string) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET `accepted` = ? WHERE mac = ?", status, mac)
+	return
+}
+
 func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	session, _ := store.Get(r, "applicationData")
@@ -401,12 +416,45 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
+	urlInfo := r.URL.Path[len("/admin/users/"):]
+	if len(urlInfo) > 0 {
+		splittedUrl := strings.Split(urlInfo, "/")
+		var err error
+		switch splittedUrl[0] {
+		case "add":
+			//code
+		case "edit":
+			//code
+		case "save":
+			//code
+		case "page":
+			//code
+		case "accept":
+			err = s.setRejected(1, splittedUrl[1])
+		case "reject":
+			err = s.setRejected(2, splittedUrl[1])
+		case "enable":
+			err = s.setDisabled(0, splittedUrl[1])
+		case "disable":
+			err = s.setDisabled(1, splittedUrl[1])
+		}
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
 	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err = latexTemplate.Execute(w, nil); err != nil {
+
+	usersList, err := s.getUserList(2000000, 0)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, usersList); err != nil {
 		log.Println(err)
 		return
 	}
