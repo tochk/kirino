@@ -42,6 +42,7 @@ type server struct {
 }
 
 type FullWifiUser struct {
+	Id           int `db:"id"`
 	MacAddress   string `db:"mac"`
 	UserName     string `db:"userName"`
 	PhoneNumber  string `db:"phoneNumber"`
@@ -293,7 +294,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	clientsInMemorandum := make([]FullWifiUser, 0)
-	if err := s.Db.Select(&clientsInMemorandum, "SELECT mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+	if err := s.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
@@ -395,17 +396,17 @@ func checkFolders() {
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(userList, "SELECT * FROM wifiUsers LIMIT ? OFFSET ?", limit, offset)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled FROM wifiUsers LIMIT $1 OFFSET $2", limit, offset)
 	return
 }
 
-func (s *server) setDisabled(status int, mac string) (err error) {
-	_, err = s.Db.Exec("UPDATE wifiUsers SET `disabled` = ? WHERE mac = ?", status, mac)
+func (s *server) setDisabled(status, id int) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET disabled = $1 WHERE id = $2", status, id)
 	return
 }
 
-func (s *server) setRejected(status int, mac string) (err error) {
-	_, err = s.Db.Exec("UPDATE wifiUsers SET `accepted` = ? WHERE mac = ?", status, mac)
+func (s *server) setRejected(status, id int) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
 	return
 }
 
@@ -419,7 +420,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	urlInfo := r.URL.Path[len("/admin/users/"):]
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
-		var err error
 		switch splittedUrl[0] {
 		case "add":
 			//code
@@ -430,16 +430,56 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		case "page":
 			//code
 		case "accept":
-			err = s.setRejected(1, splittedUrl[1])
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			err = s.setRejected(1, id)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
 		case "reject":
-			err = s.setRejected(2, splittedUrl[1])
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			err = s.setRejected(2, id)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
 		case "enable":
-			err = s.setDisabled(0, splittedUrl[1])
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			err = s.setDisabled(0, id)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
 		case "disable":
-			err = s.setDisabled(1, splittedUrl[1])
-		}
-		if err != nil {
-			log.Println(err)
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			err = s.setDisabled(1, id)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
 			return
 		}
 	}
