@@ -1,0 +1,84 @@
+<html>
+<head>
+    <title>Создание служебной записки - ПРЦНИТ СГУ</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<div id="blurr">
+    <div class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Kirino</a>
+            </div>
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <form class="form-horizontal" action="/generatePdf/" method="post">
+        <fieldset id="form_cont">
+            <legend>Создание служебной записки</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1</h2>
+                <div class="form-group">
+                    <label for="inputMac" class="col-md-2 control-label">Mac</label>
+                    <div class="col-md-10">
+                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                               placeholder="Mac" required>
+                        <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
+                    <div class="col-md-10">
+                        <input type="name" name="user1" class="form-control name" id="inputName"
+                               placeholder="Ф.И.О" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPhone" class="col-md-2 control-label">Номер телефона</label>
+                    <div class="col-md-10">
+                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                               placeholder="Номер телефона" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <a id="addNew" href="#" class="btn btn-raised btn-info addNew">Добавить устройство
+                    <div class="ripple-container"></div>
+                </a>
+            </div>
+            <div class="form-group">
+                <div class="col-md-10 col-md-offset-2">
+                    <button type="button" id="cancel" class="btn btn-default">Удалить последнее устройство</button>
+                    <button type="submit" disabled="disabled" id="sbm" class="btn btn-primary">Отправить заявку</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+
+<div id="black-block"></div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/ripples.min.js"></script>
+<script src="/static/js/material.min.js"></script>
+<script src="/static/js/jquery.maskedinput.min.js"></script>
+<script>$.material.init();</script>
+<script src="https://fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+</body>
+</html>

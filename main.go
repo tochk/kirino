@@ -44,17 +44,17 @@ type server struct {
 type FullWifiUser struct {
 	Id           int `db:"id"`
 	MacAddress   string `db:"mac"`
-	UserName     string `db:"userName"`
-	PhoneNumber  string `db:"phoneNumber"`
+	UserName     string `db:"username"`
+	PhoneNumber  string `db:"phonenumber"`
 	Hash         string `db:"hash"`
-	MemorandumId int    `db:"memorandumId"`
+	MemorandumId int    `db:"memorandumid"`
 	Accepted     int    `db:"accepted"`
 	Disabled     int    `db:"disabled"`
 }
 
 type FullWifiMemorandum struct {
 	Id       int  `db:"id"`
-	AddTime  string `db:"addTime"`
+	AddTime  string `db:"addtime"`
 	Accepted int  `db:"accepted"`
 	Disabled int  `db:"disabled"`
 }
@@ -113,7 +113,7 @@ func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash s
 		return 0, err
 	}
 
-	stmt, err := tx.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :userName, :phoneNumber, :hash, :memorandumId)")
+	stmt, err := tx.PrepareNamed("INSERT INTO wifiUsers (mac, userName, phoneNumber, hash, memorandumId) VALUES (:mac, :username, :phonenumber, :hash, :memorandumid)")
 	if err != nil {
 		return 0, err
 	}
@@ -237,7 +237,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	memorandums := make([]FullWifiMemorandum, 0)
+	var memorandums []FullWifiMemorandum
 	if err := s.Db.Select(&memorandums, "SELECT id, addTime, accepted FROM memorandums ORDER BY id DESC"); err != nil {
 		log.Println(err)
 		return
@@ -276,6 +276,11 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	memId := r.URL.Path[len("/admin/checkMemorandum/"):]
+	if memId == "" {
+		log.Println("Invalid memorandum id")
+		return
+	}
+
 	if len(memId) > len("accept/") {
 		if memId[0:len("accept/")] == "accept/" {
 			memId = memId[len("accept/"):]
@@ -395,8 +400,28 @@ func checkFolders() {
 	}
 }
 
+func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+
+
+	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, nil); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled FROM wifiUsers LIMIT $1 OFFSET $2", limit, offset)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
 
@@ -500,6 +525,20 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	latexTemplate, err := template.ParseFiles("templates/html/index.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = latexTemplate.Execute(w, nil); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 func main() {
 	checkFolders()
 	flag.Parse()
@@ -515,12 +554,12 @@ func main() {
 
 	log.Printf("Connected to database on %s", config.DbHost)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
+
+	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/userFiles/", userFilesHandler)
 	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
 	http.HandleFunc("/generatedPdf/", s.generatedPdfHandler)
@@ -530,6 +569,7 @@ func main() {
 	http.HandleFunc("/admin/logout/", logoutHandler)
 	http.HandleFunc("/admin/memorandums/", s.showMemorandumsHandler)
 	http.HandleFunc("/admin/users/", s.usersHandler)
+	http.HandleFunc("/admin/user/", s.userHandler)
 	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
 
 	port := strconv.Itoa(*servicePort)
