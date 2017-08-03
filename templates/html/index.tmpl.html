@@ -23,7 +23,15 @@
             </div>
             <div class="navbar-collapse collapse navbar-responsive-collapse">
                 <ul class="nav navbar-nav">
+                    {{ if . }}
+                    <li><a href="/admin/memorandums/">Memorandums</a></li>
+                    <li><a href="/admin/users/">Users</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/admin/logout/">Logout</a></li>
+                    {{else}}
                     <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                    {{end}}
                 </ul>
             </div>
         </div>

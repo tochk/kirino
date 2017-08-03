@@ -527,13 +527,21 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+
+	session, _ := store.Get(r, "applicationData")
+
 	latexTemplate, err := template.ParseFiles("templates/html/index.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if err = latexTemplate.Execute(w, nil); err != nil {
+	isAdmin := false
+	if  session.Values["userName"] != nil {
+		isAdmin = true
+	}
+
+	if err = latexTemplate.Execute(w, isAdmin); err != nil {
 		log.Println(err)
 		return
 	}
