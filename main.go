@@ -35,6 +35,7 @@ var config struct {
 	LdapPassword string `json:"ldapPassword"`
 	LdapServer   string `json:"ldapServer"`
 	LdapBaseDN   string `json:"ldapBaseDN"`
+	SessionKey   string `json:"sessionKey"`
 }
 
 type server struct {
@@ -67,7 +68,7 @@ type FullWifiMemorandumClientList struct {
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
 	servicePort = flag.Int("Port", 4001, "Service port number")
-	store       = sessions.NewCookieStore([]byte("applicationDataLP"))
+	store       = sessions.NewCookieStore([]byte(config.SessionKey))
 )
 
 func loadConfig() error {
@@ -80,10 +81,10 @@ func loadConfig() error {
 
 func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) FullWifiUser {
 	return FullWifiUser{MacAddress: oldData.MacAddress,
-		UserName:               oldData.UserName,
-		PhoneNumber:            oldData.PhoneNumber,
-		Hash:                   hash,
-		MemorandumId:           memorandumId,
+		UserName:                   oldData.UserName,
+		PhoneNumber:                oldData.PhoneNumber,
+		Hash:                       hash,
+		MemorandumId:               memorandumId,
 	}
 }
 
@@ -408,7 +409,6 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
 	if err != nil {
 		log.Println(err)
@@ -526,6 +526,10 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/favicon.ico" {
+		http.ServeFile(w, r, "/static/favicon.ico")
+		return
+	}
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 
 	session, _ := store.Get(r, "applicationData")
@@ -537,7 +541,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isAdmin := false
-	if  session.Values["userName"] != nil {
+	if session.Values["userName"] != nil {
 		isAdmin = true
 	}
 
@@ -554,7 +558,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("Config loaded from", *configFile)
-
 	s := server{
 		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
 	}
@@ -562,10 +565,8 @@ func main() {
 
 	log.Printf("Connected to database on %s", config.DbHost)
 
-
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/userFiles/", userFilesHandler)
