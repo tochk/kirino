@@ -54,10 +54,11 @@ type FullWifiUser struct {
 }
 
 type FullWifiMemorandum struct {
-	Id       int  `db:"id"`
-	AddTime  string `db:"addtime"`
-	Accepted int  `db:"accepted"`
-	Disabled int  `db:"disabled"`
+	Id           int  `db:"id"`
+	AddTime      string `db:"addtime"`
+	Accepted     int  `db:"accepted"`
+	Disabled     int  `db:"disabled"`
+	DepartmentId *int `db:"departmentid"`
 }
 
 type FullWifiMemorandumClientList struct {
@@ -81,10 +82,10 @@ func loadConfig() error {
 
 func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) FullWifiUser {
 	return FullWifiUser{MacAddress: oldData.MacAddress,
-		UserName:                   oldData.UserName,
-		PhoneNumber:                oldData.PhoneNumber,
-		Hash:                       hash,
-		MemorandumId:               memorandumId,
+		UserName: oldData.UserName,
+		PhoneNumber: oldData.PhoneNumber,
+		Hash: hash,
+		MemorandumId: memorandumId,
 	}
 }
 
@@ -232,6 +233,23 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	r.ParseForm()
+	urlInfo := r.URL.Path[len("/admin/memorandums/"):]
+	if len(urlInfo) > 0 {
+		splittedUrl := strings.Split(urlInfo, "/")
+		switch splittedUrl[0] {
+		case "save":
+			if len(splittedUrl[1]) > 0 {
+				_, err := s.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1])
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				http.Redirect(w, r, "/admin/memorandums/", 302)
+				return
+			}
+		}
+	}
 	latexTemplate, err := template.ParseFiles("templates/html/memorandums.tmpl.html")
 	if err != nil {
 		log.Println(err)
@@ -239,18 +257,34 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var memorandums []FullWifiMemorandum
-	if err := s.Db.Select(&memorandums, "SELECT id, addTime, accepted FROM memorandums ORDER BY id DESC"); err != nil {
+	if err := s.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC"); err != nil {
 		log.Println(err)
 		return
 	}
+
+	departments, err := s.getDepartments()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+
 	for index, memorandum := range memorandums {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	if err = latexTemplate.Execute(w, memorandums); err != nil {
+	if err = latexTemplate.Execute(w, MemorandumsPage{
+		Memorandums: memorandums,
+		Departments: departments,
+	}); err != nil {
 		log.Println(err)
 		return
 	}
+}
+
+type MemorandumsPage struct {
+	Memorandums []FullWifiMemorandum
+	Departments []Department
 }
 
 func (s *server) acceptMemorandum(id string) (err error) {
@@ -549,6 +583,18 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+}
+
+type Department struct {
+	Id   int64 `db:"id"`
+	Name string `db:"name"`
+	Selected bool
+}
+
+func (s *server) getDepartments() ([]Department, error) {
+	var departments []Department
+	err := s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC")
+	return departments, err
 }
 
 func main() {
