@@ -113,7 +113,7 @@ func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash s
 		return 0, err
 	}
 	memorandumId++
-	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id) VALUES (?)"), memorandumId); err != nil {
+	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id, addtime) VALUES (?, current_date())"), memorandumId); err != nil {
 		return 0, err
 	}
 
@@ -147,14 +147,18 @@ func generateHash(firstMac string) string {
 
 func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 	newList := make([]latex.WifiUser, 0, len(list))
-	r, err := regexp.Compile("[^a-f0-9]+")
+	regForMac, err := regexp.Compile("[^a-f0-9]+")
+	regForName, err := regexp.Compile("[^а-яА-Я\\w -]+")
+	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
 	if err != nil {
 		log.Println(err)
 		return newList, err
 	}
 	for _, user := range list {
 		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
-		user.MacAddress = r.ReplaceAllString(user.MacAddress, "")
+		user.MacAddress = regForMac.ReplaceAllString(user.MacAddress, "")
+		user.UserName = regForName.ReplaceAllString(user.UserName ,"")
+		user.PhoneNumber = regForPhone.ReplaceAllString(user.PhoneNumber, "")
 		if len(user.MacAddress) != 12 {
 			err = errors.New("Invalid mac-address")
 			log.Println(err)
@@ -163,6 +167,20 @@ func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 		newList = append(newList, user)
 	}
 	return newList, nil
+}
+
+func checkSingleMac(mac string) (string, error) {
+	r, err := regexp.Compile("[^a-f0-9]+")
+	if err != nil {
+		return "", err
+	}
+	mac = string(bytes.ToLower([]byte(mac)))
+	mac = r.ReplaceAllString(mac, "")
+	if len(mac) != 12 {
+		err = errors.New("Invalid mac-address")
+		return "", err
+	}
+	return mac, nil
 }
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
@@ -179,11 +197,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 			UserName:    latex.TexEscape(r.PostFormValue("user" + strconv.Itoa(i))),
 			PhoneNumber: latex.TexEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
 		}
-		if _, err := s.getUserByMac(tempUserData.MacAddress); err == sql.ErrNoRows {
-			list = append(list, tempUserData)
-		} else {
-			exist = append(exist, tempUserData.MacAddress)
-		}
+		list = append(list, tempUserData)
 	}
 
 	hash := generateHash(r.PostFormValue("mac1"))
@@ -193,21 +207,30 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
-	memorandumId, err := s.writeUserDataToDb(listForDb, hash)
-	if err != nil {
-		log.Println(err)
-		return
+	listToWrite := make([]latex.WifiUser, 0, 5)
+	for _, e := range listForDb {
+		if _, err := s.getUserByMac(e.MacAddress); err == sql.ErrNoRows {
+			listToWrite = append(listToWrite, e)
+		} else {
+			exist = append(exist, e.MacAddress)
+		}
 	}
+	if len(listToWrite) > 0 {
+		memorandumId, err := s.writeUserDataToDb(listToWrite, hash)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 
-	if err = latex.GenerateWifiMemorandum(list, hash, memorandumId); err != nil {
-		log.Println(err)
-		return
+		if err = latex.GenerateWifiMemorandum(listToWrite, hash, memorandumId); err != nil {
+			log.Println(err)
+			return
+		}
 	}
 	if len(exist) == 0 {
-		http.Redirect(w, r, "/generatedPdf/"+hash+"/0/"+strconv.Itoa(len(list)), 302)
+		http.Redirect(w, r, "/generatedPdf/"+hash+"/0/"+strconv.Itoa(len(listToWrite)), 302)
 	} else {
-		http.Redirect(w, r, "/generatedPdf/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(list)), 302)
+		http.Redirect(w, r, "/generatedPdf/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(listToWrite)), 302)
 	}
 }
 
@@ -217,7 +240,9 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	splittedUrl := strings.Split(memorandum, "/")
 	var page GeneratedPdfPage
 	page.Token = splittedUrl[0]
-	page.Exist = strings.Split(splittedUrl[1], ",")
+	if splittedUrl[1] != "0" {
+		page.Exist = strings.Split(splittedUrl[1], ",")
+	}
 	page.Count = splittedUrl[2]
 	page.ExistCount = len(page.Exist)
 	latexTemplate, err := template.ParseFiles("templates/html/generatedPdf.tmpl.html")
@@ -490,7 +515,12 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		case "save":
-			_, err := s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", r.PostForm.Get("mac1"), r.PostForm.Get("user1"), r.PostForm.Get("tel1"), splittedUrl[1])
+			clearMac, err := checkSingleMac(r.PostForm.Get("mac1"))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			_, err = s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, r.PostForm.Get("user1"), r.PostForm.Get("tel1"), splittedUrl[1])
 			if err != nil {
 				log.Println(err)
 				return
