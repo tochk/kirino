@@ -3,6 +3,17 @@ function CheckMACAddress(MACAddress) {
     return RegExPattern.test(MACAddress);
 }
 
+function CheckName(Name) {
+    var RegExPattern = /[^а-яА-Яa-zA-Z \-]+$/;
+    newName = Name.replace(RegExPattern, "");
+    test =  newName === Name;
+    return test
+}
+
+function CheckPhone(Phone) {
+    return true;
+}
+
 var macAddrs = $("input.mac_valid");
 jQuery(document).ready(function () {
     $('.phone').mask("+7 (999) 999-9999", {autoclear: false});
@@ -43,7 +54,7 @@ $("#addNew").click(function () {
     moveCaretToStart(document.querySelector(q));
     $("input.phone").focusout(function () {
         $("input.phone").each(function () {
-            if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1) {
+            if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || (!CheckPhone($(this).val()))) {
                 $(this).parent().parent().addClass('has-error1');
                 $(this).parent().parent().removeClass('has-success');
             } else {
@@ -65,7 +76,7 @@ $("#addNew").click(function () {
     });
     $("input.name").focusout(function () {
         $("input.name").each(function () {
-            if ($(this).val() == "") {
+            if (!CheckName($(this).val())) {
                 $(this).parent().parent().addClass('has-error1');
                 $(this).parent().parent().removeClass('has-success');
             } else {
@@ -74,6 +85,7 @@ $("#addNew").click(function () {
             }
         })
     });
+
     $("input.phone, input.mac, input.name").keyup(function () {
         var p = true, n = true, m = true;
         $("input.phone").each(function () {
@@ -120,7 +132,7 @@ $("input.phone, input.mac, input.name").focusin(function () {
 });
 
 $("input.phone").focusout(function () {
-    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1) {
+    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || (!CheckPhone($(this).val()))) {
         $(this).parent().parent().addClass('has-error1');
         $(this).parent().parent().removeClass('has-success');
     } else {
@@ -140,7 +152,7 @@ $("input.mac").focusout(function () {
     }
 });
 $("input.name").focusout(function () {
-    if ($("input.name").val() == "") {
+    if (($("input.name").val() == "") || (!CheckName($(this).val()))) {
         $(this).parent().parent().addClass('has-error1');
         $(this).parent().parent().removeClass('has-success');
     }

@@ -148,7 +148,7 @@ func generateHash(firstMac string) string {
 func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 	newList := make([]latex.WifiUser, 0, len(list))
 	regForMac, err := regexp.Compile("[^a-f0-9]+")
-	regForName, err := regexp.Compile("[^а-яА-Я\\w -]+")
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
 	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
 	if err != nil {
 		log.Println(err)
