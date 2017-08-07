@@ -23,6 +23,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gopkg.in/ldap.v2"
+	"database/sql"
 )
 
 var config struct {
@@ -170,6 +171,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	exist := make([]string, 0, 5)
 	list := make([]latex.WifiUser, 0, 5)
 	for i := 1; i <= len(r.Form)/3; i++ {
 		tempUserData := latex.WifiUser{
@@ -177,7 +179,11 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 			UserName:    latex.TexEscape(r.PostFormValue("user" + strconv.Itoa(i))),
 			PhoneNumber: latex.TexEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
 		}
-		list = append(list, tempUserData)
+		if _, err := s.getUserByMac(tempUserData.MacAddress); err == sql.ErrNoRows {
+			list = append(list, tempUserData)
+		} else {
+			exist = append(exist, tempUserData.MacAddress)
+		}
 	}
 
 	hash := generateHash(r.PostFormValue("mac1"))
@@ -198,23 +204,39 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
-	http.Redirect(w, r, "/generatedPdf/"+hash, 302)
+	if len(exist) == 0 {
+		http.Redirect(w, r, "/generatedPdf/"+hash+"/0/"+strconv.Itoa(len(list)), 302)
+	} else {
+		http.Redirect(w, r, "/generatedPdf/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(list)), 302)
+	}
 }
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
-	token := r.URL.Path[len("/generatedPdf/"):]
+	memorandum := r.URL.Path[len("/generatedPdf/"):]
+	splittedUrl := strings.Split(memorandum, "/")
+	var page GeneratedPdfPage
+	page.Token = splittedUrl[0]
+	page.Exist = strings.Split(splittedUrl[1], ",")
+	page.Count = splittedUrl[2]
+	page.ExistCount = len(page.Exist)
 	latexTemplate, err := template.ParseFiles("templates/html/generatedPdf.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, token)
+	err = latexTemplate.Execute(w, page)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+}
+
+type GeneratedPdfPage struct {
+	Token      string
+	Exist      []string
+	ExistCount int
+	Count      string
 }
 
 func userFilesHandler(w http.ResponseWriter, r *http.Request) {
@@ -478,7 +500,6 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-
 	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
 	if err != nil {
 		log.Println(err)
@@ -497,6 +518,11 @@ func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err er
 
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
 	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE id = $1", id)
+	return
+}
+
+func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac = $1", mac)
 	return
 }
 

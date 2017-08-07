@@ -25,11 +25,20 @@
     </div>
 
     <div style="text-align:center;font-size:20px;width:80%;margin: 0 auto;">
+        {{if ne .Count "0" }}
         <div class="alert alert-dismissible alert-success">
-          <button type="button" class="close" data-dismiss="alert">×</button>
           Ваша служебная записка готова. Вам нужно распечать её, подписать у руководителя Вашего подразделения и отнести в 108 кабинет 9 корпуса СГУ или в 225б кабинет 12 корпуса СГУ.
         </div>
-        <embed src="/userFiles/{{ . }}.pdf" width="80%" height="100%" type='application/pdf'>
+        {{end}}
+
+        {{if eq .ExistCount 0 }}
+        <div class="alert alert-dismissible alert-danger">
+            Следующие MAC-адреса уже существуют в базе: {{range .Exist}}<br> {{.}} {{end}}
+        </div>
+        {{end}}
+        {{if ne .Count "0" }}
+        <embed src="/userFiles/{{ .Token }}.pdf" width="80%" height="100%" type='application/pdf'>
+        {{end}}
     </div>
     <br><br>
 
