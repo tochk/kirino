@@ -28,16 +28,15 @@
             </div>
         </div>
     </div>
-    <form class="form-horizontal" action="/generatePdf/" method="post">
+    <form class="form-horizontal" action="/admin/user/save/{{.Id}}" method="post">
         <fieldset id="form_cont">
-            <legend>Создание служебной записки</legend>
             <div class="input_forms">
-                <h2 class='title'>Устройство #1</h2>
+                <h2 class='title'>Редактирование пользователя</h2>
                 <div class="form-group">
                     <label for="inputMac" class="col-md-2 control-label">Mac</label>
                     <div class="col-md-10">
                         <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
-                               placeholder="Mac" required>
+                               placeholder="Mac" value="{{ .MacAddress }}" required>
                         <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
                     </div>
                 </div>
@@ -45,26 +44,20 @@
                     <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
                     <div class="col-md-10">
                         <input type="name" name="user1" class="form-control name" id="inputName"
-                               placeholder="Ф.И.О" required>
+                               placeholder="Ф.И.О"  value="{{ .UserName }}" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPhone" class="col-md-2 control-label">Номер телефона</label>
                     <div class="col-md-10">
                         <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
-                               placeholder="Номер телефона" required>
+                               placeholder="Номер телефона"  value="{{ .PhoneNumber }}" required>
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <a id="addNew" href="#" class="btn btn-raised btn-info addNew">Добавить устройство
-                    <div class="ripple-container"></div>
-                </a>
-            </div>
-            <div class="form-group">
                 <div class="col-md-10 col-md-offset-2">
-                    <button type="button" id="cancel" class="btn btn-default">Удалить последнее устройство</button>
-                    <button type="submit" disabled="disabled" id="sbm" class="btn btn-primary">Отправить заявку</button>
+                    <button type="submit"  id="sbm" class="btn btn-primary">Сохранить</button>
                 </div>
             </div>
         </fieldset>

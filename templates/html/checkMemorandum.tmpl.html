@@ -63,7 +63,7 @@
                 <td><a href="/admin/users/reject/{{ .Id }}" style="margin: 0;"
                        class="btn btn-danger  {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}Rejected
                     {{else}}Reject{{end}}</a></td>
-                <td><a href="/admin/checkMemorandum/" style="margin: 0;" class="btn btn-primary">Edit</a></td>
+                <td><a href="/admin/user/edit/{{ .Id }}" style="margin: 0;" class="btn btn-primary">Edit</a></td>
                 {{if (eq .Disabled 0)}}
                 <td><a href="/admin/users/disable/{{ .Id }}" style="margin: 0;" class="btn btn-danger">Disable</a></td>
                 {{else}}

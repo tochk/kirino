@@ -246,11 +246,11 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 					log.Println(err)
 					return
 				}
-					_, err = s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1])
-					if err != nil {
-						log.Println(err)
-						return
-					}
+				_, err = s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1])
+				if err != nil {
+					log.Println(err)
+					return
+				}
 				http.Redirect(w, r, "/admin/memorandums/", 302)
 				return
 			}
@@ -448,12 +448,43 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.ParseForm()
+	urlInfo := r.URL.Path[len("/admin/user/"):]
+	var user FullWifiUser
+	if len(urlInfo) > 0 {
+		splittedUrl := strings.Split(urlInfo, "/")
+		switch splittedUrl[0] {
+		case "edit":
+			if len(splittedUrl[1]) > 0 {
+				userId, err := strconv.Atoi(splittedUrl[1])
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				user, err = s.getUser(userId)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+			}
+		case "save":
+			_, err := s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", r.PostForm.Get("mac1"), r.PostForm.Get("user1"), r.PostForm.Get("tel1"), splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, "/admin/users/", 302)
+			return
+		}
+	}
+
+
 	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err = latexTemplate.Execute(w, nil); err != nil {
+	if err = latexTemplate.Execute(w, user); err != nil {
 		log.Println(err)
 		return
 	}
@@ -461,6 +492,11 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
 	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	return
+}
+
+func (s *server) getUser(id int) (user FullWifiUser, err error) {
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE id = $1", id)
 	return
 }
 
@@ -486,14 +522,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
 		switch splittedUrl[0] {
-		case "add":
-			//code
-		case "edit":
-			//code
-		case "save":
-			//code
-		case "page":
-			//code
 		case "savedept":
 			if len(splittedUrl[1]) > 0 {
 				_, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1])
