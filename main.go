@@ -51,6 +51,7 @@ type FullWifiUser struct {
 	MemorandumId int    `db:"memorandumid"`
 	Accepted     int    `db:"accepted"`
 	Disabled     int    `db:"disabled"`
+	DepartmentId *int `db:"departmentid"`
 }
 
 type FullWifiMemorandum struct {
@@ -68,7 +69,7 @@ type FullWifiMemorandumClientList struct {
 
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
-	servicePort = flag.Int("Port", 4001, "Service port number")
+	servicePort = flag.Int("port", 4001, "Service port number")
 	store       = sessions.NewCookieStore([]byte(config.SessionKey))
 )
 
@@ -245,6 +246,11 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 					log.Println(err)
 					return
 				}
+					_, err = s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1])
+					if err != nil {
+						log.Println(err)
+						return
+					}
 				http.Redirect(w, r, "/admin/memorandums/", 302)
 				return
 			}
@@ -267,7 +273,6 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-
 
 	for index, memorandum := range memorandums {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
@@ -455,7 +460,7 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
 
@@ -476,6 +481,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
+	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/users/"):]
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
@@ -488,6 +494,16 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 			//code
 		case "page":
 			//code
+		case "savedept":
+			if len(splittedUrl[1]) > 0 {
+				_, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1])
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				http.Redirect(w, r, r.Referer(), 302)
+				return
+			}
 		case "accept":
 			id, err := strconv.Atoi(splittedUrl[1])
 			if err != nil {
@@ -553,10 +569,25 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if err = latexTemplate.Execute(w, usersList); err != nil {
+
+	departments, err := s.getDepartments()
+	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	if err = latexTemplate.Execute(w, UsersPage{
+		Users:       usersList,
+		Departments: departments,
+	}); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+type UsersPage struct {
+	Users       []FullWifiUser
+	Departments []Department
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -586,8 +617,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Department struct {
-	Id   int64 `db:"id"`
-	Name string `db:"name"`
+	Id       int64 `db:"id"`
+	Name     string `db:"name"`
 	Selected bool
 }
 
