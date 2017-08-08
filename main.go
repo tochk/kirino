@@ -79,6 +79,7 @@ type GeneratedPdfPage struct {
 	Exist      []string
 	ExistCount int
 	Count      string
+	IsAdmin bool
 }
 
 type MemorandumsPage struct {
@@ -91,6 +92,15 @@ type UsersPage struct {
 	Users       []FullWifiUser
 	Departments []Department
 	Pagination  Pagination
+}
+
+type Pagination struct {
+	CurrentPage int
+	NextPage    int
+	PrevPage    int
+	LastPage    int
+	Offset      int
+	PerPage     int
 }
 
 var (
@@ -277,6 +287,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	session, _ := store.Get(r, "applicationData")
 	memorandum := r.URL.Path[len("/generatedPdf/"):]
 	splittedUrl := strings.Split(memorandum, "/")
 	var page GeneratedPdfPage
@@ -291,6 +302,11 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+
+	if session.Values["userName"] != nil {
+		page.IsAdmin = true
+	}
+
 	if err = latexTemplate.Execute(w, page); err != nil {
 		log.Println(err)
 		return
@@ -340,7 +356,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 				log.Println(err)
 				return
 			}
-			pagination = s.usersPagination(page, perPage, "memorandums")
+			pagination = s.paginationCalc(page, perPage, "memorandums")
 			memorandums, err = s.getMemorandums(pagination.PerPage, pagination.Offset)
 			if err != nil {
 				log.Println(err)
@@ -361,7 +377,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 			log.Println(err)
 			return
 		}
-		pagination = s.usersPagination(1, perPage, "memorandums")
+		pagination = s.paginationCalc(1, perPage, "memorandums")
 	}
 
 	departments, err := s.getDepartments()
@@ -695,7 +711,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			pagination = s.usersPagination(page, perPage, "wifiUsers")
+			pagination = s.paginationCalc(page, perPage, "wifiUsers")
 			usersList, err = s.getUserList(pagination.PerPage, pagination.Offset)
 			if err != nil {
 				log.Println(err)
@@ -714,7 +730,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		pagination = s.usersPagination(1, perPage, "wifiUsers")
+		pagination = s.paginationCalc(1, perPage, "wifiUsers")
 	}
 
 	for i, e := range usersList {
@@ -739,7 +755,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *server) usersPagination(page, perPage int, table string) Pagination {
+func (s *server) paginationCalc(page, perPage int, table string) Pagination {
 	var count int
 	var pagination Pagination
 	var err error
@@ -772,14 +788,6 @@ func (s *server) usersPagination(page, perPage int, table string) Pagination {
 	return pagination
 }
 
-type Pagination struct {
-	CurrentPage int
-	NextPage    int
-	PrevPage    int
-	LastPage    int
-	Offset      int
-	PerPage     int
-}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
