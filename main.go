@@ -84,11 +84,13 @@ type GeneratedPdfPage struct {
 type MemorandumsPage struct {
 	Memorandums []FullWifiMemorandum
 	Departments []Department
+	Pagination  Pagination
 }
 
 type UsersPage struct {
 	Users       []FullWifiUser
 	Departments []Department
+	Pagination  Pagination
 }
 
 var (
@@ -311,7 +313,9 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-
+	var pagination Pagination
+	perPage := 50
+	var memorandums []FullWifiMemorandum
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/memorandums/"):]
 	if len(urlInfo) > 0 {
@@ -330,6 +334,18 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 				http.Redirect(w, r, "/admin/memorandums/", 302)
 				return
 			}
+		case "page":
+			page, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			pagination = s.usersPagination(page, perPage, "memorandums")
+			memorandums, err = s.getMemorandums(pagination.PerPage, pagination.Offset)
+			if err != nil {
+				log.Println(err)
+				return
+			}
 		}
 	}
 	latexTemplate, err := template.ParseFiles("templates/html/memorandums.tmpl.html")
@@ -338,10 +354,14 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var memorandums []FullWifiMemorandum
-	if err := s.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC"); err != nil {
-		log.Println(err)
-		return
+
+	if pagination.CurrentPage == 0 {
+		memorandums, err = s.getMemorandums(50, 0)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		pagination = s.usersPagination(1, perPage, "memorandums")
 	}
 
 	departments, err := s.getDepartments()
@@ -357,6 +377,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	if err = latexTemplate.Execute(w, MemorandumsPage{
 		Memorandums: memorandums,
 		Departments: departments,
+		Pagination: pagination,
 	}); err != nil {
 		log.Println(err)
 		return
@@ -571,6 +592,11 @@ func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err er
 	return
 }
 
+func (s *server) getMemorandums(limit, offset int) (memorandums []FullWifiMemorandum, err error) {
+	err = s.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	return
+}
+
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
 	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE id = $1", id)
 	return
@@ -600,6 +626,9 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/users/"):]
+	var usersList []FullWifiUser
+	var pagination Pagination
+	perPage := 50
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
 		switch splittedUrl[0] {
@@ -660,6 +689,18 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			http.Redirect(w, r, r.Referer(), 302)
 			return
+		case "page":
+			page, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			pagination = s.usersPagination(page, perPage, "wifiUsers")
+			usersList, err = s.getUserList(pagination.PerPage, pagination.Offset)
+			if err != nil {
+				log.Println(err)
+				return
+			}
 		}
 	}
 	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
@@ -667,11 +708,19 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	if pagination.CurrentPage == 0 {
+		usersList, err = s.getUserList(50, 0)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		pagination = s.usersPagination(1, perPage, "wifiUsers")
+	}
 
-	usersList, err := s.getUserList(2000000, 0)
-	if err != nil {
-		log.Println(err)
-		return
+	for i, e := range usersList {
+		if len(e.UserName) > 65 {
+			usersList[i].UserName = e.UserName[:65] + "..."
+		}
 	}
 
 	departments, err := s.getDepartments()
@@ -683,10 +732,53 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	if err = latexTemplate.Execute(w, UsersPage{
 		Users:       usersList,
 		Departments: departments,
+		Pagination:  pagination,
 	}); err != nil {
 		log.Println(err)
 		return
 	}
+}
+
+func (s *server) usersPagination(page, perPage int, table string) Pagination {
+	var count int
+	var pagination Pagination
+	var err error
+	if page < 1 {
+		page = 1
+	}
+	pagination.CurrentPage = page
+	pagination.PerPage = perPage
+	pagination.Offset = perPage * (page - 1)
+	switch table {
+	case "wifiUsers":
+		err = s.Db.Get(&count, "SELECT COUNT(*) as count FROM wifiUsers")
+	case "memorandums":
+		err = s.Db.Get(&count, "SELECT COUNT(*) as count FROM memorandums")
+	}
+	if err != nil {
+		log.Println(err)
+		return Pagination{}
+	}
+	if count > perPage*page {
+		pagination.NextPage = pagination.CurrentPage + 1
+		if pagination.NextPage != (count/perPage)+1 {
+			pagination.LastPage = (count / perPage) + 1
+		}
+	}
+	if pagination.CurrentPage > 1 {
+		pagination.PrevPage = pagination.CurrentPage - 1
+	}
+	log.Printf("%#v", pagination)
+	return pagination
+}
+
+type Pagination struct {
+	CurrentPage int
+	NextPage    int
+	PrevPage    int
+	LastPage    int
+	Offset      int
+	PerPage     int
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
