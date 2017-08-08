@@ -64,8 +64,9 @@ type FullWifiMemorandum struct {
 }
 
 type FullWifiMemorandumClientList struct {
-	Clients      []FullWifiUser
-	MemorandumId string
+	Clients     []FullWifiUser
+	Memorandum  FullWifiMemorandum
+	Departments []Department
 }
 
 type Department struct {
@@ -79,7 +80,7 @@ type GeneratedPdfPage struct {
 	Exist      []string
 	ExistCount int
 	Count      string
-	IsAdmin bool
+	IsAdmin    bool
 }
 
 type MemorandumsPage struct {
@@ -145,7 +146,11 @@ func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, err
 
 func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
-		return 0, err
+		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
+			memorandumId = 0
+		} else {
+			return 0, err
+		}
 	}
 	memorandumId++
 	if _, err := tx.Exec(tx.Rebind("INSERT INTO memorandums (id, addtime) VALUES (?, current_date())"), memorandumId); err != nil {
@@ -219,7 +224,7 @@ func checkSingleMac(mac string) (string, error) {
 }
 
 func checkSingleName(name string) (string, error) {
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-ZёЁ \\-]+")
 	if err != nil {
 		return "", err
 	}
@@ -266,6 +271,21 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 			exist = append(exist, e.MacAddress)
 		}
 	}
+
+	listToWrite2 := make([]latex.WifiUser, 0, 5)
+	for i, e := range listToWrite {
+		duplicate := false
+		for i2, e2 := range listToWrite2 {
+			if i != i2 && e.MacAddress == e2.MacAddress {
+				duplicate = true
+				break
+			}
+		}
+		if !duplicate {
+			listToWrite2 = append(listToWrite2, e)
+		}
+	}
+	listToWrite = listToWrite2
 	if len(listToWrite) > 0 {
 		memorandumId, err := s.writeUserDataToDb(listToWrite, hash)
 		if err != nil {
@@ -347,7 +367,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 					log.Println(err)
 					return
 				}
-				http.Redirect(w, r, "/admin/memorandums/", 302)
+				http.Redirect(w, r, r.Referer(), 302)
 				return
 			}
 		case "page":
@@ -369,7 +389,6 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-
 
 	if pagination.CurrentPage == 0 {
 		memorandums, err = s.getMemorandums(50, 0)
@@ -393,7 +412,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	if err = latexTemplate.Execute(w, MemorandumsPage{
 		Memorandums: memorandums,
 		Departments: departments,
-		Pagination: pagination,
+		Pagination:  pagination,
 	}); err != nil {
 		log.Println(err)
 		return
@@ -447,7 +466,19 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	clientsInMemorandum := make([]FullWifiUser, 0)
-	if err := s.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+	if err := s.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+		log.Println(err)
+		return
+	}
+
+	departments, err := s.getDepartments()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var memorandum FullWifiMemorandum
+	if err := s.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
@@ -457,7 +488,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-	if err = latexTemplate.Execute(w, FullWifiMemorandumClientList{Clients: clientsInMemorandum, MemorandumId: memId}); err != nil {
+	if err = latexTemplate.Execute(w, FullWifiMemorandumClientList{Clients: clientsInMemorandum, Memorandum: memorandum, Departments: departments}); err != nil {
 		log.Println(err)
 		return
 	}
@@ -784,10 +815,8 @@ func (s *server) paginationCalc(page, perPage int, table string) Pagination {
 	if pagination.CurrentPage > 1 {
 		pagination.PrevPage = pagination.CurrentPage - 1
 	}
-	log.Printf("%#v", pagination)
 	return pagination
 }
-
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {

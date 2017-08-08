@@ -47,7 +47,9 @@
             Следующие MAC-адреса уже существуют в базе: {{range .Exist}}<br> {{.}} {{end}}
         </div>
         {{end}}
+        {{if ne .Count "0" }}
         <div style="margin-bottom: 20px;"><a href="/userFiles/{{ .Token }}.pdf" class="btn btn-raised btn-info" style="font-size: 30px">Скачать служебную записку</a> </div>
+        {{end}}
         {{if ne .Count "0" }}
         <embed src="/userFiles/{{ .Token }}.pdf" width="80%" height="100%" type='application/pdf'>
         {{end}}
