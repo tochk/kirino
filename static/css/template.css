@@ -17,6 +17,11 @@
     box-shadow: none
 }
 
+.btn-on-table {
+    margin: 5px 0 0;
+    padding: 10px;
+}
+
 .form-group.has-error1.is-focused .form-control {
     background-image: -webkit-gradient(linear, left top, left bottom, from(#f44336), to(#f44336)), -webkit-gradient(linear, left top, left bottom, from(#D2D2D2), to(#D2D2D2));
     background-image: -webkit-linear-gradient(#f44336, #f44336), -webkit-linear-gradient(#D2D2D2, #D2D2D2);

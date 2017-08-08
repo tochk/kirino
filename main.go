@@ -183,6 +183,26 @@ func checkSingleMac(mac string) (string, error) {
 	return mac, nil
 }
 
+func checkSingleName(name string) (string, error) {
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
+	if err != nil {
+		return "", err
+	}
+	name = regForName.ReplaceAllString(name, "")
+	return name, nil
+}
+
+
+func checkSinglePhone(phone string) (string, error) {
+	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
+	if err != nil {
+		return "", err
+	}
+	phone = regForPhone.ReplaceAllString(phone, "")
+	return phone, nil
+}
+
+
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
 	if err := r.ParseForm(); err != nil {
@@ -516,11 +536,13 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		case "save":
 			clearMac, err := checkSingleMac(r.PostForm.Get("mac1"))
+			clearName, err := checkSingleName(r.PostForm.Get("user1"))
+			clearPhone, err := checkSinglePhone(r.PostForm.Get("tel1"))
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			_, err = s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, r.PostForm.Get("user1"), r.PostForm.Get("tel1"), splittedUrl[1])
+			_, err = s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, splittedUrl[1])
 			if err != nil {
 				log.Println(err)
 				return

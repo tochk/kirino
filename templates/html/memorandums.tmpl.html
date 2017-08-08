@@ -62,20 +62,18 @@
             <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}}>
                 <td style="padding: 20px;">{{ .Id }}</td>
                 <td style="padding: 20px;">{{ .AddTime }}</td>
-                <td><a href="/admin/checkMemorandum/{{ .Id }}" style="margin: 5px 0 0;" class="btn btn-info">Check
-                    memorandum</a></td>
-                <td><a href="/admin/checkMemorandum/accept/{{ .Id }}" style="margin: 5px 0 0;"
-                       class="btn btn-success {{if (eq .Accepted 1)}}disabled {{end}}">{{if (eq .Accepted 1)}}Accepted
-                    {{else}}Accept memorandum{{end}}
+                <td><a href="/admin/checkMemorandum/{{ .Id }}" class="btn btn-info btn-on-table"><span class="glyphicon glyphicon-list" aria-hidden="true"></span></a></td>
+                <td><a href="/admin/checkMemorandum/accept/{{ .Id }}" class="btn btn-success btn-on-table {{if (eq .Accepted 1)}}disabled {{end}}">{{if (eq .Accepted 1)}}<span class="glyphicon glyphicon-ok" aria-hidden="true">
+                    {{else}}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{{end}}
                 </a>
                 </td>
-                <td><a href="/admin/checkMemorandum/reject/{{ .Id }}" style="margin: 5px 0 0;"
-                       class="btn btn-danger  {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}Rejected
-                    {{else}}Reject memorandum{{end}}</a></td>
+                <td><a href="/admin/checkMemorandum/reject/{{ .Id }}"
+                       class="btn btn-danger btn-on-table {{if (eq .Accepted 2)}}disabled {{end}}">{{if (eq .Accepted 2)}}<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    {{else}}<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>{{end}}</a></td>
                 <td>
                     <form action="/admin/memorandums/save/{{ .Id }}" method="post">
                         <div class="form-group" style="margin: 0">
-                            <label for="select{{.Id}}" class="col-md-2 control-label">Select</label>
+                            <label for="select{{.Id}}" class="col-md-2 control-label">Department</label>
 
                             <div class="col-md-6">
                                 <select id="select{{.Id}}" data-id="{{.DepartmentId}}" class="form-control" name="department">
@@ -87,7 +85,7 @@
                             </div>
                             <div class="form-group" style="margin: 0">
                                 <div class="col-md-3">
-                                    <input type="submit" class="btn btn-primary" style="margin: 3px 0 0;padding: 10px">
+                                    <input type="submit" class="btn btn-primary" value="save" style="margin: 3px 0 0;padding: 10px">
                                 </div>
                             </div>
                         </div>

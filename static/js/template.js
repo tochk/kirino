@@ -7,12 +7,10 @@ function CheckName(Name) {
     var RegExPattern = /[^а-яА-Яa-zA-Z \-]+$/;
     newName = Name.replace(RegExPattern, "");
     test =  newName === Name;
+    console.log(test);
     return test
 }
 
-function CheckPhone(Phone) {
-    return true;
-}
 
 var macAddrs = $("input.mac_valid");
 jQuery(document).ready(function () {
@@ -54,7 +52,7 @@ $("#addNew").click(function () {
     moveCaretToStart(document.querySelector(q));
     $("input.phone").focusout(function () {
         $("input.phone").each(function () {
-            if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || (!CheckPhone($(this).val()))) {
+            if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 ) {
                 $(this).parent().parent().addClass('has-error1');
                 $(this).parent().parent().removeClass('has-success');
             } else {
@@ -132,7 +130,7 @@ $("input.phone, input.mac, input.name").focusin(function () {
 });
 
 $("input.phone").focusout(function () {
-    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || (!CheckPhone($(this).val()))) {
+    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 ) {
         $(this).parent().parent().addClass('has-error1');
         $(this).parent().parent().removeClass('has-success');
     } else {
@@ -142,7 +140,7 @@ $("input.phone").focusout(function () {
 });
 
 $("input.mac").focusout(function () {
-    if (CheckMACAddress($("input.mac").val()) == false) {
+    if (!CheckMACAddress($("input.mac").val())) {
         $(this).parent().parent().addClass('has-error1');
         $(this).parent().parent().removeClass('has-success');
     }
@@ -163,10 +161,12 @@ $("input.name").focusout(function () {
 });
 
 $("input.phone, input.mac, input.name").keyup(function () {
-    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || $("input.name").val() == "" || CheckMACAddress($("input.mac").val()) == false) {
+    if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1 || $("input.name").val() == "" || !CheckMACAddress($("input.mac").val()) || !CheckName($("input.name").val())) {
+        console.log("dis");
         $('#sbm').attr('disabled', 'disabled');
     }
     else {
+        console.log("en");
         $('#sbm').removeAttr('disabled');
     }
 });
