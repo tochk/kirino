@@ -211,8 +211,7 @@ func checkSingleName(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	name = regForName.ReplaceAllString(name, "")
-	return name, nil
+	return regForName.ReplaceAllString(name, ""), nil
 }
 
 func checkSinglePhone(phone string) (string, error) {
@@ -220,8 +219,7 @@ func checkSinglePhone(phone string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	phone = regForPhone.ReplaceAllString(phone, "")
-	return phone, nil
+	return regForPhone.ReplaceAllString(phone, ""), nil
 }
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
@@ -291,8 +289,7 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	err = latexTemplate.Execute(w, page)
-	if err != nil {
+	if err = latexTemplate.Execute(w, page); err != nil {
 		log.Println(err)
 		return
 	}
@@ -322,13 +319,11 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		switch splittedUrl[0] {
 		case "save":
 			if len(splittedUrl[1]) > 0 {
-				_, err := s.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1])
-				if err != nil {
+				if _, err := s.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
-				_, err = s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1])
-				if err != nil {
+				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -508,8 +503,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 func checkFolders() {
 	if file, err := os.Open("userFiles"); err != nil {
 		file.Close()
-		err = os.Mkdir("userFiles", 0644)
-		if err != nil {
+		if err = os.Mkdir("userFiles", 0644); err != nil {
 			log.Fatal(err)
 		}
 		log.Println("Creating directory for user files")
@@ -611,8 +605,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		switch splittedUrl[0] {
 		case "savedept":
 			if len(splittedUrl[1]) > 0 {
-				_, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1])
-				if err != nil {
+				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -625,8 +618,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			err = s.setRejected(1, id)
-			if err != nil {
+			if err = s.setRejected(1, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -638,8 +630,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			err = s.setRejected(2, id)
-			if err != nil {
+			if err = s.setRejected(2, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -651,8 +642,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			err = s.setDisabled(0, id)
-			if err != nil {
+			if err = s.setDisabled(0, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -664,8 +654,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			err = s.setDisabled(1, id)
-			if err != nil {
+			if err = s.setDisabled(1, id); err != nil {
 				log.Println(err)
 				return
 			}
