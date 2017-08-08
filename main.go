@@ -68,6 +68,29 @@ type FullWifiMemorandumClientList struct {
 	MemorandumId string
 }
 
+type Department struct {
+	Id       int64 `db:"id"`
+	Name     string `db:"name"`
+	Selected bool
+}
+
+type GeneratedPdfPage struct {
+	Token      string
+	Exist      []string
+	ExistCount int
+	Count      string
+}
+
+type MemorandumsPage struct {
+	Memorandums []FullWifiMemorandum
+	Departments []Department
+}
+
+type UsersPage struct {
+	Users       []FullWifiUser
+	Departments []Department
+}
+
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
 	servicePort = flag.Int("port", 4001, "Service port number")
@@ -157,7 +180,7 @@ func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 	for _, user := range list {
 		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
 		user.MacAddress = regForMac.ReplaceAllString(user.MacAddress, "")
-		user.UserName = regForName.ReplaceAllString(user.UserName ,"")
+		user.UserName = regForName.ReplaceAllString(user.UserName, "")
 		user.PhoneNumber = regForPhone.ReplaceAllString(user.PhoneNumber, "")
 		if len(user.MacAddress) != 12 {
 			err = errors.New("Invalid mac-address")
@@ -192,7 +215,6 @@ func checkSingleName(name string) (string, error) {
 	return name, nil
 }
 
-
 func checkSinglePhone(phone string) (string, error) {
 	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
 	if err != nil {
@@ -201,7 +223,6 @@ func checkSinglePhone(phone string) (string, error) {
 	phone = regForPhone.ReplaceAllString(phone, "")
 	return phone, nil
 }
-
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
@@ -277,13 +298,6 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type GeneratedPdfPage struct {
-	Token      string
-	Exist      []string
-	ExistCount int
-	Count      string
-}
-
 func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 	path := "." + r.URL.Path
 	if f, err := os.Stat(path); err == nil && !f.IsDir() {
@@ -352,11 +366,6 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		log.Println(err)
 		return
 	}
-}
-
-type MemorandumsPage struct {
-	Memorandums []FullWifiMemorandum
-	Departments []Department
 }
 
 func (s *server) acceptMemorandum(id string) (err error) {
@@ -691,11 +700,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type UsersPage struct {
-	Users       []FullWifiUser
-	Departments []Department
-}
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
 		http.ServeFile(w, r, "/static/favicon.ico")
@@ -720,12 +724,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-}
-
-type Department struct {
-	Id       int64 `db:"id"`
-	Name     string `db:"name"`
-	Selected bool
 }
 
 func (s *server) getDepartments() ([]Department, error) {
