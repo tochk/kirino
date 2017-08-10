@@ -90,7 +90,7 @@
             </thead>
             <tbody>
             {{ range .Clients}}
-            <tr {{if (and (eq .Accepted 1) (ne .Disabled 1))}}class="success" {{end}} {{if (or (eq .Accepted 2) (eq .Disabled 1))}}class="danger" {{end}}>
+            <tr {{if eq .Accepted 1}}class="success" {{end}} {{if eq .Accepted 2}}class="danger" {{end}}>
                 <td style="padding: 20px;">{{ .MacAddress }}</td>
                 <td style="padding: 20px;">{{ .UserName }}</td>
                 <td style="padding: 20px;">{{ .PhoneNumber }}</td>

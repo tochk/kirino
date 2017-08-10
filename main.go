@@ -197,6 +197,8 @@ func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 	for _, user := range list {
 		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
 		user.MacAddress = regForMac.ReplaceAllString(user.MacAddress, "")
+		user.UserName = strings.Replace(user.UserName, "Ё", "Е", -1)
+		user.UserName = strings.Replace(user.UserName, "ё", "е", -1)
 		user.UserName = regForName.ReplaceAllString(user.UserName, "")
 		user.PhoneNumber = regForPhone.ReplaceAllString(user.PhoneNumber, "")
 		if len(user.MacAddress) != 12 {
@@ -224,10 +226,12 @@ func checkSingleMac(mac string) (string, error) {
 }
 
 func checkSingleName(name string) (string, error) {
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-ZёЁ \\-]+")
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
 	if err != nil {
 		return "", err
 	}
+	name = strings.Replace(name, "Ё", "Е", -1)
+	name = strings.Replace(name, "ё", "е", -1)
 	return regForName.ReplaceAllString(name, ""), nil
 }
 
@@ -263,29 +267,27 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	listToWrite := make([]latex.WifiUser, 0, 5)
+
 	for _, e := range listForDb {
-		if _, err := s.getUserByMac(e.MacAddress); err == sql.ErrNoRows {
-			listToWrite = append(listToWrite, e)
-		} else {
+		if _, err := s.getUserByMac(e.MacAddress); err != sql.ErrNoRows {
 			exist = append(exist, e.MacAddress)
 		}
 	}
 
-	listToWrite2 := make([]latex.WifiUser, 0, 5)
-	for i, e := range listToWrite {
+	listToWrite := make([]latex.WifiUser, 0, 5)
+	for i, e := range listForDb {
 		duplicate := false
-		for i2, e2 := range listToWrite2 {
+		for i2, e2 := range listToWrite {
 			if i != i2 && e.MacAddress == e2.MacAddress {
 				duplicate = true
 				break
 			}
 		}
 		if !duplicate {
-			listToWrite2 = append(listToWrite2, e)
+			listToWrite = append(listToWrite, e)
 		}
 	}
-	listToWrite = listToWrite2
+
 	if len(listToWrite) > 0 {
 		memorandumId, err := s.writeUserDataToDb(listToWrite, hash)
 		if err != nil {
@@ -358,7 +360,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		splittedUrl := strings.Split(urlInfo, "/")
 		switch splittedUrl[0] {
 		case "save":
-			if len(splittedUrl[1]) > 0 {
+			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
 				if _, err := s.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
@@ -367,9 +369,10 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 					log.Println(err)
 					return
 				}
-				http.Redirect(w, r, r.Referer(), 302)
-				return
 			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+
 		case "page":
 			page, err := strconv.Atoi(splittedUrl[1])
 			if err != nil {
@@ -469,6 +472,12 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 	if err := s.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
+	}
+
+	for i, e := range clientsInMemorandum {
+		if len(e.UserName) > 65 {
+			clientsInMemorandum[i].UserName = e.UserName[:66] + "..."
+		}
 	}
 
 	departments, err := s.getDepartments()
@@ -641,7 +650,24 @@ func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err er
 
 func (s *server) getMemorandums(limit, offset int) (memorandums []FullWifiMemorandum, err error) {
 	err = s.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	var max, min []MemAccepted
+	err = s.Db.Select(&max, "SELECT max(accepted) as accepted, memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
+	err = s.Db.Select(&min, "SELECT min(accepted) as accepted, memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
+	for i, e := range memorandums {
+		for _, em := range max {
+			for _, emi := range min {
+				if e.Id == em.MemorandumId && e.Id == emi.MemorandumId && emi.Accepted != em.Accepted {
+					memorandums[i].Accepted = 3
+				}
+			}
+		}
+	}
 	return
+}
+
+type MemAccepted struct {
+	MemorandumId int `db:"memorandumid"`
+	Accepted     int`db:"accepted"`
 }
 
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
@@ -680,14 +706,14 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		splittedUrl := strings.Split(urlInfo, "/")
 		switch splittedUrl[0] {
 		case "savedept":
-			if len(splittedUrl[1]) > 0 {
+			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
 				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
-				http.Redirect(w, r, r.Referer(), 302)
-				return
 			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
 		case "accept":
 			id, err := strconv.Atoi(splittedUrl[1])
 			if err != nil {
@@ -766,7 +792,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 
 	for i, e := range usersList {
 		if len(e.UserName) > 65 {
-			usersList[i].UserName = e.UserName[:65] + "..."
+			usersList[i].UserName = e.UserName[:66] + "..."
 		}
 	}
 

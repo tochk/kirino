@@ -36,7 +36,7 @@
             </div>
         </div>
     </div>
-    <form class="form-horizontal" action="/generatePdf/" method="post">
+    <form class="form-horizontal" action="/generatePdf/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Создание служебной записки</legend>
             <div class="input_forms">
@@ -53,7 +53,8 @@
                     <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
                     <div class="col-md-10">
                         <input type="name" name="user1" class="form-control name" id="inputName"
-                               placeholder="Ф.И.О" required>
+                               placeholder="Ф.И.О" maxlength="200" required>
+                        <span class="help-block">Для служебных устройств - наименование подразделения</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -61,6 +62,7 @@
                     <div class="col-md-10">
                         <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
                                placeholder="Номер телефона" required>
+                        <span class="help-block">Для служебных устройств - служебный номер подразделения</span>
                     </div>
                 </div>
             </div>
@@ -138,6 +140,13 @@
 <script src="/static/js/template.js"></script>
 <script src="/static/js/jquery.maskedinput.min.js"></script>
 <script>$.material.init();</script>
+<script>
+    $('#sbm').click(function() {
+        setTimeout( function () {
+            $('#sbm').attr('disabled', 'disabled');
+        }, 50)
+    });
+</script>
 <script src="https://fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
 </body>

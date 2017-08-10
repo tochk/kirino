@@ -56,7 +56,7 @@
             <tbody>
             {{ $departments := .Departments }}
             {{ range .Memorandums }}
-            <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}}>
+            <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}} {{if (eq .Accepted 3)}}class="info" {{end}}>
                 <td style="padding: 20px;">{{ .Id }}</td>
                 <td style="padding: 20px;">{{ .AddTime }}</td>
 
