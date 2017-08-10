@@ -244,7 +244,7 @@ func checkSinglePhone(phone string) (string, error) {
 }
 
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if err := r.ParseForm(); err != nil {
 		log.Println(err)
 		return
@@ -308,7 +308,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	memorandum := r.URL.Path[len("/generatedPdf/"):]
 	splittedUrl := strings.Split(memorandum, "/")
@@ -345,7 +345,7 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
@@ -439,7 +439,7 @@ func (s *server) rejectMemorandum(id string) (err error) {
 }
 
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
@@ -504,7 +504,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] != nil {
 		http.Redirect(w, r, "/admin/memorandums/", 302)
@@ -554,7 +554,7 @@ func auth(login, password string) (string, error) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	r.ParseForm()
 	session, _ := store.Get(r, "applicationData")
 
@@ -570,7 +570,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	session.Values["userName"] = nil
 	session.Save(r, w)
@@ -588,7 +588,7 @@ func checkFolders() {
 }
 
 func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
@@ -691,7 +691,7 @@ func (s *server) setRejected(status, id int) (err error) {
 }
 
 func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := store.Get(r, "applicationData")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
@@ -849,7 +849,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "/static/favicon.ico")
 		return
 	}
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.RemoteAddr)
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 
 	session, _ := store.Get(r, "applicationData")
 

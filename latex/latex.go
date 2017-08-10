@@ -51,7 +51,7 @@ func generateLatexFileForWifiMemorandum(list []WifiUser, hashStr string, memoran
 	if err != nil {
 		return "", err
 	}
-	pathToTexFile := "userFiles\\" + hashStr + ".tex"
+	pathToTexFile := "userFiles/" + hashStr + ".tex"
 	return pathToTexFile, nil
 }
 
