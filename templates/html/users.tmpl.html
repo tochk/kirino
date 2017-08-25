@@ -5,8 +5,8 @@
     <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
     <link type="text/css" rel="stylesheet" href="/static/css/template.css">
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script>
         window.onload = function () {
             var elements = document.getElementsByTagName('select');
@@ -48,11 +48,17 @@
 
 
     <div style="width: 90%; margin: 0 auto">
+        <form action="/admin/users/search">
+            <input name="mac" placeholder="mac">
+            <input name="name" placeholder="name">
+            <input name="phone" placeholder="phone">
+            <input type="submit">
+        </form>
         <table class="table table-striped table-hover ">
             <thead>
             <tr>
                 <th>Mac</th>
-                <th>User mane</th>
+                <th>User name</th>
                 <th>Phone number</th>
                 <th></th>
                 <th></th>

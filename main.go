@@ -24,6 +24,7 @@ import (
 	_ "github.com/lib/pq"
 	"gopkg.in/ldap.v2"
 	"database/sql"
+	"net/url"
 )
 
 var config struct {
@@ -774,6 +775,13 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
+		case "search":
+			var err error
+			usersList, err = s.getSearchResult(r.URL.Query())
+			if err != nil {
+				log.Println(err)
+				return
+			}
 		}
 	}
 	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
@@ -781,7 +789,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if pagination.CurrentPage == 0 {
+	if pagination.CurrentPage == 0 && len(usersList) == 0 {
 		usersList, err = s.getUserList(50, 0)
 		if err != nil {
 			log.Println(err)
@@ -810,6 +818,11 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+}
+func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
+	log.Println(values)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
+	return userList, err
 }
 
 func (s *server) paginationCalc(page, perPage int, table string) Pagination {
@@ -874,6 +887,11 @@ func (s *server) getDepartments() ([]Department, error) {
 	var departments []Department
 	err := s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC")
 	return departments, err
+}
+
+func (s *server) saveAction(userName, action, actionType, mac, id string) error {
+
+	return nil
 }
 
 func main() {
