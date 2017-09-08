@@ -8,7 +8,7 @@ function CheckName(Name) {
     newName = Name.replace(RegExPattern, "");
     test =  newName === Name;
     console.log(test);
-    return test
+    return true
 }
 
 
@@ -27,6 +27,7 @@ jQuery(document).ready(function () {
             $("#cancel").css("display", "none");
         }
         i--;
+	$('#sbm').removeAttr('disabled');
         return false;
     });
 });
