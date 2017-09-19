@@ -25,6 +25,7 @@ import (
 	"gopkg.in/ldap.v2"
 	"database/sql"
 	"net/url"
+	"fmt"
 )
 
 var config struct {
@@ -38,6 +39,7 @@ var config struct {
 	LdapServer   string `json:"ldapServer"`
 	LdapBaseDN   string `json:"ldapBaseDN"`
 	SessionKey   string `json:"sessionKey"`
+	RecaptchaKey string `json:"recaptchaKey"`
 }
 
 type server struct {
@@ -244,10 +246,39 @@ func checkSinglePhone(phone string) (string, error) {
 	return regForPhone.ReplaceAllString(phone, ""), nil
 }
 
+type RecaptchaResponse struct {
+	Success    bool `json:"success"`
+}
+
+func checkRecaptcha(ans string) error {
+	client := &http.Client{Timeout: 20 * time.Second}
+	resp, err := client.PostForm("https://www.google.com/recaptcha/api/siteverify",
+	url.Values{"secret": {config.RecaptchaKey}, "response": {ans}})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	gr := RecaptchaResponse{Success:false}
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&gr)
+	if err != nil {
+		return err
+	}
+	if !gr.Success {
+		return errors.New("recaptcha entered incorrect")
+	}
+	return nil
+}
+
 func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if err := r.ParseForm(); err != nil {
 		log.Println(err)
+		return
+	}
+	if err := checkRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
+		log.Println(err)
+		fmt.Fprint(w, "Капча введена неправильно")
 		return
 	}
 	exist := make([]string, 0, 5)
