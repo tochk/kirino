@@ -4,12 +4,11 @@
 }
 
 .addNew {
-    float: right;
-    background-color: #3f51b5 !important
+    float: left;
 }
 
 .btn-primary {
-    color: #3f51b5 !important
+    couulor: #3f51b5 !important
 }
 
 .form-group.has-error1 .form-control {
@@ -20,6 +19,9 @@
 .btn-on-table {
     margin: 5px 0 0;
     padding: 10px;
+}
+#sbm{
+    float: right;
 }
 
 .form-group.has-error1.is-focused .form-control {
@@ -142,4 +144,40 @@ td {
 }
 .left{
     float: left;
+}
+
+@media screen and (max-width: 700px) {
+    .form-horizontal{
+        width: unset;
+    }
+    .form-horizontal .form-group{
+        margin: 0 auto;
+    }
+    fieldset{
+        padding: 0 10px;
+        width: calc(100% - 20px);
+    }
+    #cancel{
+
+    }
+    .window{
+        padding-left: 9px;
+        padding-right: 13px;
+        padding-top: 50px;
+        padding-bottom: 15px;
+        width: 90vw;
+    }
+    .conteiner_for_windows{
+        left: 10px;
+    }
+    .window .closee{
+        top: -85px;
+        right: -14px;
+    }
+    .info_sl img{
+        width: 100%;
+    }
+    .info_sl{
+        padding-left: 0px;
+    }
 }

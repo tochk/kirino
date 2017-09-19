@@ -191,10 +191,19 @@ jQuery(document).ready(function () {
         jQuery("#w1").css("top", jQuery(window).scrollTop() + 214);
         return false;
     });
+    jQuery("a#guide").click(function () {
+        jQuery("#black-block").css('display', 'block');
+        jQuery("#window1").css('display', 'block');
+        jQuery("#blurr").addClass("blurt");
+        //jQuery("#win7").children('a').click();
+        //jQuery("#w1").css("top", jQuery(window).scrollTop() + 214);
+        return false;
+    });
 
     jQuery("#black-block").click(function () {
         jQuery("#black-block").css('display', 'none');
         jQuery("#window").css('display', 'none');
+        jQuery("#window1").css('display', 'none');
         jQuery("body").removeClass("nooverflow");
         jQuery("html").removeClass("nooverflow");
         jQuery("#blurr").removeClass("blurt");
@@ -203,6 +212,7 @@ jQuery(document).ready(function () {
     jQuery(".closee").click(function () {
         jQuery("#black-block").css('display', 'none');
         jQuery("#window").css('display', 'none');
+        jQuery("#window1").css('display', 'none');
         jQuery("#blurr").removeClass("blurt");
     });
 

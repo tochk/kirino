@@ -7,6 +7,7 @@
     <link type="text/css" rel="stylesheet" href="/static/css/template.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="height=device-height,width=device-width" />
 </head>
 <body>
 <div id="blurr">
@@ -31,6 +32,7 @@
                     <li><a href="/admin/logout/">Logout</a></li>
                     {{else}}
                     <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                    <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
                     {{end}}
                 </ul>
             </div>
@@ -67,16 +69,20 @@
                 </div>
             </div>
             <div class="form-group">
-                <a id="addNew" href="#" class="btn btn-raised btn-info addNew">Добавить другое устройство
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить другое устройство
                     <div class="ripple-container"></div>
                 </a>
+                <button type="submit" disabled="disabled" id="sbm" style="background-color: #59B75C; color: white" class="btn btn-raised btn-success">Отправить заявку</button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство</button>
             </div>
+<!--
             <div class="form-group">
                 <div class="col-md-10 col-md-offset-2">
-                    <button type="button" id="cancel" class="btn btn-default">Удалить последнее устройство</button>
-                    <button type="submit" disabled="disabled" id="sbm" class="btn btn-primary">Отправить заявку</button>
+                    
+                    
                 </div>
             </div>
+-->
         </fieldset>
     </form>
 </div>
@@ -129,6 +135,61 @@
                     Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
                 </li>
             </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+<!--
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+-->
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+<!--
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win4.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+-->
         </div>
     </div>
 </div>
