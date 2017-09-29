@@ -89,9 +89,9 @@
 
                 <td>
                     {{if ne .Accepted 1}}
-                    <a href="/admin/checkMemorandum/accept/{{ .Id }}" class="btn btn-danger btn-on-table"><span class="glyphicon glyphicon-remove" aria-hidden="true"></a>
+                    <a href="/admin/checkMemorandum/accept/{{ .Id }}" class="btn btn-success btn-on-table"><span class="glyphicon glyphicon-ok" aria-hidden="true"></a>
                     {{else}}
-                    <a href="/admin/checkMemorandum/reject/{{ .Id }}" class="btn btn-success btn-on-table"><span class="glyphicon glyphicon-ok" aria-hidden="true"></a>
+                    <a href="/admin/checkMemorandum/reject/{{ .Id }}" class="btn btn-danger btn-on-table"><span class="glyphicon glyphicon-remove" aria-hidden="true"></a>
                     {{end}}
                 </td>
             </tr>
