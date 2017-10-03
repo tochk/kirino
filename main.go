@@ -708,7 +708,7 @@ func (s *server) getUser(id int) (user FullWifiUser, err error) {
 }
 
 func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
-	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac = $1", mac)
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
 	return
 }
 
