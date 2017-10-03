@@ -3,15 +3,18 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -23,9 +26,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gopkg.in/ldap.v2"
-	"database/sql"
-	"net/url"
-	"fmt"
 )
 
 var config struct {
@@ -47,7 +47,7 @@ type server struct {
 }
 
 type FullWifiUser struct {
-	Id           int `db:"id"`
+	Id           int    `db:"id"`
 	MacAddress   string `db:"mac"`
 	UserName     string `db:"username"`
 	PhoneNumber  string `db:"phonenumber"`
@@ -55,15 +55,15 @@ type FullWifiUser struct {
 	MemorandumId int    `db:"memorandumid"`
 	Accepted     int    `db:"accepted"`
 	Disabled     int    `db:"disabled"`
-	DepartmentId *int `db:"departmentid"`
+	DepartmentId *int   `db:"departmentid"`
 }
 
 type FullWifiMemorandum struct {
-	Id           int  `db:"id"`
+	Id           int    `db:"id"`
 	AddTime      string `db:"addtime"`
-	Accepted     int  `db:"accepted"`
-	Disabled     int  `db:"disabled"`
-	DepartmentId *int `db:"departmentid"`
+	Accepted     int    `db:"accepted"`
+	Disabled     int    `db:"disabled"`
+	DepartmentId *int   `db:"departmentid"`
 }
 
 type FullWifiMemorandumClientList struct {
@@ -73,7 +73,7 @@ type FullWifiMemorandumClientList struct {
 }
 
 type Department struct {
-	Id       int64 `db:"id"`
+	Id       int64  `db:"id"`
 	Name     string `db:"name"`
 	Selected bool
 }
@@ -191,7 +191,7 @@ func generateHash(firstMac string) string {
 func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
 	newList := make([]latex.WifiUser, 0, len(list))
 	regForMac, err := regexp.Compile("[^a-f0-9]+")
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\.\\-]+")
 	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
 	if err != nil {
 		log.Println(err)
@@ -229,7 +229,7 @@ func checkSingleMac(mac string) (string, error) {
 }
 
 func checkSingleName(name string) (string, error) {
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\-]+")
+	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\.\\-]+")
 	if err != nil {
 		return "", err
 	}
@@ -247,18 +247,18 @@ func checkSinglePhone(phone string) (string, error) {
 }
 
 type RecaptchaResponse struct {
-	Success    bool `json:"success"`
+	Success bool `json:"success"`
 }
 
 func checkRecaptcha(ans string) error {
 	client := &http.Client{Timeout: 20 * time.Second}
 	resp, err := client.PostForm("https://www.google.com/recaptcha/api/siteverify",
-	url.Values{"secret": {config.RecaptchaKey}, "response": {ans}})
+		url.Values{"secret": {config.RecaptchaKey}, "response": {ans}})
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	gr := RecaptchaResponse{Success:false}
+	gr := RecaptchaResponse{Success: false}
 	decoder := json.NewDecoder(resp.Body)
 	err = decoder.Decode(&gr)
 	if err != nil {
@@ -699,7 +699,7 @@ func (s *server) getMemorandums(limit, offset int) (memorandums []FullWifiMemora
 
 type MemAccepted struct {
 	MemorandumId int `db:"memorandumid"`
-	Accepted     int`db:"accepted"`
+	Accepted     int `db:"accepted"`
 }
 
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
@@ -920,9 +920,9 @@ func (s *server) getDepartments() ([]Department, error) {
 	return departments, err
 }
 
-func (s *server) saveAction(userName, action, actionType, mac, id string) error {
-
-	return nil
+func (s *server) saveAction(userName, ip, action, id, item string) error {
+	_, err := s.Db.Query("INSERT INTO `actions` (username, ip, action, itemid, item) VALUES (?, ?, ?, ?, ?)", userName, ip, action, id, item)
+	return err
 }
 
 func main() {
