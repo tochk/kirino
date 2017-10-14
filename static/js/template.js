@@ -7,13 +7,13 @@ function CheckName(Name) {
     var RegExPattern = /[^а-яА-Яa-zA-Z \-]+$/;
     newName = Name.replace(RegExPattern, "");
     test =  newName === Name;
-    console.log(test);
     return true
 }
 
-
+(function($, root, undefined) {
+"use strict"
 var macAddrs = $("input.mac_valid");
-jQuery(document).ready(function () {
+$(document).ready(function () {
     $('.phone').mask("+7 (999) 999-9999", {autoclear: false});
 
     $("input.mac_valid").on('input', '[data-action="text"]', function () {
@@ -30,7 +30,21 @@ jQuery(document).ready(function () {
 	$('#sbm').removeAttr('disabled');
         return false;
     });
+    if ($('.search')[0]) {
+        $('.search').click(function () {
+            if($(this).hasClass("glyphicon-ok")){
+                $(this).removeClass("glyphicon-ok");
+                $(this).addClass("glyphicon-remove");
+            }
+            else {
+                console.log("1337");
+                $(this).addClass("glyphicon-ok");
+                $(this).removeClass("glyphicon-remove");
+            }
+        });
+    }
 });
+
 var i = 2;
 $("#addNew").click(function () {
     $("#cancel").css("display", "inline-block");
@@ -172,52 +186,53 @@ $("input.phone, input.mac, input.name").keyup(function () {
     }
 });
 
-jQuery(document).ready(function () {
-    jQuery("#info_win7, #info_win8, #info_mac, #info_android, #info_ios").hide();
+$(document).ready(function () {
+    $("#info_win7, #info_win8, #info_mac, #info_android, #info_ios").hide();
     function moveCaretToStart(inputObject) {
         if (inputObject.selectionStart) {
             inputObject.setSelectionRange(10, 5);
             inputObject.focus();
         }
     }
-
-    moveCaretToStart(document.querySelector('.phone'));
-
-    jQuery("a#tutorial").click(function () {
-        jQuery("#black-block").css('display', 'block');
-        jQuery("#window").css('display', 'block');
-        jQuery("#blurr").addClass("blurt");
-        jQuery("#win7").children('a').click();
-        jQuery("#w1").css("top", jQuery(window).scrollTop() + 214);
+    if($('.phone')[0]) {
+        moveCaretToStart(document.querySelector('.phone'));
+    }
+    $("a#tutorial").click(function () {
+        $("#black-block").css('display', 'block');
+        $("#window").css('display', 'block');
+        $("#blurr").addClass("blurt");
+        $("#win7").children('a').click();
+        $("#w1").css("top", $(window).scrollTop() + 214);
         return false;
     });
-    jQuery("a#guide").click(function () {
-        jQuery("#black-block").css('display', 'block');
-        jQuery("#window1").css('display', 'block');
-        jQuery("#blurr").addClass("blurt");
-        //jQuery("#win7").children('a').click();
-        //jQuery("#w1").css("top", jQuery(window).scrollTop() + 214);
+    $("a#guide").click(function () {
+        $("#black-block").css('display', 'block');
+        $("#window1").css('display', 'block');
+        $("#blurr").addClass("blurt");
+        //$("#win7").children('a').click();
+        //$("#w1").css("top", $(window).scrollTop() + 214);
         return false;
     });
 
-    jQuery("#black-block").click(function () {
-        jQuery("#black-block").css('display', 'none');
-        jQuery("#window").css('display', 'none');
-        jQuery("#window1").css('display', 'none');
-        jQuery("body").removeClass("nooverflow");
-        jQuery("html").removeClass("nooverflow");
-        jQuery("#blurr").removeClass("blurt");
+    $("#black-block").click(function () {
+        $("#black-block").css('display', 'none');
+        $("#window").css('display', 'none');
+        $("#window1").css('display', 'none');
+        $("body").removeClass("nooverflow");
+        $("html").removeClass("nooverflow");
+        $("#blurr").removeClass("blurt");
 
     });
-    jQuery(".closee").click(function () {
-        jQuery("#black-block").css('display', 'none');
-        jQuery("#window").css('display', 'none');
-        jQuery("#window1").css('display', 'none');
-        jQuery("#blurr").removeClass("blurt");
+    $(".closee").click(function () {
+        $("#black-block").css('display', 'none');
+        $("#window").css('display', 'none');
+        $("#window1").css('display', 'none');
+        $("#blurr").removeClass("blurt");
     });
 
-    jQuery("#win7, #win8, #mac, #android, #ios").click(function () {
-        jQuery("#info_win7, #info_win8, #info_mac, #info_android, #info_ios").hide();
-        jQuery("#info_" + jQuery(this).attr('id')).show();
+    $("#win7, #win8, #mac, #android, #ios").click(function () {
+        $("#info_win7, #info_win8, #info_mac, #info_android, #info_ios").hide();
+        $("#info_" + $(this).attr('id')).show();
     });
 });
+})($, this);

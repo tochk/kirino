@@ -717,9 +717,19 @@ func (s *server) setDisabled(status, id int) (err error) {
 	return
 }
 
-func (s *server) setRejected(status, id int) (err error) {
+func (s *server) setAccepted(status, id int) (err error) {
 	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
 	return
+}
+
+func (s *server) checkMemorandumAccepted(userId int) error {
+	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 " +
+		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = ?) AND " +
+		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
+		"(SELECT memorandumid FROM wifiusers WHERE id = ?))" +
+		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
+		"(SELECT memorandumid FROM wifiusers WHERE id = ?) AND accepted = 1) = 0;")
+	return err
 }
 
 func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
@@ -752,7 +762,11 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setRejected(1, id); err != nil {
+			if err = s.setAccepted(1, id); err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.checkMemorandumAccepted(id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -764,7 +778,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setRejected(2, id); err != nil {
+			if err = s.setAccepted(2, id); err != nil {
 				log.Println(err)
 				return
 			}
