@@ -33,21 +33,26 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/">Kirino</a>
+                <a class="navbar-brand" href="/">WiFi СГУ</a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
                 <ul class="nav navbar-nav">
+                    {{ if . }}
                     <li><a href="/admin/memorandums/">Memorandums</a></li>
                     <li><a href="/admin/users/">Users</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="/admin/logout/">Logout</a></li>
+                    {{else}}
+                    <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                    <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
+                    {{end}}
                 </ul>
             </div>
         </div>
     </div>
-    <div style="width: 80%; margin: 0 auto;min-width: 1320px">
-        <table class="table table-striped table-hover">
+    <div class="table_wrapper">
+        <table class="table table-striped table-hover memorand">
             <thead>
             <tr>
                 <th>Number</th>
@@ -58,8 +63,8 @@
             {{ $departments := .Departments }}
             {{ range .Memorandums }}
             <tr {{if (eq .Accepted 1)}}class="success" {{end}} {{if (eq .Accepted 2)}}class="danger" {{end}} {{if (eq .Accepted 3)}}class="info" {{end}}>
-                <td style="padding: 20px;">{{ .Id }}</td>
-                <td style="padding: 20px;">{{ .AddTime }}</td>
+                <td>{{ .Id }}</td>
+                <td>{{ .AddTime }}</td>
 
 
                 <td>
@@ -84,14 +89,23 @@
                         </div>
                     </form>
                 </td>
-                <td><a href="/admin/checkMemorandum/{{ .Id }}" class="btn btn-info btn-on-table"><span class="glyphicon glyphicon-list" aria-hidden="true"></span></a></td>
-
-
+                <td>
+                    <a href="/admin/checkMemorandum/{{ .Id }}" class="btn btn-info btn-on-table hint-act">
+                        <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
+                        <span class="hint">Посмотреть  служебку</span>
+                    </a>
+                </td>
                 <td>
                     {{if ne .Accepted 1}}
-                    <a href="/admin/checkMemorandum/accept/{{ .Id }}" class="btn btn-success btn-on-table"><span class="glyphicon glyphicon-ok" aria-hidden="true"></a>
+                    <a href="/admin/checkMemorandum/accept/{{ .Id }}" class="btn btn-success btn-on-table hint-act">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        <span class="hint">Запретить служебку</span>
+                    </a>
                     {{else}}
-                    <a href="/admin/checkMemorandum/reject/{{ .Id }}" class="btn btn-danger btn-on-table"><span class="glyphicon glyphicon-remove" aria-hidden="true"></a>
+                    <a href="/admin/checkMemorandum/reject/{{ .Id }}" class="btn btn-danger btn-on-table hint-act">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        <span class="hint">Разрешить служебку</span>
+                    </a>
                     {{end}}
                 </td>
             </tr>

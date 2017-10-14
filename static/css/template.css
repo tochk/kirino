@@ -145,10 +145,131 @@ td {
 .left{
     float: left;
 }
+.select_form{
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    margin: 2px;
+    border-width: 1px;
+    border-style: solid;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    height: 24px;
+}
+.glyphicon-ok{
+    cursor: pointer;
+    color: #4caf50;
+}
+.glyphicon-remove{
+    cursor: pointer;
+    color: #f44336;
+}
+.search{
+    margin-right: 20px;
+    display: inline-block;
+    position: relative;
+    width: calc(100% / 14);
+}
+.search:before {
+    margin-right: 5px;
+    top: 2px;
+    position: relative;
+}
+.search.glyphicon-remove, .search.glyphicon-ok{
+    width: auto;
+}
+.search_form .form-group{
+    display: inline-block;
+    box-sizing: border-box;
+    width: calc(100% / 7);
+    text-align: left;
+    letter-spacing: normal;
 
+}
+.hint-act:hover .hint{
+    opacity: 1;
+    z-index: 20;
+    /*display: block;*/
+}
+.hint{
+    /*display: none;*/
+    opacity: 0;
+    position: absolute;
+    bottom: -30px;
+    color: white;
+    padding: 0px 5px;
+    text-transform: none;
+    background-color: rgba(0,0,0,0.6);
+    transition: opacity .5s ease;
+    z-index: -1;
+    /*transition: display .5s ease;*/
+}
+.users tr td:last-child .hint{
+     left: -100px;
+ }
+.users tr td:nth-last-child(2) .hint{
+    left: -40px;
+}
+.users tr td:nth-last-child(3) .hint{
+    left: 7px;
+}
+.memorand tr td:last-child .hint{
+    left: -100px;
+}
+.memorand tr td:nth-last-child(2) .hint{
+    left: -40px;
+}
+.memorand tr td:nth-last-child(3) .hint{
+    left: 7px;
+}
+.memorand td{
+    padding: 20px !important;
+    box-sizing: border-box;
+}
+.table_wrapper{
+    width: 95%;
+    margin: 0 auto;
+}
+#denied_host, #null_memorandum, #allowed_host{
+    display: none;
+}
+.g-recaptcha{
+    display: inline-block;
+    position: relative;
+    float: right;
+}
 @media screen and (max-width: 700px) {
+    .form-group.descktop{
+        display: flex;
+        flex-direction: column;
+    }
+    .form-group.descktop div{
+        order: 3;
+        margin: 0 auto;
+    }
+    .form-group.descktop a#addNew{
+        order: 2;
+        margin: 0 auto;
+    }
+    .form-group.descktop button#sbm{
+        order: 4;
+        margin: 0 auto;
+    }
+    .form-group.descktop button#cancel{
+        order: 1;
+        margin: 0 auto;
+    }
+    .table_wrapper{
+        width: 95%;
+        margin: 0 auto;
+        overflow: hidden;
+    }
     .form-horizontal{
         width: unset;
+    }
+    .memorand td{
+        padding: 0px !important;
+        padding-top: 10px !important;
     }
     .form-horizontal .form-group{
         margin: 0 auto;
