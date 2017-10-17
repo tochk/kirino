@@ -728,7 +728,7 @@ func (s *server) checkMemorandumAccepted(userId int) error {
 		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
 		"(SELECT memorandumid FROM wifiusers WHERE id = ?))" +
 		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
-		"(SELECT memorandumid FROM wifiusers WHERE id = ?) AND accepted = 1) = 0;")
+		"(SELECT memorandumid FROM wifiusers WHERE id = ?) AND accepted = 1) = 0;", userId, userId, userId)
 	return err
 }
 
