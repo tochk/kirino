@@ -1,0 +1,71 @@
+<html>
+<head>
+    <title>Kirino - Departments list</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
+    <meta name="viewport" content="height=device-height,width=device-width" />
+</head>
+<body>
+<div id="blurr">
+    <div class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">WiFi СГУ</a>
+            </div>
+            <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    {{ if . }}
+                    <li><a href="/admin/memorandums/">Memorandums</a></li>
+                    <li><a href="/admin/users/">Users</a></li>
+                    <li><a href="/admin/departments/">Departments</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/admin/logout/">Logout</a></li>
+                    {{else}}
+                    <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+                    <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="table_wrapper">
+        <table class="table table-striped table-hover memorand">
+            <thead>
+            <tr>
+                <th>Department</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Name }}</td>
+                <td>Buttons (or not)</td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="black-block"></div>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/ripples.min.js"></script>
+<script src="/static/js/material.min.js"></script>
+<script src="/static/js/template.js"></script>
+<script src="/static/js/jquery.maskedinput.min.js"></script>
+<script>$.material.init();</script>
+<script src="https://fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+</body>
+</html>

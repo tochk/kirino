@@ -723,11 +723,11 @@ func (s *server) setAccepted(status, id int) (err error) {
 }
 
 func (s *server) checkMemorandumAccepted(userId int) error {
-	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 " +
-		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = ?) AND " +
-		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
-		"(SELECT memorandumid FROM wifiusers WHERE id = ?))" +
-		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = " +
+	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 "+
+		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = ?) AND "+
+		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
+		"(SELECT memorandumid FROM wifiusers WHERE id = ?))"+
+		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
 		"(SELECT memorandumid FROM wifiusers WHERE id = ?) AND accepted = 1) = 0;", userId, userId, userId)
 	return err
 }
@@ -939,6 +939,27 @@ func (s *server) saveAction(userName, ip, action, id, item string) error {
 	return err
 }
 
+func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+
+	departments, err := s.getDepartments()
+
+	latexTemplate, err := template.ParseFiles("templates/html/departments.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, departments); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
 func main() {
 	checkFolders()
 	flag.Parse()
@@ -968,6 +989,7 @@ func main() {
 	http.HandleFunc("/admin/users/", s.usersHandler)
 	http.HandleFunc("/admin/user/", s.userHandler)
 	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
+	http.HandleFunc("/admin/departments/", s.departmentsHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)
