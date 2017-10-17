@@ -724,11 +724,11 @@ func (s *server) setAccepted(status, id int) (err error) {
 
 func (s *server) checkMemorandumAccepted(userId int) error {
 	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 "+
-		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = ?) AND "+
+		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+
 		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
-		"(SELECT memorandumid FROM wifiusers WHERE id = ?))"+
+		"(SELECT memorandumid FROM wifiusers WHERE id = $1))"+
 		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
-		"(SELECT memorandumid FROM wifiusers WHERE id = ?) AND accepted = 1) = 0;", userId, userId, userId)
+		"(SELECT memorandumid FROM wifiusers WHERE id = $1) AND accepted = 1) = 0;", userId)
 	return err
 }
 
