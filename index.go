@@ -37,8 +37,7 @@ func checkRecaptcha(ans string) error {
 	defer resp.Body.Close()
 	gr := RecaptchaResponse{Success: false}
 	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&gr)
-	if err != nil {
+	if err = decoder.Decode(&gr); err != nil {
 		return err
 	}
 	if !gr.Success {

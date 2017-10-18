@@ -119,9 +119,9 @@ func main() {
 	}
 	log.Println("Config loaded from", *configFile)
 	s := server{
-		//Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
+		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
 	}
-	//defer s.Db.Close()
+	defer s.Db.Close()
 
 	log.Printf("Connected to database on %s", config.DbHost)
 
