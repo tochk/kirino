@@ -26,6 +26,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"gopkg.in/ldap.v2"
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 )
 
 var config struct {
@@ -911,21 +912,25 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := store.Get(r, "applicationData")
 
-	latexTemplate, err := template.ParseFiles("templates/html/index.tmpl.html")
+	/*latexTemplate, err := template.ParseFiles("templates/html/index.tmpl.html")
 	if err != nil {
 		log.Println(err)
 		return
-	}
+	}*/
 
 	isAdmin := false
 	if session.Values["userName"] != nil {
 		isAdmin = true
 	}
 
-	if err = latexTemplate.Execute(w, isAdmin); err != nil {
+
+
+	fmt.Fprint(w, qtpl_html.IndexPage("Доступ к WiFi сети СГУ", isAdmin))
+
+	/*if err = latexTemplate.Execute(w, isAdmin); err != nil {
 		log.Println(err)
 		return
-	}
+	}*/
 }
 
 func (s *server) getDepartments() ([]Department, error) {
@@ -968,9 +973,9 @@ func main() {
 	}
 	log.Println("Config loaded from", *configFile)
 	s := server{
-		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
+		//Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
 	}
-	defer s.Db.Close()
+	//defer s.Db.Close()
 
 	log.Printf("Connected to database on %s", config.DbHost)
 

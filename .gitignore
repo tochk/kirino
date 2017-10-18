@@ -50,3 +50,5 @@ Temporary Items
 .idea
 conf.json
 userFiles/
+
+*qtpl.go
