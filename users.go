@@ -1,0 +1,247 @@
+package main
+
+import (
+	"html/template"
+	"log"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+)
+
+type FullWifiUser struct {
+	Id           int    `db:"id"`
+	MacAddress   string `db:"mac"`
+	UserName     string `db:"username"`
+	PhoneNumber  string `db:"phonenumber"`
+	Hash         string `db:"hash"`
+	MemorandumId int    `db:"memorandumid"`
+	Accepted     int    `db:"accepted"`
+	Disabled     int    `db:"disabled"`
+	DepartmentId *int   `db:"departmentid"`
+}
+
+type UsersPage struct {
+	Users       []FullWifiUser
+	Departments []Department
+	Pagination  Pagination
+}
+
+func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+
+	r.ParseForm()
+	urlInfo := r.URL.Path[len("/admin/user/"):]
+	var user FullWifiUser
+	if len(urlInfo) > 0 {
+		splittedUrl := strings.Split(urlInfo, "/")
+		switch splittedUrl[0] {
+		case "edit":
+			if len(splittedUrl[1]) > 0 {
+				userId, err := strconv.Atoi(splittedUrl[1])
+				if err != nil {
+					log.Println(err)
+					return
+				}
+				user, err = s.getUser(userId)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+			}
+		case "save":
+			clearMac, err := checkSingleMac(r.PostForm.Get("mac1"))
+			clearName, err := checkSingleName(r.PostForm.Get("user1"))
+			clearPhone, err := checkSinglePhone(r.PostForm.Get("tel1"))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			_, err = s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, "/admin/users/", 302)
+			return
+		}
+	}
+
+	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err = latexTemplate.Execute(w, user); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	return
+}
+
+func (s *server) getUser(id int) (user FullWifiUser, err error) {
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE id = $1", id)
+	return
+}
+
+func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
+	return
+}
+
+func (s *server) setDisabled(status, id int) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET disabled = $1 WHERE id = $2", status, id)
+	return
+}
+
+func (s *server) setAccepted(status, id int) (err error) {
+	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
+	return
+}
+
+func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
+	session, _ := store.Get(r, "applicationData")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
+	}
+	r.ParseForm()
+	urlInfo := r.URL.Path[len("/admin/users/"):]
+	var usersList []FullWifiUser
+	var pagination Pagination
+	perPage := 50
+	if len(urlInfo) > 0 {
+		splittedUrl := strings.Split(urlInfo, "/")
+		switch splittedUrl[0] {
+		case "savedept":
+			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
+				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
+					log.Println(err)
+					return
+				}
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		case "accept":
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.setAccepted(1, id); err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.checkMemorandumAccepted(id); err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		case "reject":
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.setAccepted(2, id); err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		case "enable":
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.setDisabled(0, id); err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		case "disable":
+			id, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			if err = s.setDisabled(1, id); err != nil {
+				log.Println(err)
+				return
+			}
+			http.Redirect(w, r, r.Referer(), 302)
+			return
+		case "page":
+			page, err := strconv.Atoi(splittedUrl[1])
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			pagination = s.paginationCalc(page, perPage, "wifiUsers")
+			usersList, err = s.getUserList(pagination.PerPage, pagination.Offset)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		case "search":
+			var err error
+			usersList, err = s.getSearchResult(r.URL.Query())
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}
+	}
+	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if pagination.CurrentPage == 0 && len(usersList) == 0 {
+		usersList, err = s.getUserList(50, 0)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		pagination = s.paginationCalc(1, perPage, "wifiUsers")
+	}
+
+	for i, e := range usersList {
+		if len(e.UserName) > 65 {
+			usersList[i].UserName = e.UserName[:66] + "..."
+		}
+	}
+
+	departments, err := s.getDepartments()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = latexTemplate.Execute(w, UsersPage{
+		Users:       usersList,
+		Departments: departments,
+		Pagination:  pagination,
+	}); err != nil {
+		log.Println(err)
+		return
+	}
+}
+func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
+	log.Println(values)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
+	return userList, err
+}
