@@ -1,0 +1,89 @@
+{% func GeneratedPage(title string, isAdmin bool, token, count string, exist []string) %}
+{%= Head(title) %}
+<div id="blurr">
+{%= Menu(isAdmin) %}
+
+    <div style="text-align:center;font-size:20px;width:80%;margin: 0 auto;">
+        {% if count != "0" %}
+        <div class="alert alert-dismissible alert-success">
+            Ваше заявление готово.<br><br> Вам нужно распечать его, подписать у руководителя вашего подразделения (для студентов - подписать в деканате вашего факультета) и отнести в 106 кабинет 9 корпуса СГУ или в 225б кабинет 12 корпуса СГУ.<br><br> Доступ в Интернет появится после получения письменного заявления.<br> Используйте имя сети "ssu_internet" и пароль "Internet".
+        </div>
+        {% endif %}
+
+        {% if len(exist) > 0 %}
+        <div class="alert alert-dismissible alert-danger">
+            Следующие MAC-адреса уже существуют в базе:<br>
+            {% for _, mac := range exist %}
+                {%s mac %} <br>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if count != "0" %}
+        <div style="margin-bottom: 20px;"><a href="/userFiles/{%s token %}.pdf" class="btn btn-raised btn-info" style="font-size: 30px">Скачать служебную записку</a> </div>
+        <embed src="/userFiles/{%s token %}.pdf" width="80%" height="100%" type='application/pdf'>
+        {% endif %}
+    </div>
+    <br><br>
+
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win4.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+        </div>
+    </div>
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}

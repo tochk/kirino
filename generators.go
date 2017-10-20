@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"html/template"
 	"log"
 	"math/rand"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/latex"
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -178,20 +178,20 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 
 	hash := generateHash(r.PostFormValue("mac1"))
 
-	listForDb, err := checkMacAddresses(list)
+	list, err := checkMacAddresses(list)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	for _, e := range listForDb {
+	for _, e := range list {
 		if _, err := s.getUserByMac(e.MacAddress); err != sql.ErrNoRows {
 			exist = append(exist, e.MacAddress)
 		}
 	}
 
 	listToWrite := make([]latex.WifiUser, 0, 5)
-	for i, e := range listForDb {
+	for i, e := range list {
 		duplicate := false
 		for i2, e2 := range listToWrite {
 			if i != i2 && e.MacAddress == e2.MacAddress {
@@ -225,28 +225,13 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
-	memorandum := r.URL.Path[len("/generatedPdf/"):]
-	splittedUrl := strings.Split(memorandum, "/")
-	var page GeneratedPdfPage
-	page.Token = splittedUrl[0]
+	memorandumInfo := r.URL.Path[len("/generatedPdf/"):]
+	splittedUrl := strings.Split(memorandumInfo, "/")
+
+	var exist []string
 	if splittedUrl[1] != "0" {
-		page.Exist = strings.Split(splittedUrl[1], ",")
-	}
-	page.Count = splittedUrl[2]
-	page.ExistCount = len(page.Exist)
-	latexTemplate, err := template.ParseFiles("templates/html/generatedPdf.tmpl.html")
-	if err != nil {
-		log.Println(err)
-		return
+		exist = strings.Split(splittedUrl[1], ",")
 	}
 
-	if session.Values["userName"] != nil {
-		page.IsAdmin = true
-	}
-
-	if err = latexTemplate.Execute(w, page); err != nil {
-		log.Println(err)
-		return
-	}
+	fmt.Fprint(w, qtpl_html.GeneratedPage("Доступ к WiFi сети СГУ", isAdmin(r), splittedUrl[0], splittedUrl[2], exist))
 }
