@@ -1,16 +1,5 @@
-<html>
-<head>
-    <title>Kirino</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/template.css">
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <meta name="viewport" content="height=device-height,width=device-width"/>
-</head>
-<body>
-
+{% func AdminPage(title string) %}
+{%= Head(title) %}
 <div class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -54,16 +43,5 @@
 
     </fieldset>
 </form>
-
-
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/ripples.min.js"></script>
-<script src="/static/js/material.min.js"></script>
-<script src="/static/js/template.js"></script>
-<script src="/static/js/jquery.maskedinput.min.js"></script>
-<script>$.material.init();</script>
-<script src="https://fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
-</body>
-</html>
+{%= Footer() %}
+{% endfunc %}

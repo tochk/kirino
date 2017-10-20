@@ -2,10 +2,11 @@ package main
 
 import (
 	"errors"
-	"html/template"
+	"fmt"
 	"log"
 	"net/http"
 
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 	"gopkg.in/ldap.v2"
 )
 
@@ -24,15 +25,8 @@ func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/memorandums/", 302)
 		return
 	}
-	latexTemplate, err := template.ParseFiles("templates/html/admin.tmpl.html")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if err = latexTemplate.Execute(w, nil); err != nil {
-		log.Println(err)
-		return
-	}
+
+	fmt.Fprint(w, qtpl_html.AdminPage("Вход в систему"))
 }
 
 func auth(login, password string) (string, error) {
