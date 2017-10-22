@@ -211,6 +211,7 @@ type MemAccepted struct {
 	Accepted     int `db:"accepted"`
 }
 
+//todo: rewrite
 func (s *server) checkMemorandumAccepted(userId int) error {
 	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 "+
 		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+

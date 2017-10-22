@@ -241,7 +241,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
-	log.Println(values)
 	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
-	return userList, err
+	return
 }

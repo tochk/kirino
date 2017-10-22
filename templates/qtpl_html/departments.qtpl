@@ -1,0 +1,31 @@
+{% code
+type Department struct {
+    Id       int64  `db:"id"`
+    Name     string `db:"name"`
+    Selected bool
+}
+%}
+{% func DepartmentsPage(title string, departments []Department) %}
+{%= Head(title) %}
+{%= Menu(true) %}
+
+<div class="table_wrapper">
+    <table class="table table-striped table-hover memorand">
+        <thead>
+        <tr>
+            <th>Department</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, department := range departments %}
+        <tr>
+            <td>{%s department.Name %}</td>
+            <td>Buttons (or not)</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{%= Footer() %}
+{% endfunc %}
