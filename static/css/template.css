@@ -205,29 +205,30 @@ td {
     /*transition: display .5s ease;*/
 }
 .users tr td:last-child .hint{
-     left: -100px;
+     left: -53px;
  }
 .users tr td:nth-last-child(2) .hint{
     left: -40px;
 }
 .users tr td:nth-last-child(3) .hint{
-    left: 7px;
+    left: -40px;
 }
 .memorand tr td:last-child .hint{
-    left: -100px;
+    left: -60px;
 }
 .memorand tr td:nth-last-child(2) .hint{
-    left: -40px;
+    left: -67px;
 }
 .memorand tr td:nth-last-child(3) .hint{
     left: 7px;
 }
 .memorand td{
-    padding: 20px !important;
+    padding: 10px !important;
     box-sizing: border-box;
+    vertical-align: middle !important;
 }
 .table_wrapper{
-    width: 95%;
+    width: 90%;
     margin: 0 auto;
 }
 #denied_host, #null_memorandum, #allowed_host{
