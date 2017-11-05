@@ -15,7 +15,7 @@
 {%= Head(title) %}
 {%= Menu(true) %}
 
-<div style="width: 90%; margin: 0 auto">
+<div class="table_wrapper">
     <form class="search_form" action="/admin/users/search">
         <div class="form-group is-empty">
             <input type="text" name="mac" class="form-control" placeholder="mac">

@@ -1,12 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
-
-	"encoding/json"
-	"errors"
 	"net/url"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
-		http.ServeFile(w, r, "/static/favicon.ico")
+		http.ServeFile(w, r, "static/favicon.ico")
 		return
 	}
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
