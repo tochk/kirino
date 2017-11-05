@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,13 +9,6 @@ import (
 
 	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 )
-
-
-type FullWifiMemorandumClientList struct {
-	Clients     []FullWifiUser
-	Memorandum  FullWifiMemorandum
-	Departments []Department
-}
 
 type FullWifiMemorandum = qtpl_html.Memorandum
 
@@ -157,15 +149,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	latexTemplate, err := template.ParseFiles("templates/html/checkMemorandum.tmpl.html")
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	if err = latexTemplate.Execute(w, FullWifiMemorandumClientList{Clients: clientsInMemorandum, Memorandum: memorandum, Departments: departments}); err != nil {
-		log.Println(err)
-		return
-	}
+	fmt.Fprint(w, qtpl_html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departments))
 }
 
 //todo: rewrite
