@@ -55,7 +55,7 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getDepartments(limit, offset int) (departments []Department, err error) {
-	err = s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC LIMIT $1 OFFSET $2")
+	err = s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC LIMIT $1 OFFSET $2", limit, offset)
 	return
 }
 
