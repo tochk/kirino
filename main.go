@@ -84,6 +84,8 @@ func (s *server) paginationCalc(page, perPage int, table string) Pagination {
 		err = s.Db.Get(&count, "SELECT COUNT(*) as count FROM wifiUsers")
 	case "memorandums":
 		err = s.Db.Get(&count, "SELECT COUNT(*) as count FROM memorandums")
+	case "departments":
+		err = s.Db.Get(&count, "SELECT COUNT(*) as count FROM departments")
 	}
 	if err != nil {
 		log.Println(err)
