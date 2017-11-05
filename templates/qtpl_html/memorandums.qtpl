@@ -1,0 +1,93 @@
+{% code type Memorandum struct {
+    Id           int    `db:"id"`
+    AddTime      string `db:"addtime"`
+    Accepted     int    `db:"accepted"`
+    Disabled     int    `db:"disabled"`
+    DepartmentId *int   `db:"departmentid"`
+}
+%}
+
+{% func MemorandumsPage(title string, memorandums []Memorandum, departments []Department, pagination Pagination) %}
+{%= Head(title) %}
+{%= Menu(true) %}
+<div class="table_wrapper">
+    <table class="table table-striped table-hover memorand">
+        <thead>
+        <tr>
+            <th>Number</th>
+            <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, memorandum := range memorandums %}
+        {% if memorandum.Accepted == 1 %}
+        <tr class="success">
+        {% elseif memorandum.Accepted == 2 %}
+        <tr class="danger">
+        {% elseif memorandum.Accepted == 3 %}
+        <tr class="info">
+        {% else %}
+        <tr>
+        {% endif %}
+            <td>{%d memorandum.Id %}</td>
+            <td>{%s memorandum.AddTime %}</td>
+            <td>
+                <form action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
+                    <div class="form-group" style="margin: 0">
+                        <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
+
+                        <div class="col-md-6">
+                            <select id="select{%d memorandum.Id %}" class="form-control" name="department">
+                                {% if memorandum.DepartmentId == nil %}
+                                    <option disabled selected>None</option>
+                                    {% for _, department := range departments %}
+                                        <option value="{%d department.Id %}">{%s department.Name %}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option disabled>None</option>
+                                    {% for _, department := range departments %}
+                                        {% if department.Id == *memorandum.DepartmentId %}
+                                            <option selected value="{%d department.Id %}">{%s department.Name %}</option>
+                                        {% else %}
+                                            <option value="{%d department.Id %}">{%s department.Name %}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0">
+                            <div class="col-md-3">
+                                <input type="submit" class="btn btn-primary" value="save" style="margin: 3px 0 0;padding: 10px">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </td>
+            <td>
+                <a href="/admin/checkMemorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+            </td>
+            <td>
+            {% if memorandum.Accepted != 1 %}
+                <a href="/admin/checkMemorandum/accept/{%d memorandum.Id %}" class="btn btn-success btn-on-table hint-act">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    <span class="hint">Разрешить служебку</span>
+                </a>
+            {% else %}
+                <a href="/admin/checkMemorandum/reject/{%d memorandum.Id %}" class="btn btn-danger btn-on-table hint-act">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    <span class="hint">Запретить служебку</span>
+                </a>
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {%= PrintPagination(pagination, "/admin/memorandums/") %}
+</div>
+
+{%= Footer() %}
+{% endfunc %}

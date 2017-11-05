@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 )
 
 
@@ -15,19 +18,7 @@ type FullWifiMemorandumClientList struct {
 	Departments []Department
 }
 
-type MemorandumsPage struct {
-	Memorandums []FullWifiMemorandum
-	Departments []Department
-	Pagination  Pagination
-}
-
-type FullWifiMemorandum struct {
-	Id           int    `db:"id"`
-	AddTime      string `db:"addtime"`
-	Accepted     int    `db:"accepted"`
-	Disabled     int    `db:"disabled"`
-	DepartmentId *int   `db:"departmentid"`
-}
+type FullWifiMemorandum = qtpl_html.Memorandum
 
 func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -39,6 +30,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 	var pagination Pagination
 	perPage := 50
 	var memorandums []FullWifiMemorandum
+	var err error
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/memorandums/"):]
 	if len(urlInfo) > 0 {
@@ -72,11 +64,6 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 	}
-	latexTemplate, err := template.ParseFiles("templates/html/memorandums.tmpl.html")
-	if err != nil {
-		log.Println(err)
-		return
-	}
 
 	if pagination.CurrentPage == 0 {
 		memorandums, err = s.getMemorandums(50, 0)
@@ -97,14 +84,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	if err = latexTemplate.Execute(w, MemorandumsPage{
-		Memorandums: memorandums,
-		Departments: departments,
-		Pagination:  pagination,
-	}); err != nil {
-		log.Println(err)
-		return
-	}
+	fmt.Fprint(w, qtpl_html.MemorandumsPage("Служебные записки", memorandums, departments, pagination))
 }
 
 func (s *server) acceptMemorandum(id string) (err error) {

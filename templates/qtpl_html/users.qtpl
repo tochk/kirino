@@ -58,8 +58,10 @@
         {% for _, user := range users %}
         {% if user.Accepted == 1 %}
         <tr class="success">
-        {% else %}
+        {% elseif user.Accepted == 2 %}
         <tr class="danger">
+        {% else %}
+        <tr>
         {% endif %}
             <td style="padding: 20px;">{%s user.MacAddress %}</td>
             <td style="padding: 20px;">{%s user.UserName %}</td>
@@ -78,7 +80,7 @@
                                         <option value="{%d department.Id %}">{%s department.Name %}</option>
                                     {% endfor %}
                                 {% else %}
-                                    <option disabled selected>None</option>
+                                    <option disabled>None</option>
                                     {% for _, department := range departments %}
                                         {% if department.Id == *user.DepartmentId %}
                                         <option selected value="{%d department.Id %}">{%s department.Name %}</option>
