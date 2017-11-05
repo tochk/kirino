@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -32,14 +33,8 @@ type server struct {
 	Db *sqlx.DB
 }
 
-type Pagination struct {
-	CurrentPage int
-	NextPage    int
-	PrevPage    int
-	LastPage    int
-	Offset      int
-	PerPage     int
-}
+type Pagination = qtpl_html.Pagination
+
 
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")

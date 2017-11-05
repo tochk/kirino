@@ -1,3 +1,15 @@
+{% code type Pagination struct {
+    CurrentPage int
+    NextPage    int
+    PrevPage    int
+    LastPage    int
+    Offset      int
+    PerPage     int
+}
+%}
+
+
+
 {% func Head(title string) %}
 <html>
 <head>
@@ -75,4 +87,24 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
 </body>
 </html>
+{% endfunc %}
+
+{% func PrintPagination(pagination Pagination, baseUrl string) %}
+<div style="text-align: center; margin: 0 auto">
+    <ul class="pagination">
+    {% if pagination.CurrentPage != 1 %}
+        <li><a href="{%s baseUrl %}">1</a></li>
+    {% endif %}
+    {% if pagination.PrevPage > 1 %}
+        <li><a href="{%s baseUrl %}page/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
+    {% endif %}
+        <li class="active"><a href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a></li>
+    {% if pagination.NextPage != 0 %}
+        <li><a href="{%s baseUrl %}page/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
+    {% endif %}
+    {% if pagination.LastPage != 0 %}
+        <li><a href="{%s baseUrl %}page/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
+    {% endif %}
+    </ul>
+</div>
 {% endfunc %}
