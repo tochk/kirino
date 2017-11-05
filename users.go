@@ -1,31 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 )
 
-type FullWifiUser struct {
-	Id           int    `db:"id"`
-	MacAddress   string `db:"mac"`
-	UserName     string `db:"username"`
-	PhoneNumber  string `db:"phonenumber"`
-	Hash         string `db:"hash"`
-	MemorandumId int    `db:"memorandumid"`
-	Accepted     int    `db:"accepted"`
-	Disabled     int    `db:"disabled"`
-	DepartmentId *int   `db:"departmentid"`
-}
-
-type UsersPage struct {
-	Users       []FullWifiUser
-	Departments []Department
-	Pagination  Pagination
-}
+type FullWifiUser = qtpl_html.WifiUser
 
 func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -117,8 +104,11 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/users/"):]
-	var usersList []FullWifiUser
-	var pagination Pagination
+	var (
+		usersList  []FullWifiUser
+		pagination Pagination
+		err        error
+	)
 	perPage := 50
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
@@ -205,11 +195,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	latexTemplate, err := template.ParseFiles("templates/html/users.tmpl.html")
-	if err != nil {
-		log.Println(err)
-		return
-	}
 	if pagination.CurrentPage == 0 && len(usersList) == 0 {
 		usersList, err = s.getUserList(50, 0)
 		if err != nil {
@@ -231,14 +216,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = latexTemplate.Execute(w, UsersPage{
-		Users:       usersList,
-		Departments: departments,
-		Pagination:  pagination,
-	}); err != nil {
-		log.Println(err)
-		return
-	}
+	fmt.Fprint(w, qtpl_html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
 }
 func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
 	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))

@@ -1,6 +1,6 @@
 {% code
 type Department struct {
-    Id       int64  `db:"id"`
+    Id       int  `db:"id"`
     Name     string `db:"name"`
     Selected bool
 }
