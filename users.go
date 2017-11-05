@@ -68,17 +68,17 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
 
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
-	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE id = $1", id)
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE id = $1", id)
 	return
 }
 
 func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
-	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
+	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
 	return
 }
 
@@ -216,6 +216,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, qtpl_html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
 }
 func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
+	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
 	return
 }
