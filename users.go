@@ -59,15 +59,13 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	latexTemplate, err := template.ParseFiles("templates/html/user.tmpl.html")
+	departments, err := s.getDepartments()
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	if err = latexTemplate.Execute(w, user); err != nil {
-		log.Println(err)
-		return
-	}
+
+	fmt.Fprint(w, qtpl_html.UserPage("Редактирования пользователя WiFi", user, departments))
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {

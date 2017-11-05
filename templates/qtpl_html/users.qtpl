@@ -139,3 +139,44 @@
 
 {%= Footer() %}
 {% endfunc %}
+
+{% func UserPage(title string, user WifiUser, departments []Department) %}
+{%= Head(title) %}
+{%= Menu(true) %}
+<form class="form-horizontal" action="/admin/user/save/{%d user.Id %}" method="post">
+    <fieldset id="form_cont">
+        <div class="input_forms">
+            <h2 class='title'>Редактирование пользователя</h2>
+            <div class="form-group">
+                <label for="inputMac" class="col-md-2 control-label">Mac</label>
+                <div class="col-md-10">
+                    <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                           placeholder="Mac" value="{%s user.MacAddress %}" required>
+                    <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
+                <div class="col-md-10">
+                    <input type="name" name="user1" class="form-control name" id="inputName"
+                           placeholder="Ф.И.О"  value="{%s user.UserName %}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputPhone" class="col-md-2 control-label">Номер телефона</label>
+                <div class="col-md-10">
+                    <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                           placeholder="Номер телефона"  value="{%s user.PhoneNumber %}" required>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10 col-md-offset-2">
+                <button type="submit"  id="sbm" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+{%= Footer() %}
+{% endfunc %}
