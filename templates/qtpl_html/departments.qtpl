@@ -5,7 +5,7 @@ type Department struct {
     Selected bool
 }
 %}
-{% func DepartmentsPage(title string, departments []Department) %}
+{% func DepartmentsPage(title string, departments []Department, pagination Pagination) %}
 {%= Head(title) %}
 {%= Menu(true) %}
 
@@ -26,6 +26,7 @@ type Department struct {
         </tbody>
     </table>
 </div>
+{%= PrintPagination(pagination, "/admin/departments/") %}
 
 {%= Footer() %}
 {% endfunc %}

@@ -66,7 +66,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		pagination = s.paginationCalc(1, perPage, "memorandums")
 	}
 
-	departments, err := s.getDepartments()
+	departments, err := s.getAllDepartments()
 	if err != nil {
 		log.Println(err)
 		return
@@ -137,7 +137,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	departments, err := s.getDepartments()
+	departments, err := s.getAllDepartments()
 	if err != nil {
 		log.Println(err)
 		return

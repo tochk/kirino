@@ -58,7 +58,7 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	departments, err := s.getDepartments()
+	departments, err := s.getAllDepartments()
 	if err != nil {
 		log.Println(err)
 		return
@@ -207,7 +207,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	departments, err := s.getDepartments()
+	departments, err := s.getAllDepartments()
 	if err != nil {
 		log.Println(err)
 		return
