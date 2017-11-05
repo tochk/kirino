@@ -100,6 +100,12 @@
                 </form>
             </td>
             <td>
+                <a href="/admin/checkMemorandum/{%d user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+            </td>
+            <td>
                 {% if user.Accepted != 1 %}
                 <a href="/admin/users/accept/{%d user.Id %}"  class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>

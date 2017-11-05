@@ -58,8 +58,10 @@ func generateLatexFileForWifiMemorandum(list []WifiUser, hashStr string, memoran
 
 func generatePdf(path string) error {
 	cmd := exec.Command("pdflatex", "--interaction=errorstopmode", "--synctex=-1", "-output-directory=userFiles", path)
-	log.Println("pdflatex", "--interaction=errorstopmode", "--synctex=-1", "-output-directory=userFiles", path)
 	err := cmd.Run()
+	if err != nil {
+		log.Println("pdflatex", "--interaction=errorstopmode", "--synctex=-1", "-output-directory=userFiles", path)
+	}
 	return err
 }
 
