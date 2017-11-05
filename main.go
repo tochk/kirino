@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -35,11 +36,12 @@ type server struct {
 
 type Pagination = qtpl_html.Pagination
 
-
 var (
-	configFile  = flag.String("config", "conf.json", "Where to read the config from")
-	servicePort = flag.Int("port", 4001, "Service port number")
-	store       = sessions.NewCookieStore([]byte(config.SessionKey))
+	configFile        = flag.String("config", "conf.json", "Where to read the config from")
+	servicePort       = flag.Int("port", 4001, "Service port number")
+	store             = sessions.NewCookieStore([]byte(config.SessionKey))
+	emptySessionKey   = errors.New("empty session key")
+	emptyRecaptchaKey = errors.New("empty recaptcha key")
 )
 
 func loadConfig() error {
@@ -47,7 +49,17 @@ func loadConfig() error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(jsonData, &config)
+	err = json.Unmarshal(jsonData, &config)
+	if err != nil {
+		return err
+	}
+	if config.SessionKey == "" {
+		return emptySessionKey
+	}
+	if config.RecaptchaKey == "" {
+		return emptyRecaptchaKey
+	}
+	return nil
 }
 
 func userFilesHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,9 +82,11 @@ func checkFolders() {
 }
 
 func (s *server) paginationCalc(page, perPage int, table string) Pagination {
-	var count int
-	var pagination Pagination
-	var err error
+	var (
+		count      int
+		pagination Pagination
+		err        error
+	)
 	if page < 1 {
 		page = 1
 	}
