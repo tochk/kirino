@@ -37,7 +37,7 @@
                 <div class="form-group recapcha">
                     <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
                 </div>
-                <a id="addNew" href="#" class="btn addNew btn-success">Добавить другое устройство
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
                     <div class="ripple-container"></div>
                 </a>
                 <button type="submit" disabled="disabled" id="sbm" style="background-color: #59B75C; color: white" class="btn btn-raised btn-success">Отправить заявку</button>
