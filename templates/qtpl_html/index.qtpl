@@ -40,7 +40,7 @@
                 <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
                     <div class="ripple-container"></div>
                 </a>
-                <button type="submit" disabled="disabled" id="sbm" style="background-color: #59B75C; color: white" class="btn btn-raised btn-success">Отправить заявку</button>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку</button>
                 <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство</button>
             </div>
         </fieldset>
@@ -73,7 +73,7 @@
                     <img src="/static/win3.jpg">
                     В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
                     подключение), пункт «Физический адрес»:
-                    <img src="/static/win4.jpg">
+                    <img src="/static/win5.jpg">
                 </li>
                 <li id="info_win8">
                     В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
@@ -90,6 +90,7 @@
                     проблематичным.
                     Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
                     / «Общая информация».
+                    <img src="/static/android1.png">
                 </li>
                 <li id="info_ios">
                     Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».

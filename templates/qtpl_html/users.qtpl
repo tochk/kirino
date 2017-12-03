@@ -40,7 +40,7 @@
         <label for="denied_host"><span class="search glyphicon glyphicon-remove" aria-hidden="true">Denied</span></label>
         <input type="checkbox" id="null_memorandum" name="null_memorandum">
         <label for="null_memorandum"><span class="search glyphicon glyphicon-remove" aria-hidden="true">No&ensp;служебка</span></label>
-        <input type="submit" style="background-color: #59B75C; color: white" class="btn btn-raised btn-success">
+        <input type="submit" class="btn btn-raised btn-success btm_submit_success">
     </form>
     <table class="table table-striped table-hover users">
         <thead>
@@ -63,13 +63,13 @@
         {% else %}
         <tr>
         {% endif %}
-            <td style="padding: 20px;">{%s user.MacAddress %}</td>
-            <td style="padding: 20px;">{%s user.UserName %}</td>
-            <td style="padding: 20px;">{%s user.PhoneNumber %}</td>
+            <td class="table_header" >{%s user.MacAddress %}</td>
+            <td class="table_header">{%s user.UserName %}</td>
+            <td class="table_header">{%s user.PhoneNumber %}</td>
 
             <td>
                 <form action="/admin/users/savedept/{%d user.Id %}" method="post">
-                    <div class="form-group" style="margin: 0">
+                    <div class="form-group user">
                         <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
 
                         <div class="col-md-6">
@@ -91,9 +91,9 @@
                                 {% endif %}
                             </select>
                         </div>
-                        <div class="form-group" style="margin: 0">
+                        <div class="form-group user">
                             <div class="col-md-3">
-                                <input type="submit" class="btn btn-primary" value="save" style="margin: 3px 0 0;padding: 10px">
+                                <input type="submit" class="btn btn-primary" value="save" >
                             </div>
                         </div>
                     </div>

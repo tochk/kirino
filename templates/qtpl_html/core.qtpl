@@ -90,7 +90,7 @@
 {% endfunc %}
 
 {% func PrintPagination(pagination Pagination, baseUrl string) %}
-<div style="text-align: center; margin: 0 auto">
+<div class="pagination-container">
     <ul class="pagination">
     {% if pagination.CurrentPage != 1 %}
         <li><a href="{%s baseUrl %}">1</a></li>

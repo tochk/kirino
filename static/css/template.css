@@ -22,6 +22,22 @@
 }
 #sbm{
     float: right;
+    background-color: #59B75C;
+    color: white
+}
+.btm_submit_success{
+    background-color: #59B75C;
+    color: white
+}
+.table_header{
+    padding: 20px;
+}
+.form-group.user{
+    margin: 0
+}
+.form-group.user .col-md-3 .btn-primary{
+    margin: 3px 0 0;
+    padding: 10px
 }
 
 .form-group.has-error1.is-focused .form-control {
@@ -238,6 +254,10 @@ td {
     display: inline-block;
     position: relative;
     float: right;
+}
+.pagination-container{
+    text-align: center;
+    margin: 0 auto;
 }
 @media screen and (max-width: 700px) {
     .form-group.descktop{
