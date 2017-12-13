@@ -29,7 +29,7 @@
 
 
 {% func Menu(isAdmin bool) %}
-<div class="navbar navbar-inverse">
+<div class="navbar navbar-success">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse"

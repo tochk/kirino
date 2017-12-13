@@ -229,20 +229,20 @@ td {
 .users tr td:nth-last-child(3) .hint{
     left: -40px;
 }
-.memorand tr td:last-child .hint{
-    left: -60px;
-}
-.memorand tr td:nth-last-child(2) .hint{
-    left: -67px;
-}
-.memorand tr td:nth-last-child(3) .hint{
-    left: 7px;
-}
-.memorand td{
-    padding: 10px !important;
-    box-sizing: border-box;
-    vertical-align: middle !important;
-}
+/*.memorand tr td:last-child .hint{*/
+    /*left: -60px;*/
+/*}*/
+/*.memorand tr td:nth-last-child(2) .hint{*/
+    /*left: -67px;*/
+/*}*/
+/*.memorand tr td:nth-last-child(3) .hint{*/
+    /*left: 7px;*/
+/*}*/
+/*.memorand td{*/
+    /*padding: 10px !important;*/
+    /*box-sizing: border-box;*/
+    /*vertical-align: middle !important;*/
+/*}*/
 .table_wrapper{
     width: 95%;
     margin: 0 auto;
@@ -260,6 +260,27 @@ td {
     margin: 0 auto;
 }
 @media screen and (max-width: 700px) {
+    .memorand .mob_v_f{
+        display: inline-block!important;
+        width: 420px !important;
+    }
+    .memorand .mob_v_f > .form-group div:nth-child(2){
+        position: relative;
+        display: inline-block !important;
+        width: 200px !important;
+    }
+    .memorand .mob_v_f > .form-group .form-group{
+        width: 100px !important;
+        margin: 0;
+        display: inline-block !important;
+        position: relative;
+    }
+    .table{
+        width: 800px;
+    }
+    .search_form{
+        width: 800px;
+    }
     .form-group.descktop{
         display: flex;
         flex-direction: column;
@@ -283,15 +304,15 @@ td {
     .table_wrapper{
         width: 95%;
         margin: 0 auto;
-        overflow: hidden;
+        overflow: scroll;
     }
     .form-horizontal{
         width: unset;
     }
-    .memorand td{
-        padding: 0px !important;
-        padding-top: 10px !important;
-    }
+    /*.memorand td{*/
+        /*padding: 0px !important;*/
+        /*padding-top: 10px !important;*/
+    /*}*/
     .form-horizontal .form-group{
         margin: 0 auto;
     }
