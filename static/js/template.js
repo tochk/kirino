@@ -7,7 +7,7 @@ function CheckMACAddress(MACAddress) {
  * @return {boolean}
  */
 function CheckName(Name) {
-    var RegExPattern = /^[a-zA-Z'][a-zA-Z-' ]+[a-zA-Z']?$/;
+    var RegExPattern = /^[a-zA-Zа-яА-ЯёЁ0-9'][a-zA-Z-а-яА-ЯёЁ0-9' ]+[a-zA-Zа-яА-ЯёЁ0-9']?$/;
     // newName = Name.replace(RegExPattern, "");
     // test = newName === Name;
     return RegExPattern.test(Name);
