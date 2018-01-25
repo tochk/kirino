@@ -39,7 +39,7 @@ type Pagination = qtpl_html.Pagination
 var (
 	configFile        = flag.String("config", "conf.json", "Where to read the config from")
 	servicePort       = flag.Int("port", 4001, "Service port number")
-	store             = sessions.NewCookieStore([]byte(config.SessionKey))
+	store             *sessions.CookieStore
 	emptySessionKey   = errors.New("empty session key")
 	emptyRecaptchaKey = errors.New("empty recaptcha key")
 )
@@ -56,6 +56,7 @@ func loadConfig() error {
 	if config.SessionKey == "" {
 		return emptySessionKey
 	}
+	store = sessions.NewCookieStore([]byte(config.SessionKey))
 	if config.RecaptchaKey == "" {
 		return emptyRecaptchaKey
 	}
