@@ -32,7 +32,7 @@
             <td>{%d memorandum.Id %}</td>
             <td>{%s memorandum.AddTime %}</td>
             <td>
-                <form action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
+                <form class="mob_v_f" action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
                     <div class="form-group" style="margin: 0">
                         <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
 
