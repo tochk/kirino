@@ -34,7 +34,7 @@ func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) Ful
 		UserName: oldData.UserName,
 		PhoneNumber: oldData.PhoneNumber,
 		Hash: hash,
-		MemorandumId: memorandumId,
+		MemorandumId: &memorandumId,
 	}
 }
 

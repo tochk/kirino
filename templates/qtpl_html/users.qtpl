@@ -4,7 +4,7 @@
     UserName     string `db:"username"`
     PhoneNumber  string `db:"phonenumber"`
     Hash         string `db:"hash"`
-    MemorandumId int    `db:"memorandumid"`
+    MemorandumId *int    `db:"memorandumid"`
     Accepted     int    `db:"accepted"`
     Disabled     int    `db:"disabled"`
     DepartmentId *int   `db:"departmentid"`
@@ -100,10 +100,17 @@
                 </form>
             </td>
             <td>
-                <a href="/admin/checkMemorandum/{%d user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
+                {% if user.MemorandumId != nil %}
+                <a href="/admin/checkMemorandum/{%d *user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
+                {% else %}
+                <a href="javascript:void(0)" class="btn btn-info btn-on-table hint-act disabled">
+                    <span class="glyphicon glyphicon-list disabled" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+                {% endif %}
             </td>
             <td>
                 {% if user.Accepted != 1 %}
