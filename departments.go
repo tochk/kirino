@@ -41,8 +41,13 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
+		default:
+			pagination = s.paginationCalc(1, perPage, "departments")
 		}
+	} else {
+		pagination = s.paginationCalc(1, perPage, "departments")
 	}
+
 	if len(departments) == 0 {
 		departments, err = s.getDepartments(perPage, 0)
 		if err != nil {
@@ -50,7 +55,6 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 	fmt.Fprint(w, qtpl_html.DepartmentsPage("Подразделения", departments, pagination))
 }
 
