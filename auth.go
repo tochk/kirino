@@ -30,6 +30,9 @@ func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func auth(login, password string) (string, error) {
+	if password == "" {
+		return "", errors.New("empty password")
+	}
 	username := ""
 	l, err := ldap.Dial("tcp", config.LdapServer)
 	if err != nil {
