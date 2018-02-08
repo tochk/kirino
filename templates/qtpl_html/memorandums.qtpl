@@ -29,8 +29,8 @@
         {% else %}
         <tr>
         {% endif %}
-            <td>{%d memorandum.Id %}</td>
-            <td>{%s memorandum.AddTime %}</td>
+            <td class="table_first_rows">{%d memorandum.Id %}</td>
+            <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td>
                 <form class="mob_v_f" action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
                     <div class="form-group" style="margin: 0">

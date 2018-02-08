@@ -63,9 +63,9 @@
         {% else %}
         <tr>
         {% endif %}
-            <td class="table_header" >{%s user.MacAddress %}</td>
-            <td class="table_header">{%s user.UserName %}</td>
-            <td class="table_header">{%s user.PhoneNumber %}</td>
+            <td class="table_first_rows" >{%s user.MacAddress %}</td>
+            <td class="table_first_rows">{%s user.UserName %}</td>
+            <td class="table_first_rows">{%s user.PhoneNumber %}</td>
 
             <td>
                 <form action="/admin/users/savedept/{%d user.Id %}" method="post">
