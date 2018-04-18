@@ -14,7 +14,7 @@ var (
 	emptyRecaptchaKey = errors.New("empty recaptcha key")
 )
 
-var config struct {
+var Config struct {
 	DbLogin      string `json:"dbLogin"`
 	DbPassword   string `json:"dbPassword"`
 	DbHost       string `json:"dbHost"`
@@ -30,7 +30,7 @@ var config struct {
 
 var Core struct {
 	Db    *sqlx.DB
-	store *sessions.CookieStore
+	Store *sessions.CookieStore
 }
 
 func loadConfig(configFile string) error {
@@ -38,15 +38,15 @@ func loadConfig(configFile string) error {
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(jsonData, &config)
+	err = json.Unmarshal(jsonData, &Config)
 	if err != nil {
 		return err
 	}
-	if config.SessionKey == "" {
+	if Config.SessionKey == "" {
 		return emptySessionKey
 	}
-	Core.store = sessions.NewCookieStore([]byte(config.SessionKey))
-	if config.RecaptchaKey == "" {
+	Core.Store = sessions.NewCookieStore([]byte(Config.SessionKey))
+	if Config.RecaptchaKey == "" {
 		return emptyRecaptchaKey
 	}
 	return nil

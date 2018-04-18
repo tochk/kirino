@@ -5,47 +5,48 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
-	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/server"
+	"github.com/tochk/kirino_wifi/templates/html"
 	"gopkg.in/ldap.v2"
 )
 
-func isAdmin(r *http.Request) bool {
-	session, _ := store.Get(r, "applicationData")
+var (
+	userNotFoundError  = errors.New("user not found")
+	emptyPasswordError = errors.New("empty password")
+)
+
+func IsAdmin(r *http.Request) bool {
+	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] != nil {
 		return true
 	}
 	return false
 }
 
-func (s *server) adminHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
-	if session.Values["userName"] != nil {
-		http.Redirect(w, r, "/admin/memorandums/", 302)
-		return
-	}
-
-	fmt.Fprint(w, qtpl_html.AdminPage("Вход в систему"))
-}
-
 func auth(login, password string) (string, error) {
 	if password == "" {
-		return "", errors.New("empty password")
+		return "", emptyPasswordError
 	}
 	username := ""
-	l, err := ldap.Dial("tcp", config.LdapServer)
+	l, err := ldap.Dial("tcp", server.Config.LdapServer)
 	if err != nil {
-		return username, err
+		return "", err
+	}
+	l.Close()
+
+	l, err = ldap.Dial("tcp", server.Config.LdapServer)
+	if err != nil {
+		return "", err
 	}
 	defer l.Close()
-
-	if l.Bind(config.LdapUser, config.LdapPassword); err != nil {
-		return username, err
+	if l.Bind(server.Config.LdapUser, server.Config.LdapPassword); err != nil {
+		return "", err
 	}
 
 	searchRequest := ldap.NewSearchRequest(
-		config.LdapBaseDN,
+		server.Config.LdapBaseDN,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		"(&(sAMAccountName="+login+"))",
 		[]string{"cn"},
@@ -53,37 +54,45 @@ func auth(login, password string) (string, error) {
 	)
 
 	if sr, err := l.Search(searchRequest); err != nil || len(sr.Entries) != 1 {
-		err = errors.New("User not found")
-		return username, err
+		return username, userNotFoundError
 	} else {
 		username = sr.Entries[0].GetAttributeValue("cn")
 	}
 
-	err = l.Bind(username, password)
-
+	if err = l.Bind(username, password); err != nil {
+		return "", err
+	}
 	return username, err
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	r.ParseForm()
-	session, _ := store.Get(r, "applicationData")
-
-	if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/admin/", 302)
-	} else {
-		session, _ = store.Get(r, "applicationData")
-		session.Values["userName"] = userName
+	session, _ := server.Core.Store.Get(r, "kirino_session")
+	url := strings.Split(r.URL.Path, "/")
+	switch url[2] {
+	case "login":
+		if r.Method == "GET" {
+			if IsAdmin(r) {
+				http.Redirect(w, r, "/admin/memorandums/", 302)
+				return
+			}
+			fmt.Fprint(w, html.AdminPage("Вход в систему"))
+		} else {
+			r.ParseForm()
+			session, _ := server.Core.Store.Get(r, "kirino_session")
+			if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
+				log.Println(err)
+				http.Redirect(w, r, "/admin/", 302)
+			} else {
+				session, _ = server.Core.Store.Get(r, "kirino_session")
+				session.Values["userName"] = userName
+				session.Save(r, w)
+				http.Redirect(w, r, "/admin/memorandums/", 302)
+			}
+		}
+	case "logout":
+		session.Values["userName"] = nil
 		session.Save(r, w)
-		http.Redirect(w, r, "/admin/memorandums/", 302)
+		http.Redirect(w, r, "/admin/", 302)
 	}
-}
-
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
-	session.Values["userName"] = nil
-	session.Save(r, w)
-	http.Redirect(w, r, "/admin/", 302)
 }

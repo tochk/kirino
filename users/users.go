@@ -15,7 +15,7 @@ type FullWifiUser = qtpl_html.WifiUser
 
 func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
+	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
 		return
@@ -94,7 +94,7 @@ func (s *server) setAccepted(status, id int) (err error) {
 
 func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
+	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
 		return

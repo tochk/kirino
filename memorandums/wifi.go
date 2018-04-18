@@ -18,6 +18,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 
-	fmt.Fprint(w, qtpl_html.IndexPage("Доступ к WiFi сети СГУ", isAdmin(r)))
+	fmt.Fprint(w, html.IndexPage("Доступ к WiFi сети СГУ", isAdmin(r)))
 }
 

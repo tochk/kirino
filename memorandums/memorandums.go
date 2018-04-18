@@ -13,11 +13,11 @@ import (
 	"github.com/tochk/kirino_wifi/templates/qtpl_html"
 )
 
-type FullWifiMemorandum = qtpl_html.Memorandum
+type FullWifiMemorandum = html.Memorandum
 
 func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
+	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
 		return
@@ -79,7 +79,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	fmt.Fprint(w, qtpl_html.MemorandumsPage("Служебные записки", memorandums, departments, pagination))
+	fmt.Fprint(w, html.MemorandumsPage("Служебные записки", memorandums, departments, pagination))
 }
 
 func (s *server) acceptMemorandum(id string) (err error) {
@@ -100,7 +100,7 @@ func (s *server) rejectMemorandum(id string) (err error) {
 
 func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := store.Get(r, "applicationData")
+	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
 		http.Redirect(w, r, "/admin/", 302)
 		return
@@ -152,7 +152,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	fmt.Fprint(w, qtpl_html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departments))
+	fmt.Fprint(w, html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departments))
 }
 
 //todo: rewrite

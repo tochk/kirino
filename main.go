@@ -16,7 +16,7 @@ import (
 	"github.com/tochk/kirino_wifi/templates/qtpl_html"
 )
 
-type Pagination = qtpl_html.Pagination
+type Pagination = html.Pagination
 
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
