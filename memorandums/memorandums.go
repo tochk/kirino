@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/qtpl_html"
 )
 
 type FullWifiMemorandum = qtpl_html.Memorandum
