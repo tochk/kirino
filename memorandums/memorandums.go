@@ -1,11 +1,14 @@
-package main
+package memorandums
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
 )
@@ -184,4 +187,27 @@ func (s *server) checkMemorandumAccepted(userId int) error {
 		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
 		"(SELECT memorandumid FROM wifiusers WHERE id = $1) AND accepted = 1) = 0;", userId)
 	return err
+}
+
+type RecaptchaResponse struct {
+	Success bool `json:"success"`
+}
+
+func checkRecaptcha(ans string) error {
+	client := &http.Client{Timeout: 20 * time.Second}
+	resp, err := client.PostForm("https://www.google.com/recaptcha/api/siteverify",
+		url.Values{"secret": {config.RecaptchaKey}, "response": {ans}})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	gr := RecaptchaResponse{Success: false}
+	decoder := json.NewDecoder(resp.Body)
+	if err = decoder.Decode(&gr); err != nil {
+		return err
+	}
+	if !gr.Success {
+		return errors.New("recaptcha entered incorrect")
+	}
+	return nil
 }
