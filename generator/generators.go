@@ -40,7 +40,7 @@ func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) Ful
 
 func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
 	for {
-		tx, err := s.Db.Beginx()
+		tx, err := server.Core.Db.Beginx()
 		if err != nil {
 			return 0, err
 		}

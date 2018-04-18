@@ -2,6 +2,7 @@ package memorandums
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,12 +11,28 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tochk/kirino_wifi/departments"
+	"github.com/tochk/kirino_wifi/server"
 	"github.com/tochk/kirino_wifi/templates/html"
 )
 
 type FullWifiMemorandum = html.Memorandum
 
-func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
+type RecaptchaResponse struct {
+	Success bool `json:"success"`
+}
+
+type MemAccepted struct {
+	MemorandumId int `db:"memorandumid"`
+	MaxAccepted  int `db:"maxAccepted"`
+	MinAccepted  int `db:"minAccepted"`
+}
+
+var (
+	RecaptchaError = errors.New("recaptcha entered incorrect")
+)
+
+func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
@@ -33,11 +50,11 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		switch splittedUrl[0] {
 		case "save":
 			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
-				if _, err := s.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
+				if _, err := server.Core.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
-				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
+				if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -69,7 +86,7 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		pagination = s.paginationCalc(1, perPage, "memorandums")
 	}
 
-	departments, err := s.getAllDepartments()
+	departmentList, err := departments.GetDepartments()
 	if err != nil {
 		log.Println(err)
 		return
@@ -79,26 +96,26 @@ func (s *server) showMemorandumsHandler(w http.ResponseWriter, r *http.Request) 
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	fmt.Fprint(w, html.MemorandumsPage("Служебные записки", memorandums, departments, pagination))
+	fmt.Fprint(w, html.MemorandumsPage("Служебные записки", memorandums, departmentList, pagination))
 }
 
-func (s *server) acceptMemorandum(id string) (err error) {
-	if _, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id); err != nil {
+func acceptMemorandum(id string) (err error) {
+	if _, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
-	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 1 WHERE id = $1", id)
+	_, err = server.Core.Db.Exec("UPDATE memorandums SET accepted = 1 WHERE id = $1", id)
 	return
 }
 
-func (s *server) rejectMemorandum(id string) (err error) {
-	if _, err = s.Db.Exec("UPDATE wifiUsers SET accepted = 2 WHERE memorandumId = $1", id); err != nil {
+func rejectMemorandum(id string) (err error) {
+	if _, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = 2 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
-	_, err = s.Db.Exec("UPDATE memorandums SET accepted = 2 WHERE id = $1", id)
+	_, err = server.Core.Db.Exec("UPDATE memorandums SET accepted = 2 WHERE id = $1", id)
 	return
 }
 
-func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) {
+func ViewMemorandumHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
@@ -114,13 +131,13 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 	if len(memId) > len("accept/") {
 		if memId[0:len("accept/")] == "accept/" {
 			memId = memId[len("accept/"):]
-			if err := s.acceptMemorandum(memId); err != nil {
+			if err := acceptMemorandum(memId); err != nil {
 				log.Println(err)
 				return
 			}
 		} else if memId[0:len("reject/")] == "reject/" {
 			memId = memId[len("reject/"):]
-			if err := s.rejectMemorandum(memId); err != nil {
+			if err := rejectMemorandum(memId); err != nil {
 				log.Println(err)
 				return
 			}
@@ -129,7 +146,7 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	clientsInMemorandum := make([]FullWifiUser, 0)
-	if err := s.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
+	if err := server.Core.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
@@ -140,27 +157,29 @@ func (s *server) checkMemorandumHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	departments, err := s.getAllDepartments()
+	departmentList, err := departments.GetDepartments()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	var memorandum FullWifiMemorandum
-	if err := s.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
+	if err := server.Core.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
 		log.Println(err)
 		return
 	}
 
-	fmt.Fprint(w, html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departments))
+	fmt.Fprint(w, html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departmentList))
 }
 
-//todo: rewrite
-func (s *server) getMemorandums(limit, offset int) (memorandums []FullWifiMemorandum, err error) {
-	err = s.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+//todo rewrite
+func getMemorandums(limit, offset int) (memorandums []FullWifiMemorandum, err error) {
+	err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset);
+	err != nil{
+		return
+	}
 	var max, min []MemAccepted
-	err = s.Db.Select(&max, "SELECT max(accepted) as accepted, memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
-	err = s.Db.Select(&min, "SELECT min(accepted) as accepted, memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
+	err = server.Core.Db.Select(&max, "SELECT max(accepted) as maxAccepted, min(accepted) as minAccepted memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
 	for i, e := range memorandums {
 		for _, em := range max {
 			for _, emi := range min {
@@ -173,14 +192,9 @@ func (s *server) getMemorandums(limit, offset int) (memorandums []FullWifiMemora
 	return
 }
 
-type MemAccepted struct {
-	MemorandumId int `db:"memorandumid"`
-	Accepted     int `db:"accepted"`
-}
-
-//todo: rewrite
-func (s *server) checkMemorandumAccepted(userId int) error {
-	_, err := s.Db.Exec("UPDATE memorandums SET accepted = 1 "+
+//todo rewrite
+func checkMemorandumAccepted(userId int) error {
+	_, err := server.Core.Db.Exec("UPDATE memorandums SET accepted = 1 "+
 		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+
 		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
 		"(SELECT memorandumid FROM wifiusers WHERE id = $1))"+
@@ -189,14 +203,10 @@ func (s *server) checkMemorandumAccepted(userId int) error {
 	return err
 }
 
-type RecaptchaResponse struct {
-	Success bool `json:"success"`
-}
-
 func checkRecaptcha(ans string) error {
 	client := &http.Client{Timeout: 20 * time.Second}
 	resp, err := client.PostForm("https://www.google.com/recaptcha/api/siteverify",
-		url.Values{"secret": {config.RecaptchaKey}, "response": {ans}})
+		url.Values{"secret": {server.Config.RecaptchaKey}, "response": {ans}})
 	if err != nil {
 		return err
 	}
@@ -207,7 +217,7 @@ func checkRecaptcha(ans string) error {
 		return err
 	}
 	if !gr.Success {
-		return errors.New("recaptcha entered incorrect")
+		return RecaptchaError
 	}
 	return nil
 }

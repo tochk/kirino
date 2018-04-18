@@ -48,7 +48,7 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			_, err = s.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, splittedUrl[1])
+			_, err = server.Core.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, splittedUrl[1])
 			if err != nil {
 				log.Println(err)
 				return
@@ -68,27 +68,27 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
+	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
 
 func (s *server) getUser(id int) (user FullWifiUser, err error) {
-	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE id = $1", id)
+	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE id = $1", id)
 	return
 }
 
 func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
-	err = s.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
+	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
 	return
 }
 
 func (s *server) setDisabled(status, id int) (err error) {
-	_, err = s.Db.Exec("UPDATE wifiUsers SET disabled = $1 WHERE id = $2", status, id)
+	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET disabled = $1 WHERE id = $2", status, id)
 	return
 }
 
 func (s *server) setAccepted(status, id int) (err error) {
-	_, err = s.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
+	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
 	return
 }
 
@@ -112,7 +112,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		switch splittedUrl[0] {
 		case "savedept":
 			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
-				if _, err := s.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
+				if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 					log.Println(err)
 					return
 				}
@@ -216,6 +216,6 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
 }
 func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
-	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
+	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
 	return
 }
