@@ -1,22 +1,16 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
-	"time"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino_wifi/auth"
+	"github.com/tochk/kirino_wifi/memorandums"
+	"github.com/tochk/kirino_wifi/server"
 )
-
-type Pagination = html.Pagination
 
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
@@ -33,46 +27,47 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkFolders() {
-	if file, err := os.Open("userFiles"); err != nil {
+	if file, err := os.Open("documents"); err != nil {
 		file.Close()
-		if err = os.Mkdir("userFiles", 0644); err != nil {
+		if err = os.Mkdir("documents", 0644); err != nil {
 			log.Fatal(err)
 		}
-		log.Println("Creating directory for user files")
+		log.Println("Creating directory for documents")
 	}
 }
 
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	//todo some index page
+}
+
 func main() {
-	log.Println("Checking folders for user content")
+	log.Println("Checking folder for documents")
 	checkFolders()
 	flag.Parse()
-	if err := loadConfig(); err != nil {
+	if err := server.LoadConfig(*configFile); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Config loaded from", *configFile)
-	s := server{
-		Db: sqlx.MustConnect("postgres", "host="+config.DbHost+" port="+config.DbPort+" user="+config.DbLogin+" dbname="+config.DbDb+" password="+config.DbPassword),
-	}
-	defer s.Db.Close()
 
-	log.Printf("Connected to database on %s", config.DbHost)
-
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	server.ConnectToDb()
+	defer server.Core.Db.Close()
+	log.Printf("Connected to database on %s", server.Config.DbHost)
 
 	http.HandleFunc("/", indexHandler)
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/userFiles/", userFilesHandler)
-	http.HandleFunc("/generatePdf/", s.generatePdfHandler)
-	http.HandleFunc("/generatedPdf/", s.generatedPdfHandler)
+	http.HandleFunc("/wifi/", memorandums.WifiHandler)
 
-	http.HandleFunc("/admin/", s.adminHandler)
-	http.HandleFunc("/admin/login/", loginHandler)
-	http.HandleFunc("/admin/logout/", logoutHandler)
-	http.HandleFunc("/admin/memorandums/", s.showMemorandumsHandler)
-	http.HandleFunc("/admin/users/", s.usersHandler)
-	http.HandleFunc("/admin/user/", s.userHandler)
-	http.HandleFunc("/admin/checkMemorandum/", s.checkMemorandumHandler)
-	http.HandleFunc("/admin/departments/", s.departmentsHandler)
+	http.HandleFunc("/generatePdf/", generatePdfHandler)
+	http.HandleFunc("/generatedPdf/", generatedPdfHandler)
+
+	http.HandleFunc("/admin/", auth.Handler)
+	http.HandleFunc("/admin/memorandums/", showMemorandumsHandler)
+	http.HandleFunc("/admin/users/", usersHandler)
+	http.HandleFunc("/admin/user/", userHandler)
+	http.HandleFunc("/admin/checkMemorandum/", checkMemorandumHandler)
+	http.HandleFunc("/admin/departments/", departmentsHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

@@ -7,14 +7,26 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tochk/kirino_wifi/auth"
+	"github.com/tochk/kirino_wifi/server"
 	"github.com/tochk/kirino_wifi/templates/html"
 )
 
 type Department = html.Department
 
-func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
+func GetDepartmentsPagination(limit, offset int) (departments []Department, err error) {
+	err = server.Core.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC LIMIT $1 OFFSET $2", limit, offset)
+	return
+}
+
+func GetDepartments() (departments []Department, err error) {
+	err = server.Core.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC")
+	return
+}
+
+func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if !isAdmin(r) {
+	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
@@ -35,8 +47,8 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			pagination = s.paginationCalc(page, perPage, "departments")
-			departments, err = s.getDepartments(pagination.PerPage, pagination.Offset)
+			pagination = server.Core.Db.paginationCalc(page, perPage, "departments")
+			departments, err = GetDepartmentsPagination(pagination.PerPage, pagination.Offset)
 			if err != nil {
 				log.Println(err)
 				return
@@ -56,14 +68,4 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	fmt.Fprint(w, html.DepartmentsPage("Подразделения", departments, pagination))
-}
-
-func (s *server) getDepartments(limit, offset int) (departments []Department, err error) {
-	err = s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC LIMIT $1 OFFSET $2", limit, offset)
-	return
-}
-
-func (s *server) getAllDepartments() (departments []Department, err error) {
-	err = s.Db.Select(&departments, "SELECT id, left(initcap(name),35) as name FROM departments ORDER BY name ASC")
-	return
 }

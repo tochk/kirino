@@ -7,11 +7,12 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 var (
-	emptySessionKey   = errors.New("empty session key")
-	emptyRecaptchaKey = errors.New("empty recaptcha key")
+	EmptySessionKey   = errors.New("empty session key")
+	EmptyRecaptchaKey = errors.New("empty recaptcha key")
 )
 
 var Config struct {
@@ -26,6 +27,7 @@ var Config struct {
 	LdapBaseDN   string `json:"ldapBaseDN"`
 	SessionKey   string `json:"sessionKey"`
 	RecaptchaKey string `json:"recaptchaKey"`
+	PerPage      int    `json:"perPage"`
 }
 
 var Core struct {
@@ -33,7 +35,7 @@ var Core struct {
 	Store *sessions.CookieStore
 }
 
-func loadConfig(configFile string) error {
+func LoadConfig(configFile string) error {
 	jsonData, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		return err
@@ -43,11 +45,18 @@ func loadConfig(configFile string) error {
 		return err
 	}
 	if Config.SessionKey == "" {
-		return emptySessionKey
+		return EmptySessionKey
 	}
 	Core.Store = sessions.NewCookieStore([]byte(Config.SessionKey))
 	if Config.RecaptchaKey == "" {
-		return emptyRecaptchaKey
+		return EmptyRecaptchaKey
+	}
+	if Config.PerPage == 0 {
+		Config.PerPage = 50
 	}
 	return nil
+}
+
+func ConnectToDb() {
+	Core.Db = sqlx.MustConnect("postgres", "host="+Config.DbHost+" port="+Config.DbPort+" user="+Config.DbLogin+" dbname="+Config.DbDb+" password="+Config.DbPassword)
 }
