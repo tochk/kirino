@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/html"
 )
 
-type Department = qtpl_html.Department
+type Department = html.Department
 
 func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -55,7 +55,7 @@ func (s *server) departmentsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Fprint(w, qtpl_html.DepartmentsPage("Подразделения", departments, pagination))
+	fmt.Fprint(w, html.DepartmentsPage("Подразделения", departments, pagination))
 }
 
 func (s *server) getDepartments(limit, offset int) (departments []Department, err error) {

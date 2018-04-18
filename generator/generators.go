@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/latex"
-	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/html"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -233,5 +233,5 @@ func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
 		exist = strings.Split(splittedUrl[1], ",")
 	}
 
-	fmt.Fprint(w, qtpl_html.GeneratedPage("Доступ к WiFi сети СГУ", isAdmin(r), splittedUrl[0], splittedUrl[2], exist))
+	fmt.Fprint(w, html.GeneratedPage("Доступ к WiFi сети СГУ", isAdmin(r), splittedUrl[0], splittedUrl[2], exist))
 }

@@ -13,7 +13,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/tochk/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/html"
 )
 
 type Pagination = html.Pagination

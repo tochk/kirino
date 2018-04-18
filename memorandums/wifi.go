@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/tochk/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/html"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {

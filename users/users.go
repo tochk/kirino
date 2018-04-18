@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	"git.stingr.net/stingray/kirino_wifi/templates/qtpl_html"
+	"github.com/tochk/kirino_wifi/templates/html"
 )
 
-type FullWifiUser = qtpl_html.WifiUser
+type FullWifiUser = html.WifiUser
 
 func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -64,7 +64,7 @@ func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, qtpl_html.UserPage("Редактирования пользователя WiFi", user, departments))
+	fmt.Fprint(w, html.UserPage("Редактирования пользователя WiFi", user, departments))
 }
 
 func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
@@ -213,7 +213,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, qtpl_html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
+	fmt.Fprint(w, html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
 }
 func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
 	err = s.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
