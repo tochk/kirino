@@ -61,7 +61,7 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	depts, err := departments.GetDepartments()
+	depts, err := departments.GetAll()
 	if err != nil {
 		log.Println(err)
 		return
@@ -212,7 +212,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	depts, err := departments.GetDepartments()
+	depts, err := departments.GetAll()
 	if err != nil {
 		log.Println(err)
 		return

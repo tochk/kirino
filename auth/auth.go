@@ -76,7 +76,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				http.Redirect(w, r, "/admin/memorandums/", 302)
 				return
 			}
-			fmt.Fprint(w, html.AdminPage("Вход в систему"))
+			fmt.Fprint(w, html.AdminPage())
 		} else {
 			r.ParseForm()
 			session, _ := server.Core.Store.Get(r, "kirino_session")

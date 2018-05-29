@@ -62,11 +62,14 @@ func main() {
 	http.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
 
 	http.HandleFunc("/admin/", auth.Handler)
+	http.HandleFunc("/admin/departments/", departments.Handler)
+
 	http.HandleFunc("/admin/wifi/memorandums/", memorandums.WifiHandler)
+	http.HandleFunc("/admin/wifi/memorandum/", memorandums.ViewWifiHandler)
 	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
-	http.HandleFunc("/admin/wifi/checkMemorandum/", memorandums.ViewMemorandumHandler)
-	http.HandleFunc("/admin/departments/", departments.Handler)
+
+
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

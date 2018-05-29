@@ -87,7 +87,7 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 		pagination = s.paginationCalc(1, perPage, "memorandums")
 	}
 
-	departmentList, err := departments.GetDepartments()
+	departmentList, err := departments.GetAll()
 	if err != nil {
 		log.Println(err)
 		return
@@ -116,7 +116,7 @@ func rejectMemorandum(id string) (err error) {
 	return
 }
 
-func ViewMemorandumHandler(w http.ResponseWriter, r *http.Request) {
+func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
@@ -158,7 +158,7 @@ func ViewMemorandumHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	departmentList, err := departments.GetDepartments()
+	departmentList, err := departments.GetAll()
 	if err != nil {
 		log.Println(err)
 		return
