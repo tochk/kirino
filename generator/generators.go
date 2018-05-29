@@ -70,7 +70,7 @@ func tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memo
 	defer stmt.Close()
 	for _, element := range data {
 		element.Hash = hash
-		*element.MemorandumId = memorandumId
+		element.MemorandumId = &memorandumId
 		if _, err = stmt.Exec(element); err != nil {
 			return 0, err
 		}
@@ -170,15 +170,15 @@ func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(exist) == 0 {
-		http.Redirect(w, r, "/generatedPdf/"+hash+"/0/"+strconv.Itoa(len(listToWrite)), 302)
+		http.Redirect(w, r, "/wifi/generated/"+hash+"/0/"+strconv.Itoa(len(listToWrite)), 302)
 	} else {
-		http.Redirect(w, r, "/generatedPdf/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(listToWrite)), 302)
+		http.Redirect(w, r, "/wifi/generated/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(listToWrite)), 302)
 	}
 }
 
 func WifiGeneratedHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/generatedPdf/"):]
+	memorandumInfo := r.URL.Path[len("/wifi/generated/"):]
 	splittedUrl := strings.Split(memorandumInfo, "/")
 
 	var exist []string

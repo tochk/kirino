@@ -69,8 +69,6 @@ func main() {
 	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
 
-
-
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

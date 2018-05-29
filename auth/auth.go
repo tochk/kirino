@@ -72,7 +72,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch url[2] {
 	case "login":
 		if IsAdmin(r) {
-			http.Redirect(w, r, "/admin/memorandums/", 302)
+			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
 			return
 		}
 		r.ParseForm()
@@ -84,7 +84,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			session, _ = server.Core.Store.Get(r, "kirino_session")
 			session.Values["userName"] = userName
 			session.Save(r, w)
-			http.Redirect(w, r, "/admin/memorandums/", 302)
+			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
 		}
 	case "logout":
 		session.Values["userName"] = nil
@@ -92,7 +92,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 	default:
 		if IsAdmin(r) {
-			http.Redirect(w, r, "/admin/memorandums/", 302)
+			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
 			return
 		}
 		fmt.Fprint(w, html.AdminPage())

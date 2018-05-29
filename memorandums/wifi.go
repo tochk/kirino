@@ -18,4 +18,3 @@ func WifiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-

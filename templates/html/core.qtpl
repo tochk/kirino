@@ -1,10 +1,10 @@
 {% code type Pagination struct {
-    CurrentPage int
-    NextPage    int
-    PrevPage    int
-    LastPage    int
-    Offset      int
-    PerPage     int
+CurrentPage int
+NextPage    int
+PrevPage    int
+LastPage    int
+Offset      int
+PerPage     int
 }
 %}
 
@@ -18,12 +18,11 @@
     <link type="text/css" rel="stylesheet" href="/static/css/template.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
     <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <meta name="viewport" content="height=device-height,width=device-width" />
+    <meta name="viewport" content="height=device-height,width=device-width"/>
     <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 <body>
 {% endfunc %}
-
 
 
 {% func Menu(pageType string) %}
@@ -75,14 +74,18 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-45903713-3"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
     gtag('js', new Date());
 
     gtag('config', 'UA-45903713-3');
 </script>
 <script>
-    $('#sbm').click(function() {
-        setTimeout( function () {
+    $('#sbm').click(function () {
+        setTimeout(function () {
             $('#sbm').attr('disabled', 'disabled');
         }, 50)
     });
@@ -96,19 +99,20 @@
 {% func PrintPagination(pagination Pagination, baseUrl string) %}
 <div class="pagination-container">
     <ul class="pagination">
-    {% if pagination.CurrentPage != 1 %}
+        {% if pagination.CurrentPage != 1 %}
         <li><a href="{%s baseUrl %}">1</a></li>
-    {% endif %}
-    {% if pagination.PrevPage > 1 %}
+        {% endif %}
+        {% if pagination.PrevPage > 1 %}
         <li><a href="{%s baseUrl %}page/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
-    {% endif %}
-        <li class="active"><a href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a></li>
-    {% if pagination.NextPage != 0 %}
+        {% endif %}
+        <li class="active"><a href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a>
+        </li>
+        {% if pagination.NextPage != 0 %}
         <li><a href="{%s baseUrl %}page/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
-    {% endif %}
-    {% if pagination.LastPage != 0 %}
+        {% endif %}
+        {% if pagination.LastPage != 0 %}
         <li><a href="{%s baseUrl %}page/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
-    {% endif %}
+        {% endif %}
     </ul>
 </div>
 {% endfunc %}

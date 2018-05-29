@@ -1,8 +1,8 @@
 {% func WifiPage(pageType string) %}
 {%= Head("Создание служебной записки") %}
 <div id="blurr">
-{%= Menu(pageType) %}
-<form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+    {%= Menu(pageType) %}
+    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
             <div class="input_forms">
@@ -40,8 +40,10 @@
                 <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
                     <div class="ripple-container"></div>
                 </a>
-                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку</button>
-                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство</button>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
+                </button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
+                </button>
             </div>
         </fieldset>
     </form>
