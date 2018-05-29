@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/tochk/kirino_wifi/auth"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/templates/html"
 )
 
 func WifiHandler(w http.ResponseWriter, r *http.Request) {

@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 )
 
 type FullWifiUser = html.WifiUser
 
-func (s *server) userHandler(w http.ResponseWriter, r *http.Request) {
+func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {

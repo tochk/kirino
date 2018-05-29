@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/tochk/kirino_wifi/server"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 	"gopkg.in/ldap.v2"
 )
 

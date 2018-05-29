@@ -1,5 +1,5 @@
-{% func AdminPage(title string) %}
-{%= Head(title) %}
+{% func AdminPage() %}
+{%= Head("Вход для администраторов") %}
 
 <div class="navbar navbar-success">
     <div class="container-fluid">

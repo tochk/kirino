@@ -13,7 +13,7 @@ import (
 
 	"github.com/tochk/kirino_wifi/departments"
 	"github.com/tochk/kirino_wifi/server"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/templates/html"
 )
 
 type FullWifiMemorandum = html.Memorandum

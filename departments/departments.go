@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tochk/kirino_wifi/auth"
-	"github.com/tochk/kirino_wifi/server"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/pagination"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 )
 
 type Department = html.Department
@@ -33,7 +34,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var (
 		urlInfo     = r.URL.Path[len("/admin/departments/"):]
 		perPage     = 50
-		pagination  Pagination
+		paging      pagination.Pagination
 		departments []Department
 		err         error
 	)
@@ -47,17 +48,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			pagination = server.Core.Db.paginationCalc(page, perPage, "departments")
+			paging = pagination.Calc(page, perPage, "departments")
 			departments, err = GetDepartmentsPagination(pagination.PerPage, pagination.Offset)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 		default:
-			pagination = s.paginationCalc(1, perPage, "departments")
+			paging = s.paginationCalc(1, perPage, "departments")
 		}
 	} else {
-		pagination = s.paginationCalc(1, perPage, "departments")
+		paging = s.paginationCalc(1, perPage, "departments")
 	}
 
 	if len(departments) == 0 {
@@ -67,5 +68,5 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Fprint(w, html.DepartmentsPage("Подразделения", departments, pagination))
+	fmt.Fprint(w, html.DepartmentsPage("Подразделения", departments, paging))
 }

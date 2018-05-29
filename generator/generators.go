@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"git.stingr.net/stingray/kirino_wifi/latex"
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/templates/html"
 	"github.com/jmoiron/sqlx"
 )
 

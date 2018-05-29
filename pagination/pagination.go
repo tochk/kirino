@@ -1,12 +1,12 @@
 package pagination
 
 import (
-	"github.com/tochk/kirino_wifi/templates/html"
+	"github.com/tochk/kirino/templates/html"
 )
 
 type Pagination = html.Pagination
 
-func Calc(page, count int) (pagination Pagination) {
+func Calc(page, count, perPage int) (pagination Pagination) {
 	if page < 1 {
 		page = 1
 	}
