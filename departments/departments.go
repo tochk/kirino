@@ -48,7 +48,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			paging = pagination.Calc(page, perPage, "departments")
+			//todo pagination
+			paging = pagination.Calc(page, count, perPage)
 			departments, err = GetDepartmentsPagination(pagination.PerPage, pagination.Offset)
 			if err != nil {
 				log.Println(err)
@@ -68,5 +69,5 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fmt.Fprint(w, html.DepartmentsPage("Подразделения", departments, paging))
+	fmt.Fprint(w, html.DepartmentsPage(departments, paging))
 }

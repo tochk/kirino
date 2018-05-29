@@ -7,9 +7,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/tochk/kirino_wifi/auth"
-	"github.com/tochk/kirino_wifi/memorandums"
-	"github.com/tochk/kirino_wifi/server"
+	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/generator"
+	"github.com/tochk/kirino/memorandums"
+	"github.com/tochk/kirino/server"
 )
 
 var (
@@ -57,10 +58,11 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/userFiles/", userFilesHandler)
-	http.HandleFunc("/wifi/", memorandums.WifiHandler)
 
-	http.HandleFunc("/generatePdf/", generatePdfHandler)
-	http.HandleFunc("/generatedPdf/", generatedPdfHandler)
+	http.HandleFunc("/", memorandums.WifiHandler)
+
+	http.HandleFunc("/wifi/generate/", generator.WifiGenerateHandler)
+	http.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
 
 	http.HandleFunc("/admin/", auth.Handler)
 	http.HandleFunc("/admin/memorandums/", showMemorandumsHandler)

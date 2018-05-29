@@ -7,7 +7,7 @@
 }
 %}
 
-{% func MemorandumsPage(memorandums []Memorandum, departments []Department, pagination Pagination) %}
+{% func WifiMemorandumsPage(memorandums []Memorandum, departments []Department, pagination Pagination) %}
 {%= Head("Служебные записки на WiFi") %}
 {%= Menu("admin") %}
 <div class="table_wrapper">

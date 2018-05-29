@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tochk/kirino_wifi/departments"
-	"github.com/tochk/kirino_wifi/server"
+	"github.com/tochk/kirino/departments"
+	"github.com/tochk/kirino/pagination"
+	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
 
-type FullWifiMemorandum = html.Memorandum
+type WifiMemorandum = html.Memorandum
 
 type RecaptchaResponse struct {
 	Success bool `json:"success"`
@@ -39,9 +40,9 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var pagination Pagination
+	var paging pagination.Pagination
 	perPage := 50
-	var memorandums []FullWifiMemorandum
+	var memorandums []WifiMemorandum
 	var err error
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/memorandums/"):]
@@ -163,7 +164,7 @@ func ViewMemorandumHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var memorandum FullWifiMemorandum
+	var memorandum WifiMemorandum
 	if err := server.Core.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
 		log.Println(err)
 		return
@@ -173,7 +174,7 @@ func ViewMemorandumHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //todo rewrite
-func getMemorandums(limit, offset int) (memorandums []FullWifiMemorandum, err error) {
+func getMemorandums(limit, offset int) (memorandums []WifiMemorandum, err error) {
 	err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset);
 	err != nil{
 		return

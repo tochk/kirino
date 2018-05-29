@@ -154,7 +154,7 @@ func checkSinglePhone(phone string) (string, error) {
 	return regForPhone.ReplaceAllString(phone, ""), nil
 }
 
-func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
+func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if err := r.ParseForm(); err != nil {
 		log.Println(err)
@@ -223,7 +223,7 @@ func (s *server) generatePdfHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *server) generatedPdfHandler(w http.ResponseWriter, r *http.Request) {
+func WifiGeneratedHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	memorandumInfo := r.URL.Path[len("/generatedPdf/"):]
 	splittedUrl := strings.Split(memorandumInfo, "/")

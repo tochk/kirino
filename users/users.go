@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tochk/kirino/departments"
+	"github.com/tochk/kirino/pagination"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
@@ -59,41 +61,41 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	departments, err := s.getAllDepartments()
+	depts, err := departments.GetDepartments()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	fmt.Fprint(w, html.UserPage("Редактирования пользователя WiFi", user, departments))
+	fmt.Fprint(w, html.WifiUserPage(user, depts))
 }
 
-func (s *server) getUserList(limit, offset int) (userList []FullWifiUser, err error) {
+func getUserList(limit, offset int) (userList []FullWifiUser, err error) {
 	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
 
-func (s *server) getUser(id int) (user FullWifiUser, err error) {
+func getUser(id int) (user FullWifiUser, err error) {
 	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE id = $1", id)
 	return
 }
 
-func (s *server) getUserByMac(mac string) (user FullWifiUser, err error) {
+func getUserByMac(mac string) (user FullWifiUser, err error) {
 	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
 	return
 }
 
-func (s *server) setDisabled(status, id int) (err error) {
+func setDisabled(status, id int) (err error) {
 	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET disabled = $1 WHERE id = $2", status, id)
 	return
 }
 
-func (s *server) setAccepted(status, id int) (err error) {
+func setAccepted(status, id int) (err error) {
 	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = $1 WHERE id = $2", status, id)
 	return
 }
 
-func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
+func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
@@ -103,9 +105,9 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/users/"):]
 	var (
-		usersList  []FullWifiUser
-		pagination Pagination
-		err        error
+		usersList []FullWifiUser
+		paging    pagination.Pagination
+		err       error
 	)
 	perPage := 50
 	if len(urlInfo) > 0 {
@@ -126,11 +128,11 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setAccepted(1, id); err != nil {
+			if err = setAccepted(1, id); err != nil {
 				log.Println(err)
 				return
 			}
-			if err = s.checkMemorandumAccepted(id); err != nil {
+			if err = checkMemorandumAccepted(id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -142,7 +144,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setAccepted(2, id); err != nil {
+			if err = setAccepted(2, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -154,7 +156,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setDisabled(0, id); err != nil {
+			if err = setDisabled(0, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -166,7 +168,7 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			if err = s.setDisabled(1, id); err != nil {
+			if err = setDisabled(1, id); err != nil {
 				log.Println(err)
 				return
 			}
@@ -178,28 +180,30 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			pagination = s.paginationCalc(page, perPage, "wifiUsers")
-			usersList, err = s.getUserList(pagination.PerPage, pagination.Offset)
+			//todo pagination
+			paging = pagination.Calc(page, perPage, "wifiUsers")
+			usersList, err = getUserList(paging.PerPage, paging.Offset)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 		case "search":
 			var err error
-			usersList, err = s.getSearchResult(r.URL.Query())
+			usersList, err = getSearchResult(r.URL.Query())
 			if err != nil {
 				log.Println(err)
 				return
 			}
 		}
 	}
-	if pagination.CurrentPage == 0 && len(usersList) == 0 {
-		usersList, err = s.getUserList(50, 0)
+	if paging.CurrentPage == 0 && len(usersList) == 0 {
+		usersList, err = getUserList(50, 0)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		pagination = s.paginationCalc(1, perPage, "wifiUsers")
+		// todo pagination
+		paging = pagination.Calc(1, perPage, "wifiUsers")
 	}
 
 	for i, e := range usersList {
@@ -208,15 +212,17 @@ func (s *server) usersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	departments, err := s.getAllDepartments()
+	depts, err := departments.GetDepartments()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	fmt.Fprint(w, html.UsersPage("Пользователи WiFi", usersList, departments, pagination))
+	fmt.Fprint(w, html.WifiUsersPage(usersList, depts, paging))
 }
-func (s *server) getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
+
+//todo search
+func getSearchResult(values url.Values) (userList []FullWifiUser, err error) {
 	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
 	return
 }
