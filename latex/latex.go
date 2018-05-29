@@ -6,13 +6,11 @@ import (
 	"os/exec"
 	"strings"
 	"text/template"
+
+	"github.com/tochk/kirino/templates/html"
 )
 
-type WifiUser struct {
-	MacAddress  string
-	UserName    string
-	PhoneNumber string
-}
+type WifiUser = html.WifiUser
 
 type WifiMemorandum struct {
 	Table        string

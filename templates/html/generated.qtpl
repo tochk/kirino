@@ -1,4 +1,4 @@
-{% func GeneratedPage(pageType, token, count, memorandumType string, exist []string) %}
+{% func GeneratedPage(pageType, token, count string, exist []string) %}
 {%= Head("Служебная записка") %}
 <div id="blurr">
 {%= Menu(pageType) %}

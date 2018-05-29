@@ -1,25 +1,29 @@
 package generator
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"git.stingr.net/stingray/kirino_wifi/latex"
-	"github.com/tochk/kirino/templates/html"
 	"github.com/jmoiron/sqlx"
+	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/check"
+	"github.com/tochk/kirino/latex"
+	"github.com/tochk/kirino/memorandums"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
+	"github.com/tochk/kirino/users"
 )
+
+type WifiUser = html.WifiUser
 
 type GeneratedPdfPage struct {
 	Token      string
@@ -29,22 +33,13 @@ type GeneratedPdfPage struct {
 	IsAdmin    bool
 }
 
-func convertDataForDb(oldData latex.WifiUser, hash string, memorandumId int) FullWifiUser {
-	return FullWifiUser{MacAddress: oldData.MacAddress,
-		UserName: oldData.UserName,
-		PhoneNumber: oldData.PhoneNumber,
-		Hash: hash,
-		MemorandumId: &memorandumId,
-	}
-}
-
-func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
+func writeUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
 	for {
 		tx, err := server.Core.Db.Beginx()
 		if err != nil {
 			return 0, err
 		}
-		id, err := s.tryWriteUserDataToDb(tx, data, hash)
+		id, err := tryWriteUserDataToDb(tx, data, hash)
 		if err != nil {
 			tx.Rollback()
 			return 0, err
@@ -55,7 +50,7 @@ func (s *server) writeUserDataToDb(data []latex.WifiUser, hash string) (int, err
 	}
 }
 
-func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memorandumId int, err error) {
+func tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0
@@ -74,7 +69,9 @@ func (s *server) tryWriteUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash s
 	}
 	defer stmt.Close()
 	for _, element := range data {
-		if _, err = stmt.Exec(convertDataForDb(element, hash, memorandumId)); err != nil {
+		element.Hash = hash
+		*element.MemorandumId = memorandumId
+		if _, err = stmt.Exec(element); err != nil {
 			return 0, err
 		}
 	}
@@ -96,62 +93,18 @@ func generateHash(firstMac string) string {
 	return hashedStr
 }
 
-func checkMacAddresses(list []latex.WifiUser) ([]latex.WifiUser, error) {
-	newList := make([]latex.WifiUser, 0, len(list))
-	regForMac, err := regexp.Compile("[^a-f0-9]+")
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\.\\-]+")
-	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
-	if err != nil {
-		log.Println(err)
-		return newList, err
-	}
-	for _, user := range list {
-		user.MacAddress = string(bytes.ToLower([]byte(user.MacAddress)))
-		user.MacAddress = regForMac.ReplaceAllString(user.MacAddress, "")
-		user.UserName = strings.Replace(user.UserName, "Ё", "Е", -1)
-		user.UserName = strings.Replace(user.UserName, "ё", "е", -1)
-		user.UserName = regForName.ReplaceAllString(user.UserName, "")
-		user.PhoneNumber = regForPhone.ReplaceAllString(user.PhoneNumber, "")
-		if len(user.MacAddress) != 12 {
-			err = errors.New("Invalid mac-address")
-			log.Println(err)
-			return newList, err
+func checkWifiData(list []WifiUser) ([]WifiUser, error) {
+	var err error
+	for i, user := range list {
+		user.MacAddress, err = check.Mac(user.MacAddress)
+		if err != nil {
+			return make([]WifiUser, 0), err
 		}
-		newList = append(newList, user)
+		user.UserName = check.Name(user.UserName)
+		user.PhoneNumber = check.Phone(user.PhoneNumber)
+		list[i] = user
 	}
-	return newList, nil
-}
-
-func checkSingleMac(mac string) (string, error) {
-	r, err := regexp.Compile("[^a-f0-9]+")
-	if err != nil {
-		return "", err
-	}
-	mac = string(bytes.ToLower([]byte(mac)))
-	mac = r.ReplaceAllString(mac, "")
-	if len(mac) != 12 {
-		err = errors.New("Invalid mac-address")
-		return "", err
-	}
-	return mac, nil
-}
-
-func checkSingleName(name string) (string, error) {
-	regForName, err := regexp.Compile("[^а-яА-Яa-zA-Z \\.\\-]+")
-	if err != nil {
-		return "", err
-	}
-	name = strings.Replace(name, "Ё", "Е", -1)
-	name = strings.Replace(name, "ё", "е", -1)
-	return regForName.ReplaceAllString(name, ""), nil
-}
-
-func checkSinglePhone(phone string) (string, error) {
-	regForPhone, err := regexp.Compile("[^0-9+\\-() ]+")
-	if err != nil {
-		return "", err
-	}
-	return regForPhone.ReplaceAllString(phone, ""), nil
+	return list, nil
 }
 
 func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
@@ -160,7 +113,7 @@ func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if err := checkRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
+	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
 		log.Println(err)
 		fmt.Fprint(w, "Капча введена неправильно")
 		return
@@ -178,14 +131,14 @@ func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 
 	hash := generateHash(r.PostFormValue("mac1"))
 
-	list, err := checkMacAddresses(list)
+	list, err := checkWifiData(list)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	for _, e := range list {
-		if _, err := s.getUserByMac(e.MacAddress); err != sql.ErrNoRows {
+		if _, err := users.GetWifiUserByMac(e.MacAddress); err != sql.ErrNoRows {
 			exist = append(exist, e.MacAddress)
 		}
 	}
@@ -205,7 +158,7 @@ func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(listToWrite) > 0 {
-		memorandumId, err := s.writeUserDataToDb(listToWrite, hash)
+		memorandumId, err := writeUserDataToDb(listToWrite, hash)
 		if err != nil {
 			log.Println(err)
 			return
@@ -233,5 +186,10 @@ func WifiGeneratedHandler(w http.ResponseWriter, r *http.Request) {
 		exist = strings.Split(splittedUrl[1], ",")
 	}
 
-	fmt.Fprint(w, html.GeneratedPage("Доступ к WiFi сети СГУ", isAdmin(r), splittedUrl[0], splittedUrl[2], exist))
+	pageType := "wifi"
+	if auth.IsAdmin(r) {
+		pageType = "admin"
+	}
+
+	fmt.Fprint(w, html.GeneratedPage(pageType, splittedUrl[0], splittedUrl[2], exist))
 }

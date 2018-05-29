@@ -64,7 +64,7 @@ func main() {
 	http.HandleFunc("/admin/", auth.Handler)
 	http.HandleFunc("/admin/departments/", departments.Handler)
 
-	http.HandleFunc("/admin/wifi/memorandums/", memorandums.WifiHandler)
+	http.HandleFunc("/admin/wifi/memorandums/", memorandums.ListWifiHandler)
 	http.HandleFunc("/admin/wifi/memorandum/", memorandums.ViewWifiHandler)
 	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)

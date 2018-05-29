@@ -18,6 +18,7 @@ import (
 )
 
 type WifiMemorandum = html.Memorandum
+type WifiUser = html.WifiUser
 
 type RecaptchaResponse struct {
 	Success bool `json:"success"`
@@ -33,7 +34,7 @@ var (
 	RecaptchaError = errors.New("recaptcha entered incorrect")
 )
 
-func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
+func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
 	if session.Values["userName"] == nil {
@@ -41,9 +42,13 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var paging pagination.Pagination
-	perPage := 50
 	var memorandums []WifiMemorandum
 	var err error
+	count, err := getWifiUserCount()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/memorandums/"):]
 	if len(urlInfo) > 0 {
@@ -69,8 +74,8 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			pagination = s.paginationCalc(page, perPage, "memorandums")
-			memorandums, err = s.getMemorandums(pagination.PerPage, pagination.Offset)
+			paging = pagination.Calc(page, count)
+			memorandums, err = getMemorandums(paging.PerPage, paging.Offset)
 			if err != nil {
 				log.Println(err)
 				return
@@ -78,13 +83,13 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if pagination.CurrentPage == 0 {
-		memorandums, err = s.getMemorandums(50, 0)
+	if paging.CurrentPage == 0 {
+		memorandums, err = getMemorandums(50, 0)
 		if err != nil {
 			log.Println(err)
 			return
 		}
-		pagination = s.paginationCalc(1, perPage, "memorandums")
+		paging = pagination.Calc(1, count)
 	}
 
 	departmentList, err := departments.GetAll()
@@ -97,7 +102,7 @@ func ShowMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	fmt.Fprint(w, html.MemorandumsPage("Служебные записки", memorandums, departmentList, pagination))
+	fmt.Fprint(w, html.WifiMemorandumsPage(memorandums, departmentList, paging))
 }
 
 func acceptMemorandum(id string) (err error) {
@@ -113,6 +118,11 @@ func rejectMemorandum(id string) (err error) {
 		return
 	}
 	_, err = server.Core.Db.Exec("UPDATE memorandums SET accepted = 2 WHERE id = $1", id)
+	return
+}
+
+func getWifiUserCount() (count int, err error) {
+	err = server.Core.Db.Select(&count, "SELECT COUNT(*) FROM wifiUsers")
 	return
 }
 
@@ -146,7 +156,7 @@ func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.Referer(), 302)
 		return
 	}
-	clientsInMemorandum := make([]FullWifiUser, 0)
+	clientsInMemorandum := make([]WifiUser, 0)
 	if err := server.Core.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
@@ -170,23 +180,19 @@ func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, html.CheckMemorandum("Просмотр служебной записки", memorandum, clientsInMemorandum, departmentList))
+	fmt.Fprint(w, html.WifiMemorandumPage(memorandum, clientsInMemorandum, departmentList))
 }
 
-//todo rewrite
 func getMemorandums(limit, offset int) (memorandums []WifiMemorandum, err error) {
-	err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset);
-	err != nil{
+	if err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset); err != nil {
 		return
 	}
-	var max, min []MemAccepted
-	err = server.Core.Db.Select(&max, "SELECT max(accepted) as maxAccepted, min(accepted) as minAccepted memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
+	var accepted []MemAccepted
+	err = server.Core.Db.Select(&accepted, "SELECT accepted(accepted) as maxAccepted, min(accepted) as minAccepted memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
 	for i, e := range memorandums {
-		for _, em := range max {
-			for _, emi := range min {
-				if e.Id == em.MemorandumId && e.Id == emi.MemorandumId && emi.Accepted != em.Accepted {
-					memorandums[i].Accepted = 3
-				}
+		for _, em := range accepted {
+			if e.Id == em.MemorandumId && em.MaxAccepted != em.MinAccepted {
+				memorandums[i].Accepted = 3
 			}
 		}
 	}
@@ -194,7 +200,7 @@ func getMemorandums(limit, offset int) (memorandums []WifiMemorandum, err error)
 }
 
 //todo rewrite
-func checkMemorandumAccepted(userId int) error {
+func CheckMemorandumAccepted(userId int) error {
 	_, err := server.Core.Db.Exec("UPDATE memorandums SET accepted = 1 "+
 		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+
 		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
@@ -204,7 +210,7 @@ func checkMemorandumAccepted(userId int) error {
 	return err
 }
 
-func checkRecaptcha(ans string) error {
+func CheckRecaptcha(ans string) error {
 	client := &http.Client{Timeout: 20 * time.Second}
 	resp, err := client.PostForm("https://www.google.com/recaptcha/api/siteverify",
 		url.Values{"secret": {server.Config.RecaptchaKey}, "response": {ans}})

@@ -71,28 +71,30 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(r.URL.Path, "/")
 	switch url[2] {
 	case "login":
-		if r.Method == "GET" {
-			if IsAdmin(r) {
-				http.Redirect(w, r, "/admin/memorandums/", 302)
-				return
-			}
-			fmt.Fprint(w, html.AdminPage())
+		if IsAdmin(r) {
+			http.Redirect(w, r, "/admin/memorandums/", 302)
+			return
+		}
+		r.ParseForm()
+		session, _ := server.Core.Store.Get(r, "kirino_session")
+		if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
+			log.Println(err)
+			http.Redirect(w, r, "/admin/", 302)
 		} else {
-			r.ParseForm()
-			session, _ := server.Core.Store.Get(r, "kirino_session")
-			if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
-				log.Println(err)
-				http.Redirect(w, r, "/admin/", 302)
-			} else {
-				session, _ = server.Core.Store.Get(r, "kirino_session")
-				session.Values["userName"] = userName
-				session.Save(r, w)
-				http.Redirect(w, r, "/admin/memorandums/", 302)
-			}
+			session, _ = server.Core.Store.Get(r, "kirino_session")
+			session.Values["userName"] = userName
+			session.Save(r, w)
+			http.Redirect(w, r, "/admin/memorandums/", 302)
 		}
 	case "logout":
 		session.Values["userName"] = nil
 		session.Save(r, w)
 		http.Redirect(w, r, "/admin/", 302)
+	default:
+		if IsAdmin(r) {
+			http.Redirect(w, r, "/admin/memorandums/", 302)
+			return
+		}
+		fmt.Fprint(w, html.AdminPage())
 	}
 }
