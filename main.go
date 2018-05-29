@@ -8,9 +8,11 @@ import (
 	"strconv"
 
 	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/generator"
 	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/users"
 )
 
 var (
@@ -37,10 +39,6 @@ func checkFolders() {
 	}
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	//todo some index page
-}
-
 func main() {
 	log.Println("Checking folder for documents")
 	checkFolders()
@@ -54,7 +52,6 @@ func main() {
 	defer server.Core.Db.Close()
 	log.Printf("Connected to database on %s", server.Config.DbHost)
 
-	http.HandleFunc("/", indexHandler)
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/userFiles/", userFilesHandler)
@@ -65,11 +62,11 @@ func main() {
 	http.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
 
 	http.HandleFunc("/admin/", auth.Handler)
-	http.HandleFunc("/admin/memorandums/", showMemorandumsHandler)
-	http.HandleFunc("/admin/users/", usersHandler)
-	http.HandleFunc("/admin/user/", userHandler)
-	http.HandleFunc("/admin/checkMemorandum/", checkMemorandumHandler)
-	http.HandleFunc("/admin/departments/", departmentsHandler)
+	http.HandleFunc("/admin/wifi/memorandums/", memorandums.WifiHandler)
+	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
+	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
+	http.HandleFunc("/admin/wifi/checkMemorandum/", memorandums.ViewMemorandumHandler)
+	http.HandleFunc("/admin/departments/", departments.Handler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)
