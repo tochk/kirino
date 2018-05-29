@@ -45,8 +45,8 @@ PerPage     int
             <ul class="nav navbar-nav">
                 {% switch pageType %}
                 {% case "admin" %}
-                <li><a href="/admin/memorandums/">Memorandums</a></li>
-                <li><a href="/admin/users/">Users</a></li>
+                <li><a href="/admin/wifi/memorandums/">Memorandums</a></li>
+                <li><a href="/admin/wifi/users/">Users</a></li>
                 <li><a href="/admin/departments/">Departments</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">

@@ -59,7 +59,7 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				return
 			}
-			http.Redirect(w, r, "/admin/users/", 302)
+			http.Redirect(w, r, "/admin/wifi/users/", 302)
 			return
 		}
 	}
@@ -79,7 +79,7 @@ func getUserList(limit, offset int) (userList []WifiUser, err error) {
 }
 
 func getUserCount() (count int, err error) {
-	err = server.Core.Db.Select(&count, "SELECT COUNT(*) FROM wifiUsers ORDER BY id DESC")
+	err = server.Core.Db.Get(&count, "SELECT COUNT(*) FROM wifiUsers")
 	return
 }
 
@@ -111,7 +111,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/users/"):]
+	urlInfo := r.URL.Path[len("/admin/wifi/users/"):]
 	var (
 		usersList []WifiUser
 		paging    pagination.Pagination
@@ -122,93 +122,91 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if len(urlInfo) > 0 {
-		splittedUrl := strings.Split(urlInfo, "/")
-		switch splittedUrl[0] {
-		case "savedept":
-			if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
-				if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
-					log.Println(err)
-					return
-				}
-			}
-			http.Redirect(w, r, r.Referer(), 302)
-			return
-		case "accept":
-			id, err := strconv.Atoi(splittedUrl[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			if err = setAccepted(1, id); err != nil {
-				log.Println(err)
-				return
-			}
-			if err = memorandums.CheckMemorandumAccepted(id); err != nil {
-				log.Println(err)
-				return
-			}
-			http.Redirect(w, r, r.Referer(), 302)
-			return
-		case "reject":
-			id, err := strconv.Atoi(splittedUrl[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			if err = setAccepted(2, id); err != nil {
-				log.Println(err)
-				return
-			}
-			http.Redirect(w, r, r.Referer(), 302)
-			return
-		case "enable":
-			id, err := strconv.Atoi(splittedUrl[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			if err = setDisabled(0, id); err != nil {
-				log.Println(err)
-				return
-			}
-			http.Redirect(w, r, r.Referer(), 302)
-			return
-		case "disable":
-			id, err := strconv.Atoi(splittedUrl[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			if err = setDisabled(1, id); err != nil {
-				log.Println(err)
-				return
-			}
-			http.Redirect(w, r, r.Referer(), 302)
-			return
-		case "page":
-			page, err := strconv.Atoi(splittedUrl[1])
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			//todo pagination
-			paging = pagination.Calc(page, count)
-			usersList, err = getUserList(paging.PerPage, paging.Offset)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		case "search":
-			var err error
-			usersList, err = getSearchResult(r.URL.Query())
-			if err != nil {
+
+	splittedUrl := strings.Split(urlInfo, "/")
+	switch splittedUrl[0] {
+	case "savedept":
+		if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
+			if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
 				log.Println(err)
 				return
 			}
 		}
-	}
-	if paging.CurrentPage == 0 && len(usersList) == 0 {
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "accept":
+		id, err := strconv.Atoi(splittedUrl[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if err = setAccepted(1, id); err != nil {
+			log.Println(err)
+			return
+		}
+		if err = memorandums.CheckMemorandumAccepted(id); err != nil {
+			log.Println(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "reject":
+		id, err := strconv.Atoi(splittedUrl[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if err = setAccepted(2, id); err != nil {
+			log.Println(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "enable":
+		id, err := strconv.Atoi(splittedUrl[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if err = setDisabled(0, id); err != nil {
+			log.Println(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "disable":
+		id, err := strconv.Atoi(splittedUrl[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if err = setDisabled(1, id); err != nil {
+			log.Println(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "page":
+		page, err := strconv.Atoi(splittedUrl[1])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		paging = pagination.Calc(page, count)
+		usersList, err = getUserList(paging.PerPage, paging.Offset)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	case "search":
+		var err error
+		usersList, err = getSearchResult(r.URL.Query())
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	default:
 		usersList, err = getUserList(50, 0)
 		if err != nil {
 			log.Println(err)

@@ -26,7 +26,7 @@ func GetAll() (departments []Department, err error) {
 }
 
 func getCount() (count int, err error) {
-	err = server.Core.Db.Select(&count, "SELECT COUNT(*) FROM departments")
+	err = server.Core.Db.Get(&count, "SELECT COUNT(*) FROM departments")
 	return
 }
 
@@ -56,21 +56,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-
 		paging = pagination.Calc(page, count)
-		departments, err = getDepartmentsPagination(paging.PerPage, paging.Offset)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	case "":
+	default:
 		paging = pagination.Calc(1, count)
-		departments, err = getDepartmentsPagination(paging.PerPage, 0)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		fmt.Fprint(w, html.DepartmentsPage(departments, paging))
 	}
+
+	departments, err = getDepartmentsPagination(paging.PerPage, paging.Offset)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	fmt.Fprint(w, html.DepartmentsPage(departments, paging))
 }

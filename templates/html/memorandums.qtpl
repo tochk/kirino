@@ -32,7 +32,7 @@ DepartmentId *int   `db:"departmentid"`
             <td class="table_first_rows">{%d memorandum.Id %}</td>
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td>
-                <form class="mob_v_f" action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
+                <form class="mob_v_f" action="/admin/wifi/memorandums/save/{%d memorandum.Id %}" method="post">
                     <div class="form-group" style="margin: 0">
                         <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -65,20 +65,20 @@ DepartmentId *int   `db:"departmentid"`
                 </form>
             </td>
             <td>
-                <a href="/admin/checkMemorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/admin/wifi/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/checkMemorandum/accept/{%d memorandum.Id %}"
+                <a href="/admin/wifi/memorandum/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
                 </a>
                 {% else %}
-                <a href="/admin/checkMemorandum/reject/{%d memorandum.Id %}"
+                <a href="/admin/wifi/memorandum/reject/{%d memorandum.Id %}"
                    class="btn btn-danger btn-on-table hint-act">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     <span class="hint">Запретить служебку</span>
@@ -89,7 +89,7 @@ DepartmentId *int   `db:"departmentid"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/memorandums/") %}
+    {%= PrintPagination(pagination, "/admin/wifi/memorandums/") %}
 </div>
 
 {%= Footer() %}
@@ -101,9 +101,9 @@ DepartmentId *int   `db:"departmentid"`
 <div style="width: 80%; margin: 0 auto">
     <div class="btn-group btn-group-justified">
 
-        <a href="/admin/checkMemorandum/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
+        <a href="/admin/wifi/memorandum/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
             memorandum</a>
-        <a href="/admin/checkMemorandum/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
+        <a href="/admin/wifi/memorandum/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
             memorandum</a>
     </div>
     <div style="margin: 0 auto; text-align: center;width: 50%">
@@ -164,7 +164,7 @@ DepartmentId *int   `db:"departmentid"`
             <td style="padding: 20px;">{%s user.PhoneNumber %}</td>
 
             <td>
-                <form action="/admin/users/savedept/{%d user.Id %}" method="post">
+                <form action="/admin/wifi/users/savedept/{%d user.Id %}" method="post">
                     <div class="form-group" style="margin: 0">
                         <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -198,32 +198,32 @@ DepartmentId *int   `db:"departmentid"`
             </td>
             <td>
                 {% if user.Accepted != 1 %}
-                <a href="/admin/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
+                <a href="/admin/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                     <span class="hint">Разблокировать</span>
                 </a>
                 {% else %}
-                <a href="/admin/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
+                <a href="/admin/wifi/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     <span class="hint">Заблокировать</span>
                 </a>
                 {% endif %}
             </td>
-            <td><a href="/admin/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
+            <td><a href="/admin/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
             </td>
             {% if user.Disabled == 0 %}
             <td>
-                <a href="/admin/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
+                <a href="/admin/wifi/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>
             {% else %}
             <td>
-                <a href="/admin/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
+                <a href="/admin/wifi/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
