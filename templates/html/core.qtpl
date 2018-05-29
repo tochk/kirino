@@ -36,21 +36,27 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">WiFi СГУ</a>
+            {% if pageType != "admin" %}
+            <a class="navbar-brand" href="/">СГУ</a>
+            {% else %}
+            <a class="navbar-brand" href="/">Kirino</a>
+            {% endif %}
         </div>
         <div class="navbar-collapse collapse navbar-responsive-collapse">
             <ul class="nav navbar-nav">
-                {% if pageType == "admin" %}
+                {% switch pageType %}
+                {% case "admin" %}
                 <li><a href="/admin/memorandums/">Memorandums</a></li>
                 <li><a href="/admin/users/">Users</a></li>
                 <li><a href="/admin/departments/">Departments</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/admin/logout/">Logout</a></li>
-                {% else if pageType == "wifi" %}
+                {% case "wifi" %}
                 <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
                 <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
-                {% endif %}
+                {% case "login" %}
+                {% endswitch %}
             </ul>
         </div>
     </div>

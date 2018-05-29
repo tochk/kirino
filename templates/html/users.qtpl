@@ -4,16 +4,16 @@
     UserName     string `db:"username"`
     PhoneNumber  string `db:"phonenumber"`
     Hash         string `db:"hash"`
-    MemorandumId *int    `db:"memorandumid"`
+    MemorandumId *int   `db:"memorandumid"`
     Accepted     int    `db:"accepted"`
     Disabled     int    `db:"disabled"`
     DepartmentId *int   `db:"departmentid"`
 }
 %}
 
-{% func UsersPage(title string, users []WifiUser, departments []Department, pagination Pagination) %}
-{%= Head(title) %}
-{%= Menu(true) %}
+{% func WifiUsersPage(users []WifiUser, departments []Department, pagination Pagination) %}
+{%= Head("Пользователи WiFi") %}
+{%= Menu("admin") %}
 
 <div class="table_wrapper">
     <form class="search_form" action="/admin/users/search">
@@ -155,9 +155,9 @@
 {%= Footer() %}
 {% endfunc %}
 
-{% func UserPage(title string, user WifiUser, departments []Department) %}
-{%= Head(title) %}
-{%= Menu(true) %}
+{% func WifiUserPage(user WifiUser, departments []Department) %}
+{%= Head("Редактирование пользователя") %}
+{%= Menu("admin") %}
 <form class="form-horizontal" action="/admin/user/save/{%d user.Id %}" method="post">
     <fieldset id="form_cont">
         <div class="input_forms">

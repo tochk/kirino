@@ -5,15 +5,17 @@ type Department struct {
     Selected bool
 }
 %}
-{% func DepartmentsPage(title string, departments []Department, pagination Pagination) %}
-{%= Head(title) %}
-{%= Menu(true) %}
+
+{% func DepartmentsPage(departments []Department, pagination Pagination) %}
+{%= Head("Подразделения") %}
+{%= Menu("admin") %}
 
 <div class="table_wrapper">
     <table class="table table-striped table-hover memorand">
         <thead>
         <tr>
             <th>Department</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>

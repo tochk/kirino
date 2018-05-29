@@ -1,7 +1,7 @@
-{% func GeneratedPage(title string, isAdmin bool, token, count string, exist []string) %}
-{%= Head(title) %}
+{% func GeneratedPage(pageType, token, count, memorandumType string, exist []string) %}
+{%= Head("Служебная записка") %}
 <div id="blurr">
-{%= Menu(isAdmin) %}
+{%= Menu(pageType) %}
 
     <div style="text-align:center;font-size:20px;width:80%;margin: 0 auto;">
         {% if count != "0" %}

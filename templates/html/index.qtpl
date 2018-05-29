@@ -1,8 +1,8 @@
-{% func IndexPage(title string, isAdmin bool) %}
-{%= Head(title) %}
+{% func WifiPage(pageType string) %}
+{%= Head("Создание служебной записки") %}
 <div id="blurr">
-{%= Menu(isAdmin) %}
-<form class="form-horizontal" action="/generatePdf/" method="post" id="fm">
+{%= Menu(pageType) %}
+<form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
             <div class="input_forms">
