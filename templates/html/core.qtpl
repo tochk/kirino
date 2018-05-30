@@ -62,13 +62,20 @@ PerPage     int
         </ul>
     </div>
     {% case "wifi" %}
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-        <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
-        <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
-
-
-        {% case "login" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/">Получение телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+            <li class="nav-item"><a class="nav-link" id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+            <li class="nav-item"><a class="nav-link" id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
+        </ul>
+    </div>
+    {% case "login" %}
     {% endswitch %}
 </nav>
 {% endfunc %}
