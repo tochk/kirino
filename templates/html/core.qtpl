@@ -12,12 +12,16 @@ PerPage     int
 <html>
 <head>
     <title>{%s title %}</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
+          integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+    <!--link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css"-->
+    <link href="/static/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="/static/css/template.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"-->
     <meta name="viewport" content="height=device-height,width=device-width"/>
     <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
@@ -26,47 +30,66 @@ PerPage     int
 
 
 {% func Menu(pageType string) %}
-<div class="navbar navbar-success">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse"
-                    data-target=".navbar-responsive-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            {% if pageType != "admin" %}
-            <a class="navbar-brand" href="/">СГУ</a>
-            {% else %}
-            <a class="navbar-brand" href="/">Kirino</a>
-            {% endif %}
-        </div>
-        <div class="navbar-collapse collapse navbar-responsive-collapse">
-            <ul class="nav navbar-nav">
-                {% switch pageType %}
-                {% case "admin" %}
-                <li><a href="/admin/wifi/memorandums/">Memorandums</a></li>
-                <li><a href="/admin/wifi/users/">Users</a></li>
-                <li><a href="/admin/departments/">Departments</a></li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/admin/logout/">Logout</a></li>
-                {% case "wifi" %}
-                <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
-                <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
-                {% case "login" %}
-                {% endswitch %}
-            </ul>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+    {% if pageType != "admin" %}
+    <a class="navbar-brand" href="/">СГУ</a>
+    {% else %}
+    <a class="navbar-brand" href="/">Kirino</a>
+    {% endif %}
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+
+    {% switch pageType %}
+    {% case "admin" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    WiFi
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/admin/wifi/memorandums/">Memorandums</a>
+                    <a class="dropdown-item" href="/admin/wifi/users/">Users</a>
+                </div>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/admin/departments/">Departments</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+            <li class="nav-item"><a class="nav-link" href="/admin/logout/">Logout</a></li>
+        </ul>
     </div>
-</div>
+    {% case "wifi" %}
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
+        <li><a id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
+
+
+        {% case "login" %}
+    {% endswitch %}
+</nav>
 {% endfunc %}
 
 {% func Footer() %}
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js"
+        integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U"
+        crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js"
+        integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9"
+        crossorigin="anonymous"></script>
+<script>$(document).ready(function () {
+    $('body').bootstrapMaterialDesign();
+});</script>
+<!--script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/ripples.min.js"></script>
-<script src="/static/js/material.min.js"></script>
+<script src="/static/js/material.min.js"></script-->
 <script src="/static/js/template.js"></script>
 <script src="/static/js/jquery.maskedinput.min.js"></script>
 <script>$.material.init();</script>
@@ -97,22 +120,42 @@ PerPage     int
 {% endfunc %}
 
 {% func PrintPagination(pagination Pagination, baseUrl string) %}
-<div class="pagination-container">
-    <ul class="pagination">
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        {% if pagination.CurrentPage == 1 %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="{%s baseUrl %}page/{%d pagination.PrevPage %}" tabindex="-1">Previous</a>
+        </li>
+        {% endif %}
         {% if pagination.CurrentPage != 1 %}
-        <li><a href="{%s baseUrl %}">1</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}">1</a></li>
         {% endif %}
         {% if pagination.PrevPage > 1 %}
-        <li><a href="{%s baseUrl %}page/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
         {% endif %}
-        <li class="active"><a href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a>
+        <li class="page-item active"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a>
         </li>
+
         {% if pagination.NextPage != 0 %}
-        <li><a href="{%s baseUrl %}page/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
         {% endif %}
         {% if pagination.LastPage != 0 %}
-        <li><a href="{%s baseUrl %}page/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
+        {% endif %}
+        {% if pagination.NextPage != 0 %}
+        <li class="page-item">
+            <a class="page-link" href="{%s baseUrl %}page/{%d pagination.NextPage %}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" href="#">Next</a>
+        </li>
         {% endif %}
     </ul>
-</div>
+</nav>
 {% endfunc %}

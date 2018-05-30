@@ -11,21 +11,24 @@ DepartmentId *int   `db:"departmentid"`
 {%= Head("Служебные записки на WiFi") %}
 {%= Menu("admin") %}
 <div class="table_wrapper">
-    <table class="table table-striped table-hover memorand">
-        <thead>
+    <table class="table">
+        <thead class="thead-dark">
         <tr>
             <th>Number</th>
             <th>Date</th>
+            <th>Department</th>
+            <th>View</th>
+            <th>Accept</th>
         </tr>
         </thead>
         <tbody>
         {% for _, memorandum := range memorandums %}
         {% if memorandum.Accepted == 1 %}
-        <tr class="success">
+        <tr class="table-success">
             {% elseif memorandum.Accepted == 2 %}
-        <tr class="danger">
+        <tr class="table-danger">
             {% elseif memorandum.Accepted == 3 %}
-        <tr class="info">
+        <tr class="table-info">
             {% else %}
         <tr>
             {% endif %}
@@ -66,7 +69,7 @@ DepartmentId *int   `db:"departmentid"`
             </td>
             <td>
                 <a href="/admin/wifi/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
+                    <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
@@ -74,13 +77,13 @@ DepartmentId *int   `db:"departmentid"`
                 {% if memorandum.Accepted != 1 %}
                 <a href="/admin/wifi/memorandum/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
                 </a>
                 {% else %}
                 <a href="/admin/wifi/memorandum/reject/{%d memorandum.Id %}"
                    class="btn btn-danger btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    <span class="oi oi-x" aria-hidden="true"></span>
                     <span class="hint">Запретить служебку</span>
                 </a>
                 {% endif %}
