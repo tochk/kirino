@@ -23,6 +23,7 @@ func PhoneGenerateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("%#v", r.PostForm)
+
 }
 
 func PhoneGeneratedHandler(w http.ResponseWriter, r *http.Request) {

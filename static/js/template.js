@@ -79,13 +79,13 @@ function CheckName(Name) {
         $("#number").append("          <div class='numb_per col-12'>      <h2 class='title col-12'>Абонент #"+ q +"</h2>\n" +
             "                <div class=\"numbers col-12\">\n" +
             "                    <fieldset class=\"form-group\">\n" +
-            "                        <label for='TelNumb'"+ q +" class=\"bmd-label-static\">Желаемый номер</label>\n" +
+            "                        <label for='TelNumb"+ q +"' class=\"bmd-label-static\">Желаемый номер</label>\n" +
             "                        <input type=\"text\" name='num"+q+"' class=\"form-control\" placeholder=\"Желаемый номер\" id='TelNumb'\"+ q +\">\n" +
             "                        <span class=\"bmd-help\">Желаемый номер</span>\n" +
             "                    </fieldset>\n" +
             "                    <div class=\"form-group\">\n" +
-            "                        <label for='typePhone1'"+ q +" class=\"bmd-label-floating\">Тип телефона</label>\n" +
-            "                        <select class=\"form-control\" name='typePhone1'"+ q +"  id='typePhone1'"+ q +">\n" +
+            "                        <label for='typePhone"+ q +"' class=\"bmd-label-floating\">Тип телефона</label>\n" +
+            "                        <select class=\"form-control\" name='typePhone1"+ q +"'  id='typePhone1"+ q +"'>\n" +
             "                            <option value='1'>Внутренний</option>\n" +
             "                            <option value='2'>Городской</option>\n" +
             "                            <option value='3'>Меж.городской</option>\n" +
@@ -94,13 +94,13 @@ function CheckName(Name) {
             "                    </div>\n" +
             "                    <div class=\"form-group col-12 row\">\n" +
             "                        <fieldset class=\"form-group\">\n" +
-            "                            <label for='room'"+q+" class=\"bmd-label-static\">Кабинет</label>\n" +
-            "                            <input type=\"text\" name='room'"+q+" class=\"form-control\" placeholder=\"Кабинет\" id='room'"+q+" >\n" +
+            "                            <label for='room"+q+"' class=\"bmd-label-static\">Кабинет</label>\n" +
+            "                            <input type=\"text\" name='room"+q+"' class=\"form-control\" placeholder=\"Кабинет\" id='room"+q+"' >\n" +
             "                            <span class=\"bmd-help\">Кабинет</span>\n" +
             "                        </fieldset>\n" +
             "                        <fieldset class=\"form-group offset-1\">\n" +
-            "                            <label for='build'"+q+" class=\"bmd-label-static\">Корпус</label>\n" +
-            "                            <input type=\"text\" name='build'"+q+" class=\"form-control\" placeholder=\"Корпус\" id='build'"+q+">\n" +
+            "                            <label for='build"+q+"' class=\"bmd-label-static\">Корпус</label>\n" +
+            "                            <input type=\"text\" name='build"+q+"' class=\"form-control\" placeholder=\"Корпус\" id='build"+q+"'>\n" +
             "                            <span class=\"bmd-help\">Корпус</span>\n" +
             "                        </fieldset>\n" +
             "                    </div>\n" +
