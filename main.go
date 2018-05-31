@@ -30,9 +30,9 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkFolders() {
-	if file, err := os.Open("documents"); err != nil {
+	if file, err := os.Open("userFiles"); err != nil {
 		file.Close()
-		if err = os.Mkdir("documents", 0644); err != nil {
+		if err = os.Mkdir("userFiles", 0644); err != nil {
 			log.Fatal(err)
 		}
 		log.Println("Creating directory for documents")
