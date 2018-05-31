@@ -241,7 +241,7 @@
 {%= Head("Создание служебной записки") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/phone/generate/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на подключения телефонов</legend>
             <div id="number" class="input_forms row">
@@ -254,27 +254,27 @@
                 <div class="numbers col-12">
                     <fieldset class="form-group">
                         <label for="TelNumb1" class="bmd-label-static">Желаемый номер</label>
-                        <input type="email" name="num1" class="form-control" placeholder="Желаемый номер" id="TelNumb1">
+                        <input type="text" name="num1" class="form-control" placeholder="Желаемый номер" id="TelNumb1">
                         <span class="bmd-help">Желаемый номер</span>
                     </fieldset>
                     <div class="form-group">
                         <label for="typePhone1" class="bmd-label-floating">Тип телефона</label>
                         <select class="form-control" name="typePhone1"  id="typePhone1">
-                            <option>Внутренний</option>
-                            <option>Городской</option>
-                            <option>Меж.городской</option>
-                            <option>Международный</option>
+                            <option value="1">Внутренний</option>
+                            <option value="2">Городской</option>
+                            <option value="3">Меж.городской</option>
+                            <option value="4">Международный</option>
                         </select>
                     </div>
                     <div class="form-group col-12 row">
                         <fieldset class="form-group">
                             <label for="room1" class="bmd-label-static">Кабинет</label>
-                            <input type="email" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
+                            <input type="text" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
                             <span class="bmd-help">Кабинет</span>
                         </fieldset>
                         <fieldset class="form-group offset-1">
                             <label for="build1" class="bmd-label-static">Корпус</label>
-                            <input type="email" name="build1" class="form-control" placeholder="Корпус" id="build1">
+                            <input type="text" name="build1" class="form-control" placeholder="Корпус" id="build1">
                             <span class="bmd-help">Корпус</span>
                         </fieldset>
                     </div>
@@ -296,18 +296,18 @@
             <div id="ip_numbers" class="input_forms row">
                 <fieldset class="form-group col-12">
                     <label for="TelNumb_ip_1" class="bmd-label-static">Номер</label>
-                    <input type="email" name="TelNumb_ip_1" class="form-control" placeholder="Номер" id="TelNumb_ip_1">
+                    <input type="text" name="TelNumb_ip_1" class="form-control" placeholder="Номер" id="TelNumb_ip_1">
                     <span class="bmd-help">Номер</span>
                 </fieldset>
                 <div class="form-group col-12 row">
                     <fieldset class="form-group col-2">
                         <label for="room_ip_1" class="bmd-label-static">Кабинет</label>
-                        <input type="email" name="room_ip_1" class="form-control" placeholder="Кабинет" id="room_ip_1" >
+                        <input type="text" name="room_ip_1" class="form-control" placeholder="Кабинет" id="room_ip_1" >
                         <span class="bmd-help">Кабинет</span>
                     </fieldset>
                     <fieldset class="form-group offset-1 col-2">
                         <label for="build_ip_1" class="bmd-label-static">Корпус</label>
-                        <input type="email" name="build_ip_1" class="form-control" placeholder="Корпус" id="build_ip_1">
+                        <input type="text" name="build_ip_1" class="form-control" placeholder="Корпус" id="build_ip_1">
                         <span class="bmd-help">Корпус</span>
                     </fieldset>
                 </div>

@@ -45,7 +45,7 @@ CREATE TABLE ethusers (
         info STRING NULL,
         memorandumid INT NULL,
         CONSTRAINT "primary" PRIMARY KEY (id ASC),
-        FAMILY "primary" (id, mac, class, building, info, hash, memorandumId, accepted)
+        FAMILY "primary" (id, mac, class, building, info, memorandumid)
 );
 
 
@@ -79,7 +79,7 @@ CREATE TABLE exphoneusers (
         memorandumid INT NULL,
         phone STRING NULL,
         CONSTRAINT "primary" PRIMARY KEY (id ASC),
-        FAMILY "primary" (id, info, access, memorandumid, phone)
+        FAMILY "primary" (id, info, class, building, memorandumid, phone)
 );
 
 
@@ -101,5 +101,18 @@ CREATE TABLE mailusers (
         position STRING NULL,
         memorandumid INT NULL,
         CONSTRAINT "primary" PRIMARY KEY (id ASC),
-        FAMILY "primary" (id, mail, name, position, memorandumid, hash, memorandumId, accepted)
+        FAMILY "primary" (id, mail, name, position, memorandumid)
+);
+
+CREATE TABLE domains (
+        id INT NOT NULL DEFAULT unique_rowid(),
+        accepted INT NULL DEFAULT 0:::INT,
+        addtime DATE NULL DEFAULT '2017-08-07':::DATE,
+        department STRING NULL,
+        name STRING NULL,
+        host STRING NULL,
+        username STRING NULL,
+        hash STRING NULL,
+        CONSTRAINT "primary" PRIMARY KEY (id ASC),
+        FAMILY "primary" (id, accepted, addtime, department, name, host, username, hash)
 );

@@ -34,13 +34,11 @@ DepartmentId *int   `db:"departmentid"`
             {% endif %}
             <td class="table_first_rows">{%d memorandum.Id %}</td>
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
-            <td>
-                <form class="mob_v_f" action="/admin/wifi/memorandums/save/{%d memorandum.Id %}" method="post">
-                    <div class="form-group row" style="margin: 0">
-                        <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
-
-                        <div class="col-md-6">
-                            <select id="select{%d memorandum.Id %}" class="form-control" name="department">
+            <td style="margin: 0; padding: 0; padding-top: 10px">
+                <form class="mob_v_f" action="/admin/wifi/memorandums/save/{%d memorandum.Id %}" method="post" style="margin: 0">
+                    <div class="form-group row" style="margin: 0; padding: 0">
+                        <div class="col-md-6" style="margin: 0">
+                            <select id="select{%d memorandum.Id %}" class="form-control" name="department" style="padding: 0">
                                 {% if memorandum.DepartmentId == nil %}
                                 <option disabled selected>None</option>
                                 {% for _, department := range departments %}
@@ -58,8 +56,8 @@ DepartmentId *int   `db:"departmentid"`
                                 {% endif %}
                             </select>
                         </div>
-                        <div class="form-group col-md-6" style="margin: 0">
-                            <div class="col-md-3">
+                        <div class="form-group col-md-3" style="margin: 0">
+                            <div class="col-md-3" style="margin: 0">
                                 <input type="submit" class="btn btn-primary" value="save"
                                        style="margin: 3px 0 0;padding: 10px">
                             </div>

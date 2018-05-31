@@ -73,8 +73,6 @@ DepartmentId *int   `db:"departmentid"`
             <td>
                 <form action="/admin/wifi/users/savedept/{%d user.Id %}" method="post">
                     <div class="form-group user">
-                        <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
-
                         <div class="col-md-6">
                             <select id="select{%d user.Id %}" class="form-control" name="department">
                                 {% if user.DepartmentId == nil %}
