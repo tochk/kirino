@@ -30,9 +30,9 @@ func userFilesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkFolders() {
-	if file, err := os.Open("documents"); err != nil {
+	if file, err := os.Open("userFiles"); err != nil {
 		file.Close()
-		if err = os.Mkdir("documents", 0644); err != nil {
+		if err = os.Mkdir("userFiles", 0644); err != nil {
 			log.Fatal(err)
 		}
 		log.Println("Creating directory for documents")
@@ -69,15 +69,33 @@ func main() {
 	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
 
+	http.HandleFunc("/admin/ethernet/memorandums/", memorandums.ListEthernetHandler)
+	http.HandleFunc("/admin/ethernet/memorandum/", memorandums.ViewEthernetHandler)
+
+	http.HandleFunc("/admin/phone/memorandums/", memorandums.ListPhoneHandler)
+	http.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
+
+	http.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
+	http.HandleFunc("/admin/domain/memorandum/", memorandums.ViewDomainHandler)
+
+	http.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
+	http.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
+
 	http.HandleFunc("/ethernet/", memorandums.EthernetHandler)
+	http.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
+	http.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
 
 	http.HandleFunc("/phone/", memorandums.PhoneHandler)
 	http.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
 	http.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
 
 	http.HandleFunc("/domain/", memorandums.DomainHandler)
+	http.HandleFunc("/domain/generate/", generator.DomainGenerateHandler)
+	http.HandleFunc("/domain/generated/", generator.DomainGeneratedHandler)
 
 	http.HandleFunc("/mail/", memorandums.MailHandler)
+	http.HandleFunc("/mail/generate/", generator.MailGenerateHandler)
+	http.HandleFunc("/mail/generated/", generator.MailGeneratedHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

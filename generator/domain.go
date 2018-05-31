@@ -11,7 +11,7 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-func PhoneGenerateHandler(w http.ResponseWriter, r *http.Request) {
+func DomainGenerateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if err := r.ParseForm(); err != nil {
 		log.Println(err)
@@ -26,9 +26,9 @@ func PhoneGenerateHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func PhoneGeneratedHandler(w http.ResponseWriter, r *http.Request) {
+func DomainGeneratedHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/phone/generated/"):]
+	memorandumInfo := r.URL.Path[len("/ethernet/generated/"):]
 	splittedUrl := strings.Split(memorandumInfo, "/")
 
 	var exist []string
@@ -36,7 +36,7 @@ func PhoneGeneratedHandler(w http.ResponseWriter, r *http.Request) {
 		exist = strings.Split(splittedUrl[1], ",")
 	}
 
-	pageType := "phone"
+	pageType := "domain"
 	if auth.IsAdmin(r) {
 		pageType = "admin"
 	}
