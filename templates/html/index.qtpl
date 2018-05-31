@@ -118,9 +118,15 @@
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
         <fieldset id="form_cont">
-            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
-            <div class="input_forms">
+            <legend>Создание служебной записки для проводной сети</legend>
+            <div id="input_eth" class="input_forms">
+                <div class="form-group col-12">
+                    <label for="Depart" class="col-md-2 bmd-label-static">Департамент</label>
+                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Департамент" required>
+                    <span class="bmd-help">Департамент</span>
+                </div>
                 <h2 class='title'>Устройство #1</h2>
+
                 <div class="form-group">
                     <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
                     <div class="col-md-10">
@@ -129,20 +135,24 @@
                         <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
-                    <div class="col-md-10">
-                        <input type="name" name="user1" class="form-control name" id="inputName"
-                               placeholder="Ф.И.О" maxlength="200" required>
-                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
-                    </div>
+                <div class="form-group row" style="margin-left: 14px">
+                    <fieldset class="form-group">
+                        <label for="room1" class="bmd-label-static">Кабинет</label>
+                        <input type="email" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
+                        <span class="bmd-help">Кабинет</span>
+                    </fieldset>
+                    <fieldset class="form-group offset-1">
+                        <label for="build1" class="bmd-label-static">Корпус</label>
+                        <input type="email" name="build1" class="form-control" placeholder="Корпус" id="build1">
+                        <span class="bmd-help">Корпус</span>
+                    </fieldset>
                 </div>
                 <div class="form-group">
-                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
+                    <label for="descrip" class="col-md-2 control-label bmd-label-static">Описание</label>
                     <div class="col-md-10">
-                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
-                               placeholder="Номер телефона" required>
-                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
+                        <input type="name" name="descrip" class="form-control name" id="descrip"
+                               placeholder="Описание" maxlength="200" required>
+                        <span class="help-block bmd-help">Описание</span>
                     </div>
                 </div>
 
@@ -233,46 +243,89 @@
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
         <fieldset id="form_cont">
-            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
-            <div class="input_forms">
-                <h2 class='title'>Устройство #1</h2>
-                <div class="form-group">
-                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
-                    <div class="col-md-10">
-                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
-                               placeholder="Mac" required>
-                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+            <legend>Формирование заявления на подключения телефонов</legend>
+            <div id="number" class="input_forms row">
+                <h2 class='title col-12'>Абонент #1</h2>
+                <div class="form-group col-12">
+                    <label for="Depart" class="col-md-2 bmd-label-static">Департамент</label>
+                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Департамент" required>
+                    <span class="bmd-help">Департамент</span>
+                </div>
+                <div class="numbers col-12">
+                    <fieldset class="form-group">
+                        <label for="TelNumb1" class="bmd-label-static">Желаемый номер</label>
+                        <input type="email" name="num1" class="form-control" placeholder="Желаемый номер" id="TelNumb1">
+                        <span class="bmd-help">Желаемый номер</span>
+                    </fieldset>
+                    <div class="form-group">
+                        <label for="typePhone1" class="bmd-label-floating">Тип телефона</label>
+                        <select class="form-control" name="typePhone1"  id="typePhone1">
+                            <option>Внутренний</option>
+                            <option>Городской</option>
+                            <option>Меж.городской</option>
+                            <option>Международный</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-12 row">
+                        <fieldset class="form-group">
+                            <label for="room1" class="bmd-label-static">Кабинет</label>
+                            <input type="email" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
+                            <span class="bmd-help">Кабинет</span>
+                        </fieldset>
+                        <fieldset class="form-group offset-1">
+                            <label for="build1" class="bmd-label-static">Корпус</label>
+                            <input type="email" name="build1" class="form-control" placeholder="Корпус" id="build1">
+                            <span class="bmd-help">Корпус</span>
+                        </fieldset>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
-                    <div class="col-md-10">
-                        <input type="name" name="user1" class="form-control name" id="inputName"
-                               placeholder="Ф.И.О" maxlength="200" required>
-                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
-                    <div class="col-md-10">
-                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
-                               placeholder="Номер телефона" required>
-                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
-                    </div>
+            </div>
+            <div class="row">
+                <a id="addNumb" href="#" class="btn addNew btn-success">Добавить ещё один номер
+                    <div class="ripple-container"></div>
+                </a>
+                <button type="button" id="delNumb" class="btn btn-default btn-danger">Удалить последний номер
+                </button>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" name="ip_phone" type="checkbox" value="" id="ip_phone">
+                <label class="form-check-label"  for="ip_phone">
+                    Есть ли IP телефон
+                </label>
+            </div>
+            <div id="ip_numbers" class="input_forms row">
+                <fieldset class="form-group col-12">
+                    <label for="TelNumb_ip_1" class="bmd-label-static">Номер</label>
+                    <input type="email" name="TelNumb_ip_1" class="form-control" placeholder="Номер" id="TelNumb_ip_1">
+                    <span class="bmd-help">Номер</span>
+                </fieldset>
+                <div class="form-group col-12 row">
+                    <fieldset class="form-group col-2">
+                        <label for="room_ip_1" class="bmd-label-static">Кабинет</label>
+                        <input type="email" name="room_ip_1" class="form-control" placeholder="Кабинет" id="room_ip_1" >
+                        <span class="bmd-help">Кабинет</span>
+                    </fieldset>
+                    <fieldset class="form-group offset-1 col-2">
+                        <label for="build_ip_1" class="bmd-label-static">Корпус</label>
+                        <input type="email" name="build_ip_1" class="form-control" placeholder="Корпус" id="build_ip_1">
+                        <span class="bmd-help">Корпус</span>
+                    </fieldset>
                 </div>
 
             </div>
+            <a id="addNumb_ip" href="#" class="btn addNew btn-success">Добавить ещё один номер
+                <div class="ripple-container"></div>
+            </a>
+            <button type="button" id="delNumb_ip" class="btn btn-default btn-danger">Удалить последний номер
+            </button>
             <div class="form-group descktop">
                 <div class="form-group recapcha">
                     <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
                 </div>
-                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
-                    <div class="ripple-container"></div>
-                </a>
+
                 <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
                 </button>
-                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
-                </button>
+
             </div>
         </fieldset>
     </form>

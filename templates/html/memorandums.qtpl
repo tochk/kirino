@@ -36,7 +36,7 @@ DepartmentId *int   `db:"departmentid"`
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td>
                 <form class="mob_v_f" action="/admin/wifi/memorandums/save/{%d memorandum.Id %}" method="post">
-                    <div class="form-group" style="margin: 0">
+                    <div class="form-group row" style="margin: 0">
                         <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
 
                         <div class="col-md-6">
@@ -58,7 +58,7 @@ DepartmentId *int   `db:"departmentid"`
                                 {% endif %}
                             </select>
                         </div>
-                        <div class="form-group" style="margin: 0">
+                        <div class="form-group col-md-6" style="margin: 0">
                             <div class="col-md-3">
                                 <input type="submit" class="btn btn-primary" value="save"
                                        style="margin: 3px 0 0;padding: 10px">
