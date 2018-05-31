@@ -517,31 +517,21 @@
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
             <div class="input_forms">
-                <h2 class='title'>Устройство #1</h2>
                 <div class="form-group">
-                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
+                    <label for="target_mail" class="col-md-2 control-label bmd-label-static">Mac</label>
                     <div class="col-md-10">
-                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                        <input type="mac" name="target_mail" class="form-control mac_valid mac" id="target_mail"
                                placeholder="Mac" required>
-                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                        <span class="help-block bmd-help">Цель</span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
-                    <div class="col-md-10">
-                        <input type="name" name="user1" class="form-control name" id="inputName"
-                               placeholder="Ф.И.О" maxlength="200" required>
-                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
-                    </div>
+                <div class="form-group col-12">
+                    <label for="Depart" class="col-md-2 bmd-label-static">Департамент</label>
+                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Департамент" required>
+                    <span class="bmd-help">Департамент</span>
                 </div>
-                <div class="form-group">
-                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
-                    <div class="col-md-10">
-                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
-                               placeholder="Номер телефона" required>
-                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
-                    </div>
-                </div>
+                <h2 class='title'>Ящик #1</h2>
+
 
             </div>
             <div class="form-group descktop">
