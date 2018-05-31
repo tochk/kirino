@@ -69,6 +69,18 @@ func main() {
 	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
 
+	http.HandleFunc("/admin/ethernet/memorandums/", memorandums.ListEthernetHandler)
+	http.HandleFunc("/admin/ethernet/memorandum/", memorandums.ViewEthernetHandler)
+
+	http.HandleFunc("/admin/phone/memorandums/", memorandums.ListPhoneHandler)
+	http.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
+
+	http.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
+	http.HandleFunc("/admin/domain/memorandum/", memorandums.ViewDomainHandler)
+
+	http.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
+	http.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
+
 	http.HandleFunc("/ethernet/", memorandums.EthernetHandler)
 	http.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
 	http.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
