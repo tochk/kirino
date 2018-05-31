@@ -275,7 +275,7 @@ td {
 #delNumb_ip{
     display: none;
 }
-#ip_numbers, #addNumb_ip{
+#ip_numbers, #addNumb_ip, #cancelEth, #cancelMail{
     display: none;
 }
 

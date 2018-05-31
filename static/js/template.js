@@ -70,11 +70,96 @@ function CheckName(Name) {
         }
 
     });
+
+    var r = 2;
+    $("#addNewEth").click(function () {
+        $("#cancelEth").css("display", "inline-block");
+        $("#input_eth").append("<div class='inputEht'><h2 class='title'>Устройство #"+r+"</h2>\n" +
+            "\n" +
+            "                <div class=\"form-group\">\n" +
+            "                    <label for='inputMac"+r+"' class=\"col-md-2 control-label bmd-label-static\">Mac</label>\n" +
+            "                    <div class=\"col-md-10\">\n" +
+            "                        <input type='text' name='mac"+r+"' class=\"form-control mac_valid mac\" id='inputMac"+r+"'\n" +
+            "                               placeholder=\"Mac\" required>\n" +
+            "                        <span class=\"help-block bmd-help\">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>\n" +
+            "                    </div>\n" +
+            "                </div>\n" +
+            "                <div class=\"form-group row\" style=\"margin-left: 14px\">\n" +
+            "                    <fieldset class=\"form-group\">\n" +
+            "                        <label for='room"+r+"' class=\"bmd-label-static\">Кабинет</label>\n" +
+            "                        <input type='text' name='room"+r+"' class=\"form-control\" placeholder=\"Кабинет\" id='room"+r+"' >\n" +
+            "                        <span class=\"bmd-help\">Кабинет</span>\n" +
+            "                    </fieldset>\n" +
+            "                    <fieldset class=\"form-group offset-1\">\n" +
+            "                        <label for='build"+r+"' class=\"bmd-label-static\">Корпус</label>\n" +
+            "                        <input type='text' name='build"+r+"' class=\"form-control\" placeholder=\"Корпус\" id='build"+r+"'>\n" +
+            "                        <span class=\"bmd-help\">Корпус</span>\n" +
+            "                    </fieldset>\n" +
+            "                </div>\n" +
+            "                <div class=\"form-group\">\n" +
+            "                    <label for='descrip"+r+"' class=\"col-md-2 control-label bmd-label-static\">Описание</label>\n" +
+            "                    <div class=\"col-md-10\">\n" +
+            "                        <input type=\"name\" name='descrip"+r+"' class=\"form-control name\" id='descrip"+r+"'\n" +
+            "                               placeholder=\"Описание\" maxlength=\"200\" required>\n" +
+            "                        <span class=\"help-block bmd-help\">Описание</span>\n" +
+            "                    </div>\n" +
+            "                </div>" +
+            "</div>");
+        r++;
+    });
+    $("#cancelEth").click(function () {
+        $(".inputEht:last-child").remove();
+        if (!$(".inputEht:last-child").is("div")) {
+            $("#cancelEth").css("display", "none");
+        }
+        r--;
+    });
+
+    var e = 2;
+    $("#addNewMail").click(function () {
+        $("#cancelMail").css("display", "inline-block");
+        $("#cancel").css("display", "inline-block");
+        macAddrs = $("input.mac_valid");
+        $(".input_mail").append("<div class='numb_mail'><h2 class='title'>Ящик #"+e+"</h2>\n" +
+            "                    <div class=\"form-group\">\n" +
+            "                        <label for='postAdress"+e+"' class=\"col-md-2 control-label bmd-label-static\">Адрес ящика</label>\n" +
+            "                        <div class=\"col-md-10\">\n" +
+            "                            <input type=\"text\" name='postAdress"+e+"' class=\"form-control name\" id='postAdress"+e+"'\n" +
+            "                                   placeholder=\"Адрес ящика\" maxlength=\"200\" required>\n" +
+            "                            <span class=\"help-block bmd-help\">Адрес ящика</span>\n" +
+            "                        </div>\n" +
+            "                    </div>\n" +
+            "                    <div class=\"form-group\">\n" +
+            "                        <label for='postName"+e+"' class=\"col-md-2 control-label bmd-label-static\">Ф.И.О.</label>\n" +
+            "                        <div class=\"col-md-10\">\n" +
+            "                            <input type=\"text\" name='postName"+e+"' class=\"form-control name\" id='postName"+e+"'\n" +
+            "                                   placeholder=\"Ф.И.О\" maxlength=\"200\" required>\n" +
+            "                            <span class=\"help-block bmd-help\">Для служебных устройств - наименование подразделения</span>\n" +
+            "                        </div>\n" +
+            "                    </div>\n" +
+            "                    <div class=\"form-group\">\n" +
+            "                        <label for='postPosition"+e+"' class=\"col-md-2 control-label bmd-label-static\">Должность</label>\n" +
+            "                        <div class=\"col-md-10\">\n" +
+            "                            <input type=\"text\" name='postPosition"+e+"' class=\"form-control name\" id='postPosition"+e+"'\n" +
+            "                                   placeholder=\"Должность\" maxlength=\"200\" required>\n" +
+            "                            <span class=\"help-block bmd-help\">Для служебных устройств - наименование подразделения</span>\n" +
+            "                        </div>\n" +
+            "                    </div>" +
+            "</div>");
+        e++;
+    });
+    $("#cancelMail").click(function () {
+        $(".numb_mail:last-child").remove();
+        if (!$(".numb_mail:last-child").is("div")) {
+            $("#cancelMail").css("display", "none");
+        }
+        e--;
+    });
+
     var q = 2;
     $("#addNumb").click(function () {
         $("#delNumb").css("display", "inline-block");
         $("#cancel").css("display", "inline-block");
-        $('#sbm').attr('disabled', 'disabled');
         macAddrs = $("input.mac_valid");
         $("#number").append("          <div class='numb_per col-12'>      <h2 class='title col-12'>Абонент #"+ q +"</h2>\n" +
             "                <div class=\"numbers col-12\">\n" +
@@ -118,7 +203,6 @@ function CheckName(Name) {
     $("#addNumb_ip").click(function () {
         $("#delNumb_ip").css("display", "inline-block");
         $("#cancel").css("display", "inline-block");
-        $('#sbm').attr('disabled', 'disabled');
         macAddrs = $("input.mac_valid");
         $("#ip_numbers").append("<div class='numb_per_ip col-12'>                <fieldset class=\"form-group col-12\">\n" +
             "                    <label for='TelNumb_ip_"+w+"' class=\"bmd-label-static\">Номер</label>\n" +
