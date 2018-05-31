@@ -70,14 +70,20 @@ func main() {
 	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
 
 	http.HandleFunc("/ethernet/", memorandums.EthernetHandler)
+	http.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
+	http.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
 
 	http.HandleFunc("/phone/", memorandums.PhoneHandler)
 	http.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
 	http.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
 
 	http.HandleFunc("/domain/", memorandums.DomainHandler)
+	http.HandleFunc("/domain/generate/", generator.DomainGenerateHandler)
+	http.HandleFunc("/domain/generated/", generator.DomainGeneratedHandler)
 
 	http.HandleFunc("/mail/", memorandums.MailHandler)
+	http.HandleFunc("/mail/generate/", generator.MailGenerateHandler)
+	http.HandleFunc("/mail/generated/", generator.MailGeneratedHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)
