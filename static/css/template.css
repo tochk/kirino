@@ -269,7 +269,19 @@ td {
     margin: 0 auto;
     overflow: hidden;
 }
+#delNumb{
+    display: none;
+}
+#delNumb_ip{
+    display: none;
+}
+#ip_numbers, #addNumb_ip{
+    display: none;
+}
 
+.numb_per, .numb_per_ip{
+    padding: 0;
+}
 #denied_host, #null_memorandum, #allowed_host {
     display: none;
 }

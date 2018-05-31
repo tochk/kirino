@@ -58,7 +58,94 @@ function CheckName(Name) {
             });
         }
     });
+      $("#ip_phone").change(function(){
+        if(this.checked){
+            $('#ip_numbers').show();
+            $('#addNumb_ip').show();
+            $('#delNumb_ip').show();
+        }else{
+            $('#ip_numbers').hide();
+            $('#addNumb_ip').hide();
+            $('#delNumb_ip').hide();
+        }
 
+    });
+    var q = 2;
+    $("#addNumb").click(function () {
+        $("#delNumb").css("display", "inline-block");
+        $("#cancel").css("display", "inline-block");
+        $('#sbm').attr('disabled', 'disabled');
+        macAddrs = $("input.mac_valid");
+        $("#number").append("          <div class='numb_per col-12'>      <h2 class='title col-12'>Абонент #"+ q +"</h2>\n" +
+            "                <div class=\"numbers col-12\">\n" +
+            "                    <fieldset class=\"form-group\">\n" +
+            "                        <label for='TelNumb'"+ q +" class=\"bmd-label-static\">Желаемый номер</label>\n" +
+            "                        <input type=\"email\" name='num"+q+"' class=\"form-control\" placeholder=\"Желаемый номер\" id='TelNumb'\"+ q +\">\n" +
+            "                        <span class=\"bmd-help\">Желаемый номер</span>\n" +
+            "                    </fieldset>\n" +
+            "                    <div class=\"form-group\">\n" +
+            "                        <label for='typePhone1'"+ q +" class=\"bmd-label-floating\">Тип телефона</label>\n" +
+            "                        <select class=\"form-control\" name='typePhone1'"+ q +"  id='typePhone1'"+ q +">\n" +
+            "                            <option>Внутренний</option>\n" +
+            "                            <option>Городской</option>\n" +
+            "                            <option>Меж.городской</option>\n" +
+            "                            <option>Международный</option>\n" +
+            "                        </select>\n" +
+            "                    </div>\n" +
+            "                    <div class=\"form-group col-12 row\">\n" +
+            "                        <fieldset class=\"form-group\">\n" +
+            "                            <label for='room'"+q+" class=\"bmd-label-static\">Кабинет</label>\n" +
+            "                            <input type=\"email\" name='room'"+q+" class=\"form-control\" placeholder=\"Кабинет\" id='room'"+q+" >\n" +
+            "                            <span class=\"bmd-help\">Кабинет</span>\n" +
+            "                        </fieldset>\n" +
+            "                        <fieldset class=\"form-group offset-1\">\n" +
+            "                            <label for='build'"+q+" class=\"bmd-label-static\">Корпус</label>\n" +
+            "                            <input type=\"email\" name='build'"+q+" class=\"form-control\" placeholder=\"Корпус\" id='build'"+q+">\n" +
+            "                            <span class=\"bmd-help\">Корпус</span>\n" +
+            "                        </fieldset>\n" +
+            "                    </div>\n" +
+            "                </div></div>");
+        q++;
+    });
+    $("#delNumb").click(function () {
+        $(".numb_per:last-child").remove();
+        if (!$(".numb_per:last-child").is("div")) {
+            $("#delNumb").css("display", "none");
+        }
+        q--;
+    });
+    var w = 2;
+    $("#addNumb_ip").click(function () {
+        $("#delNumb_ip").css("display", "inline-block");
+        $("#cancel").css("display", "inline-block");
+        $('#sbm').attr('disabled', 'disabled');
+        macAddrs = $("input.mac_valid");
+        $("#ip_numbers").append("<div class='numb_per_ip col-12'>                <fieldset class=\"form-group col-12\">\n" +
+            "                    <label for='TelNumb_ip_"+w+"' class=\"bmd-label-static\">Номер</label>\n" +
+            "                    <input type=\"email\" name='TelNumb_ip_"+w+"' class=\"form-control\" placeholder=\"Номер\" id='TelNumb_ip_"+w+"'>\n" +
+            "                    <span class=\"bmd-help\">Номер</span>\n" +
+            "                </fieldset>\n" +
+            "                <div class=\"form-group col-12 row\">\n" +
+            "                    <fieldset class=\"form-group col-2\">\n" +
+            "                        <label for='room_ip_"+w+"' class=\"bmd-label-static\">Кабинет</label>\n" +
+            "                        <input type=\"email\" name='room_ip_"+w+"' class=\"form-control\" placeholder=\"Кабинет\" id='room_ip_"+w+"' >\n" +
+            "                        <span class=\"bmd-help\">Кабинет</span>\n" +
+            "                    </fieldset>\n" +
+            "                    <fieldset class=\"form-group offset-1 col-2\">\n" +
+            "                        <label for='build_ip_"+w+"' class=\"bmd-label-static\">Корпус</label>\n" +
+            "                        <input type=\"email\" name='build_ip_"+w+"' class=\"form-control\" placeholder=\"Корпус\" id='build_ip_"+w+"'>\n" +
+            "                        <span class=\"bmd-help\">Корпус</span>\n" +
+            "                    </fieldset>\n" +
+            "                </div></div>");
+        w++;
+    });
+    $("#delNumb_ip").click(function () {
+        $(".numb_per_ip:last-child").remove();
+        if (!$(".numb_per_ip:last-child").is("div")) {
+            $("#delNumb_ip").css("display", "none");
+        }
+        w--;
+    });
     var i = 2;
     $("#addNew").click(function () {
         $("#cancel").css("display", "inline-block");
