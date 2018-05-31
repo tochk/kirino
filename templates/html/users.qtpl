@@ -18,15 +18,15 @@ DepartmentId *int   `db:"departmentid"`
 <div class="table_wrapper">
     <form class="search_form" action="/admin/wifi/users/search">
         <div class="form-group is-empty">
-            <input type="text" name="mac" class="form-control" placeholder="mac">
+            <input type="text" name="mac" class="form-control" placeholder="Mac address">
         </div>
         <div class="form-group is-empty">
-            <input type="text" class="form-control" name="name" placeholder="name">
+            <input type="text" class="form-control" name="name" placeholder="User name">
         </div>
         <div class="form-group is-empty">
-            <input type="text" class="form-control" name="phone" placeholder="phone">
+            <input type="text" class="form-control" name="phone" placeholder="Phone">
         </div>
-        <div class="form-group is-empty">
+        <!--div class="form-group is-empty">
             <select id="qwe" data-id="qwe" class="form-control" name="department">
                 <option disabled selected>None</option>
                 {% for _, department := range departments %}
@@ -42,11 +42,11 @@ DepartmentId *int   `db:"departmentid"`
                                        aria-hidden="true">Denied</span></label>
         <input type="checkbox" id="null_memorandum" name="null_memorandum">
         <label for="null_memorandum"><span class="search glyphicon glyphicon-remove"
-                                           aria-hidden="true">No&ensp;служебка</span></label>
-        <input type="submit" class="btn btn-raised btn-success btm_submit_success">
+                                           aria-hidden="true">No&ensp;служебка</span></label-->
+        <input type="submit" class="btn btn-raised btn-success btm_submit_success" value="Search">
     </form>
-    <table class="table table-striped table-hover users">
-        <thead>
+    <table class="table">
+        <thead class="thead-dark">
         <tr>
             <th>Mac</th>
             <th>User name</th>
@@ -60,9 +60,9 @@ DepartmentId *int   `db:"departmentid"`
         <tbody>
         {% for _, user := range users %}
         {% if user.Accepted == 1 %}
-        <tr class="success">
+        <tr class="table-success">
             {% elseif user.Accepted == 2 %}
-        <tr class="danger">
+        <tr class="table-danger">
             {% else %}
         <tr>
             {% endif %}
@@ -94,11 +94,10 @@ DepartmentId *int   `db:"departmentid"`
                                 {% endif %}
                             </select>
                         </div>
-                        <div class="form-group user">
                             <div class="col-md-3">
                                 <input type="submit" class="btn btn-primary" value="save">
                             </div>
-                        </div>
+
                     </div>
                 </form>
             </td>
