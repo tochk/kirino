@@ -64,11 +64,11 @@ PerPage     int
     {% case "wifi" %}
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
-            <li class="nav-item"><a class="nav-link" href="/">Проводная сеть</a></li>
-            <li class="nav-item"><a class="nav-link" href="/">Получение телефона</a></li>
-            <li class="nav-item"><a class="nav-link" href="/">Регистрация доменного имени</a></li>
-            <li class="nav-item"><a class="nav-link" href="/">Создание почты</a></li>
+            <li class="nav-item active"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/">Создание почты</a></li>
         </ul>
         <ul class="navbar-nav navbar-right">
             <li class="nav-item"><a class="nav-link" id="tutorial" href="javascript:void(0)">Как узнать MAC-адрес</a></li>
@@ -76,6 +76,58 @@ PerPage     int
         </ul>
     </div>
     {% case "login" %}
+    {% case "ethernet" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item active"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+
+        </ul>
+    </div>
+    {% case "phone" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item active"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+
+        </ul>
+    </div>
+    {% case "domain" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item active"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+
+        </ul>
+    </div>
+    {% case "mail" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item active"><a class="nav-link" href="/mail/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+
+        </ul>
+    </div>
     {% endswitch %}
 </nav>
 {% endfunc %}

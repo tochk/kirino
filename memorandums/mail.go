@@ -9,11 +9,12 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-func WifiHandler(w http.ResponseWriter, r *http.Request) {
+func MailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if auth.IsAdmin(r) {
-		fmt.Fprint(w, html.WifiPage("admin"))
+		fmt.Fprint(w, html.MailPage("admin"))
 	} else {
-		fmt.Fprint(w, html.WifiPage("wifi"))
+		fmt.Fprint(w, html.MailPage("mail"))
 	}
 }
+

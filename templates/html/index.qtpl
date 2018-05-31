@@ -110,3 +110,461 @@
 <div id="black-block"></div>
 {%= Footer() %}
 {% endfunc %}
+
+
+{% func EthernetPage(pageType string) %}
+{%= Head("Создание служебной записки") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+        <fieldset id="form_cont">
+            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1</h2>
+                <div class="form-group">
+                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
+                    <div class="col-md-10">
+                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                               placeholder="Mac" required>
+                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
+                    <div class="col-md-10">
+                        <input type="name" name="user1" class="form-control name" id="inputName"
+                               placeholder="Ф.И.О" maxlength="200" required>
+                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
+                    <div class="col-md-10">
+                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                               placeholder="Номер телефона" required>
+                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group descktop">
+                <div class="form-group recapcha">
+                    <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
+                </div>
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
+                    <div class="ripple-container"></div>
+                </a>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
+                </button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win5.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                    <img src="/static/android1.png">
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+        </div>
+    </div>
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}
+
+
+
+{% func PhonePage(pageType string) %}
+{%= Head("Создание служебной записки") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+        <fieldset id="form_cont">
+            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1</h2>
+                <div class="form-group">
+                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
+                    <div class="col-md-10">
+                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                               placeholder="Mac" required>
+                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
+                    <div class="col-md-10">
+                        <input type="name" name="user1" class="form-control name" id="inputName"
+                               placeholder="Ф.И.О" maxlength="200" required>
+                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
+                    <div class="col-md-10">
+                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                               placeholder="Номер телефона" required>
+                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group descktop">
+                <div class="form-group recapcha">
+                    <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
+                </div>
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
+                    <div class="ripple-container"></div>
+                </a>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
+                </button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win5.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                    <img src="/static/android1.png">
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+        </div>
+    </div>
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}
+
+
+
+{% func DomainPage(pageType string) %}
+{%= Head("Создание служебной записки") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+        <fieldset id="form_cont">
+            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1</h2>
+                <div class="form-group">
+                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
+                    <div class="col-md-10">
+                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                               placeholder="Mac" required>
+                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
+                    <div class="col-md-10">
+                        <input type="name" name="user1" class="form-control name" id="inputName"
+                               placeholder="Ф.И.О" maxlength="200" required>
+                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
+                    <div class="col-md-10">
+                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                               placeholder="Номер телефона" required>
+                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group descktop">
+                <div class="form-group recapcha">
+                    <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
+                </div>
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
+                    <div class="ripple-container"></div>
+                </a>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
+                </button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win5.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                    <img src="/static/android1.png">
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+        </div>
+    </div>
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}
+
+
+{% func MailPage(pageType string) %}
+{%= Head("Создание служебной записки") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+        <fieldset id="form_cont">
+            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
+            <div class="input_forms">
+                <h2 class='title'>Устройство #1</h2>
+                <div class="form-group">
+                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
+                    <div class="col-md-10">
+                        <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
+                               placeholder="Mac" required>
+                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
+                    <div class="col-md-10">
+                        <input type="name" name="user1" class="form-control name" id="inputName"
+                               placeholder="Ф.И.О" maxlength="200" required>
+                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
+                    <div class="col-md-10">
+                        <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
+                               placeholder="Номер телефона" required>
+                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group descktop">
+                <div class="form-group recapcha">
+                    <div class="g-recaptcha" data-sitekey="6Lc6STEUAAAAAFRCuy8q2LbDNknOA_DkAwaRS91b"></div>
+                </div>
+                <a id="addNew" href="#" class="btn addNew btn-success">Добавить ещё одно устройство
+                    <div class="ripple-container"></div>
+                </a>
+                <button type="submit" disabled="disabled" id="sbm" class="btn btn-raised btn-success">Отправить заявку
+                </button>
+                <button type="button" id="cancel" class="btn btn-default btn-danger">Удалить последнее устройство
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<div class="conteiner_for_windows">
+    <div id="window" class="window">
+        <div class="closee"></div>
+        <div class="bs-component">
+            <ul class="menu_help nav nav-pills">
+                <li id="win7"><a href="#">Windows XP и 7</a></li>
+                <li id="win8"><a href="#">Windows 8</a></li>
+                <li id="mac"><a href="#">Mac OS</a></li>
+                <li id="android"><a href="#">ОС Android</a></li>
+                <li id="ios"><a href="#">iOS</a></li>
+            </ul>
+        </div>
+        <div class="info">
+            <ul class="info_sl">
+                <li id="info_win7">
+                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
+                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
+                    (без кавычек) и нажать клавишу «Enter».
+                    <img src="/static/win1.jpg">
+                    Откроется окно командной строки:
+                    <img src="/static/win2.jpg">
+                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
+                    <b>ipconfig /all</b>
+                    и нажать клавишу «Enter».
+                    <img src="/static/win3.jpg">
+                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
+                    подключение), пункт «Физический адрес»:
+                    <img src="/static/win5.jpg">
+                </li>
+                <li id="info_win8">
+                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
+                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
+                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
+                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
+                </li>
+                <li id="info_mac">
+                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
+                    <img src="/static/mac1.jpg">
+                </li>
+                <li id="info_android">
+                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
+                    проблематичным.
+                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
+                    / «Общая информация».
+                    <img src="/static/android1.png">
+                </li>
+                <li id="info_ios">
+                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="window1" class="window">
+        <div class="closee"></div>
+        <div class="info">
+            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
+        </div>
+    </div>
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}
