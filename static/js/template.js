@@ -65,17 +65,29 @@ function CheckName(Name) {
         $('#sbm').attr('disabled', 'disabled');
         macAddrs = $("input.mac_valid");
         $(".input_forms").append("<div class='item'>" +
-            "<h2 class='title'>Устройство #" + i + "<h2>" +
-            "<div class='form-group'>" +
-            "<label for='inputMac' class='col-md-2 control-label'>Mac</label>" +
+            "<h2 class='title'>Устройство #" + i + "</h2>" +
+            "<div class='form-group bmd-form-group'>" +
+                "<label for='inputMac' class='col-md-2 control-label bmd-label-static'>Mac</label>" +
+                "<div class='col-md-10'>" +
+                    "<input type='mac' name='mac" + i + "' onchange=if(CheckMACAddress(this.value)==false){$(this).parent().parent().addClass('has-error1');$(this).parent().parent().removeClass('has-success');}else{$(this).parent().parent().addClass('has-success');$(this).parent().parent().removeClass('has-error1');} class='form-control mac_valid mac'  placeholder='Mac' required>" +
+                    "<span class='help-block bmd-help'>Введите Mac адрес в формате XX:XX:XX:XX:XX:XX, где ХХ - цифры или латинские буквы от A до F</span>" +
+                "</div>" +
+            "</div>" +
+            "<div class='form-group bmd-form-group'>" +
+                "<label for='inputName' class='col-md-2 control-label bmd-label-static'>Ф.И.О.</label>" +
             "<div class='col-md-10'>" +
-            "<input type='mac' name='mac" + i + "' onchange=if(CheckMACAddress(this.value)==false){$(this).parent().parent().addClass('has-error1');$(this).parent().parent().removeClass('has-success');}else{$(this).parent().parent().addClass('has-success');$(this).parent().parent().removeClass('has-error1');} class='form-control mac_valid mac'  placeholder='Mac' required>" +
-            "<span class='help-block'>Введите Mac адрес в формате XX:XX:XX:XX:XX:XX, где ХХ - цифры или латинские буквы от A до F</span></div></div>" +
-            "<div class='form-group'><label for='inputName' class='col-md-2 control-label'>Ф.И.О.</label> <div class='col-md-10'>" +
-            "<input type='name' onchange=if(CheckName(this.value)==false){$(this).parent().parent().addClass('has-error1');$(this).parent().parent().removeClass('has-success');}else{$(this).parent().parent().addClass('has-success');$(this).parent().parent().removeClass('has-error1');} name='user" + i + "' class='form-control name' id='inputPassword' placeholder='Ф.И.О' required></div></div>" +
-            "<div class='form-group'><label for='inputPassword' class='col-md-2 control-label'>Номер телефона</label><div class='col-md-10'>" +
-            "<input type='telnumber' class='form-control phone'  name='tel" + i + "' id='ttl" + i + "' placeholder='Номер телефона' required>" +
-            "</div></div></div>");
+                        "<input type='name' onchange=if(CheckName(this.value)==false){$(this).parent().parent().addClass('has-error1');$(this).parent().parent().removeClass('has-success');}else{$(this).parent().parent().addClass('has-success');$(this).parent().parent().removeClass('has-error1');} name='user" + i + "' class='form-control name' id='inputPassword' placeholder='Ф.И.О' required>" +
+                        "<span class='help-block bmd-help'>Для служебных устройств - наименование подразделения</span>" +
+                    "</div>" +
+            "</div>" +
+            "<div class='form-group bmd-form-group'>" +
+                "<label for='inputPassword' class='col-md-2 control-label bmd-label-static'>Номер телефона</label>" +
+                "<div class='col-md-10'>" +
+                    "<input type='telnumber' class='form-control phone'  name='tel" + i + "' id='ttl" + i + "' placeholder='Номер телефона' required>" +
+                    "<span class='help-block bmd-help'>Для служебных устройств - служебный номер подразделения</span>" +
+                "</div>" +
+            "</div>" +
+            "</div>");
 
         $('#ttl' + i).mask("+7 (999) 999-9999", {autoclear: true});
         $("input.phone, input.mac, input.name").focusin(function () {
@@ -91,6 +103,12 @@ function CheckName(Name) {
 
         var q = "#ttl" + i;
         moveCaretToStart(document.querySelector(q));
+        $("input.phone, input.mac, input.name").focusin(function () {
+            $(this).parent().parent().addClass('is-focused');
+        });
+        $("input.phone, input.mac, input.name").focusout(function () {
+            $(this).parent().parent().removeClass('is-focused');
+        });
         $("input.phone").focusout(function () {
             $("input.phone").each(function () {
                 if ($("input.phone").val().length !== 17 || parseInt($("input.phone").val().indexOf("_")) !== -1) {

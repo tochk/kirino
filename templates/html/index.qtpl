@@ -8,27 +8,27 @@
             <div class="input_forms">
                 <h2 class='title'>Устройство #1</h2>
                 <div class="form-group">
-                    <label for="inputMac" class="col-md-2 control-label">Mac</label>
+                    <label for="inputMac" class="col-md-2 control-label bmd-label-static">Mac</label>
                     <div class="col-md-10">
                         <input type="mac" name="mac1" class="form-control mac_valid mac" id="inputMac"
                                placeholder="Mac" required>
-                        <span class="help-block">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
+                        <span class="help-block bmd-help">Введите Mac адрес в формате XX-XX-XX-XX-XX-XX, где ХХ - цифры или латинские буквы от A до F</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputName" class="col-md-2 control-label">Ф.И.О.</label>
+                    <label for="inputName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
                     <div class="col-md-10">
                         <input type="name" name="user1" class="form-control name" id="inputName"
                                placeholder="Ф.И.О" maxlength="200" required>
-                        <span class="help-block">Для служебных устройств - наименование подразделения</span>
+                        <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPhone" class="col-md-2 control-label">Номер телефона</label>
+                    <label for="inputPhone" class="col-md-2 control-label bmd-label-static">Номер телефона</label>
                     <div class="col-md-10">
                         <input type="telnumber" name="tel1" class="form-control phone" id="inputPhone"
                                placeholder="Номер телефона" required>
-                        <span class="help-block">Для служебных устройств - служебный номер подразделения</span>
+                        <span class="help-block bmd-help">Для служебных устройств - служебный номер подразделения</span>
                     </div>
                 </div>
 

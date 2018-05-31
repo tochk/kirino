@@ -1,6 +1,7 @@
 .form-horizontal {
     width: 900px;
-    margin: 0 auto
+    margin: 0 auto;
+    margin-top: 25px;
 }
 
 .addNew {
@@ -45,12 +46,12 @@
     padding: 10px
 }
 
-.form-group.has-error1.is-focused .form-control {
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#f44336), to(#f44336)), -webkit-gradient(linear, left top, left bottom, from(#D2D2D2), to(#D2D2D2));
-    background-image: -webkit-linear-gradient(#f44336, #f44336), -webkit-linear-gradient(#D2D2D2, #D2D2D2);
-    background-image: -o-linear-gradient(#f44336, #f44336), -o-linear-gradient(#D2D2D2, #D2D2D2);
-    background-image: linear-gradient(#f44336, #f44336), linear-gradient(#D2D2D2, #D2D2D2)
-}
+/*.form-group.has-error1.is-focused .form-control {*/
+    /*background-image: -webkit-gradient(linear, left top, left bottom, from(#f44336), to(#f44336)), -webkit-gradient(linear, left top, left bottom, from(#D2D2D2), to(#D2D2D2));*/
+    /*background-image: -webkit-linear-gradient(#f44336, #f44336), -webkit-linear-gradient(#D2D2D2, #D2D2D2);*/
+    /*background-image: -o-linear-gradient(#f44336, #f44336), -o-linear-gradient(#D2D2D2, #D2D2D2);*/
+    /*background-image: linear-gradient(#f44336, #f44336), linear-gradient(#D2D2D2, #D2D2D2)*/
+/*}*/
 
 .form-group.has-error1 label.control-label, .form-group.has-error1 .help-block {
     color: #f44336
@@ -266,6 +267,7 @@ td {
 .table_wrapper {
     width: 100%;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 #denied_host, #null_memorandum, #allowed_host {
@@ -396,4 +398,12 @@ td {
 .table_first_rows {
     padding-top: 18px !important;
     padding-left: 10px !important;
+}
+legend{
+    margin-bottom: 22px;
+    font-size: 23px;
+    margin-top: 40px;
+}
+.recapcha{
+ height: 75px;
 }
