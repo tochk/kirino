@@ -72,6 +72,8 @@ func main() {
 	http.HandleFunc("/ethernet/", memorandums.EthernetHandler)
 
 	http.HandleFunc("/phone/", memorandums.PhoneHandler)
+	http.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
+	http.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
 
 	http.HandleFunc("/domain/", memorandums.DomainHandler)
 
