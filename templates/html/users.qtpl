@@ -55,6 +55,7 @@ DepartmentId *int   `db:"departmentid"`
             <th></th>
             <th></th>
             <th></th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -72,9 +73,9 @@ DepartmentId *int   `db:"departmentid"`
 
             <td>
                 <form action="/admin/wifi/users/savedept/{%d user.Id %}" method="post">
-                    <div class="form-group user">
-                        <div class="col-md-6">
-                            <select id="select{%d user.Id %}" class="form-control" name="department">
+                    <div class="form-group row" style="margin: 0; padding: 0">
+                        <div class="col-md-6" style="margin: 0">
+                            <select id="select{%d user.Id %}" class="form-control" name="department" style="padding: 0">
                                 {% if user.DepartmentId == nil %}
                                 <option disabled selected>None</option>
                                 {% for _, department := range departments %}
@@ -92,22 +93,24 @@ DepartmentId *int   `db:"departmentid"`
                                 {% endif %}
                             </select>
                         </div>
-                            <div class="col-md-3">
-                                <input type="submit" class="btn btn-primary" value="save">
+                        <div class="form-group col-md-3" style="margin: 0">
+                            <div class="col-md-3" style="margin: 0">
+                                <input type="submit" class="btn btn-primary" value="save"
+                                       style="margin: 3px 0 0;padding: 10px">
                             </div>
-
+                        </div>
                     </div>
                 </form>
             </td>
             <td>
                 {% if user.MemorandumId != nil %}
                 <a href="/admin/wifi/memorandum/{%d *user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list hint-act" aria-hidden="true"></span>
+                    <span class="oi oi-list hint-act" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
                 {% else %}
                 <a href="javascript:void(0)" class="btn btn-info btn-on-table hint-act disabled">
-                    <span class="glyphicon glyphicon-list disabled" aria-hidden="true"></span>
+                    <span class="oi oi-list disabled" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
                 {% endif %}
@@ -115,32 +118,32 @@ DepartmentId *int   `db:"departmentid"`
             <td>
                 {% if user.Accepted != 1 %}
                 <a href="/admin/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разблокировать</span>
                 </a>
                 {% else %}
                 <a href="/admin/wifi/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    <span class="oi oi-x" aria-hidden="true"></span>
                     <span class="hint">Заблокировать</span>
                 </a>
                 {% endif %}
             </td>
             <td><a href="/admin/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                <span class="oi oi-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
             </td>
             {% if user.Disabled == 0 %}
             <td>
                 <a href="/admin/wifi/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>
             {% else %}
             <td>
                 <a href="/admin/wifi/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>

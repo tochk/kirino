@@ -522,7 +522,7 @@
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
         <fieldset id="form_cont">
-            <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
+            <legend>Формирование заявления на получение доступа к почте СГУ.</legend>
             <div class="input_forms">
                 <div class="form-group">
                     <label for="target_mail" class="col-md-2 control-label bmd-label-static">Цель</label>
