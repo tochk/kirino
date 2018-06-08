@@ -14,11 +14,11 @@
 
 \begin{center}
 \large
-\textbf{Служебная записка № {{.MemorandumId}} } \\[20pt]
+\textbf{Служебная записка № PH-{{.MemorandumId}} } \\[20pt]
 \end{center}
 \begin{flushleft}
 \large
-Прошу предоставить подключение к ИКС СГУ по технологии Wi-Fi для доступа к образовательным ресурсам университета и сети Интернет следующим устройствам:
+Прошу вас предоставить услуги IP телефонии со следующими телефонными номерами для: {{.Department}}.
 \end{flushleft}
 
 
@@ -28,22 +28,51 @@
 \large
 \centering
 \label{my-label}
-\begin{tabular}{|p{0.25\linewidth}|p{0.3\linewidth}|p{0.22\linewidth}|p{0.135\linewidth}|}
+\begin{tabular}{|p{0.25\linewidth}|p{0.20\linewidth}|p{0.40\linewidth}|}
 \hline
-MAC-адрес & ФИО & Телефон & Подпись *  \\
+Номер телефона & Доступ & Информация \\
 \hline
 {{.Table}}
 \end{tabular}
 \end{table}
 
+IP телефония в подразделении {{.Exist}}. Список имеющихся номеров:
 
-\small
-* С правилами предоставления доступа к сети Интернет ознакомлен и несу ответственность за свои действия в соответствии с положением об ИКС СГУ. \\[30pt]
+\begin{table}[!h]
+\large
+\centering
+\label{my-label}
+\begin{tabular}{|p{0.25\linewidth}|p{0.62\linewidth}|}
+\hline
+Номер телефона & Информация \\
+\hline
+{{.Table2}}
+\end{tabular}
+\end{table}
+
+
 \normalsize
 \begin{flushleft}
 \large
 Руководитель подразделения:\\~\\
 \end{flushleft}
+\centering
+\noindent\rule{550pt}{0.4pt}
+\large
+Должность, ФИО, Подпись\\[50pt]
+
+\begin{flushright}
+\normalsize
+\noindent\rule{100pt}{0.4pt} \\
+Дата           
+\end{flushright}
+
+\begin{flushleft}
+Выделить городской номер разрешаю, доступ разрешаю
+\end{flushleft}
+ 
+\\
+
 \centering
 \noindent\rule{550pt}{0.4pt}
 \large

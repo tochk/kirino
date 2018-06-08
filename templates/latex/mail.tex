@@ -6,54 +6,46 @@
 \textwidth=500pt
 \usepackage[a4paper, left=10mm, right=10mm, top=20mm, bottom=20mm]{geometry}
 \begin{document}
-\begin{flushright}
-Начальнику ПРЦ НИТ СГУ
+    \begin{flushright}
+        Начальнику ПРЦ НИТ СГУ
 
-Соловьёву В. М. \\[50pt]
-\end{flushright}
+        Соловьёву В. М. \\[50pt]
+    \end{flushright}
 
-\begin{center}
-\large
-\textbf{Служебная записка № {{.MemorandumId}} } \\[20pt]
-\end{center}
-\begin{flushleft}
-\large
-Прошу предоставить подключение к ИКС СГУ по технологии Wi-Fi для доступа к образовательным ресурсам университета и сети Интернет следующим устройствам:
-\end{flushleft}
-
-
+    \begin{center}
+        \large
+        \textbf{Служебная записка № MAIL-{{.MemorandumId}} } \\[20pt]
+    \end{center}
+    \begin{flushleft}
+        \large
+        Прошу выделить электронные почтовые ящики с целью: {{.Target}}, принадлежащих подразделению: {{.Department}} со следующими предполагаемыми именами:
+    \end{flushleft}
 
 
-\begin{table}[!h]
-\large
-\centering
-\label{my-label}
-\begin{tabular}{|p{0.25\linewidth}|p{0.3\linewidth}|p{0.22\linewidth}|p{0.135\linewidth}|}
-\hline
-MAC-адрес & ФИО & Телефон & Подпись *  \\
-\hline
-{{.Table}}
-\end{tabular}
-\end{table}
 
 
-\small
-* С правилами предоставления доступа к сети Интернет ознакомлен и несу ответственность за свои действия в соответствии с положением об ИКС СГУ. \\[30pt]
-\normalsize
-\begin{flushleft}
-\large
-Руководитель подразделения:\\~\\
-\end{flushleft}
-\centering
-\noindent\rule{550pt}{0.4pt}
-\large
-Должность, ФИО, Подпись\\[50pt]
+    \begin{table}[!h]
+        \large
+        \centering
+        \label{my-label}
+        \begin{tabular}{|p{0.30\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|}
+            \hline
+            Имя ящика & ФИО & Должность \\
+            \hline
+            {{.Table}}
+        \end{tabular}
+    \end{table}
 
-\begin{flushright}
-\normalsize
-\noindent\rule{100pt}{0.4pt} \\
-Дата           
-\end{flushright}
 
+
+    \normalsize
+    \begin{flushleft}
+        \large
+        Руководитель подразделения:\\~\\
+    \end{flushleft}
+    \centering
+    \noindent\rule{550pt}{0.4pt}
+    \large
+    Должность, ФИО, Подпись\\[50pt]
 
 \end{document}

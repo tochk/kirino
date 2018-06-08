@@ -76,7 +76,6 @@ func main() {
 	http.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
 
 	http.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
-	http.HandleFunc("/admin/domain/memorandum/", memorandums.ViewDomainHandler)
 
 	http.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
 	http.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
