@@ -11,10 +11,18 @@ import (
 )
 
 type WifiUser = html.WifiUser
+type Domain = html.Domain
 
 type WifiMemorandum struct {
 	Table        string
 	MemorandumId int
+}
+
+type DomainMemorandum struct {
+	Table        string
+	MemorandumId int
+	Target       string
+	Department   string
 }
 
 func TexEscape(s string) string {
@@ -27,7 +35,7 @@ func TexEscape(s string) string {
 	return s
 }
 
-func generateLatexTable(list []WifiUser, memorandumId int) WifiMemorandum {
+func generateWifiLatexTable(list []WifiUser, memorandumId int) WifiMemorandum {
 	table := ""
 	for _, tempData := range list {
 		stringInTable := tempData.MacAddress + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
@@ -46,7 +54,7 @@ func generateLatexFileForWifiMemorandum(list []WifiUser, hashStr string, memoran
 		return "", err
 	}
 	defer outputLatexFile.Close()
-	err = wifiMemorandumTemplate.Execute(outputLatexFile, generateLatexTable(list, memorandumId))
+	err = wifiMemorandumTemplate.Execute(outputLatexFile, generateWifiLatexTable(list, memorandumId))
 	if err != nil {
 		return "", err
 	}
@@ -70,4 +78,38 @@ func GenerateWifiMemorandum(list []WifiUser, hashStr string, memorandumId int) e
 	}
 	err = generatePdf(path)
 	return err
+}
+
+func GenerateDomainMemorandum(domain Domain, hashStr string, memorandumId int) error {
+	path, err := generateLatexFileForDomainMemorandum(domain, hashStr, memorandumId)
+	if err != nil {
+		return err
+	}
+	err = generatePdf(path)
+	return err
+}
+
+func generateDomainLatexTable(domain Domain, memorandumId int) DomainMemorandum {
+	table := ""
+	stringInTable := domain.Name + " & " + domain.Hosting + " & " + domain.FIO + " & " + domain.Accounts + " \\\\ \n \\hline \n"
+	table += stringInTable
+	return DomainMemorandum{Table: table, MemorandumId: memorandumId, Target: domain.Target, Department: domain.Department}
+}
+
+func generateLatexFileForDomainMemorandum(domain Domain, hashStr string, memorandumId int) (string, error) {
+	memorandumTemplate, err := template.ParseFiles("templates/latex/domain.tex")
+	if err != nil {
+		return "", err
+	}
+	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
+	if err != nil {
+		return "", err
+	}
+	defer outputLatexFile.Close()
+	err = memorandumTemplate.Execute(outputLatexFile, generateDomainLatexTable(domain, memorandumId))
+	if err != nil {
+		return "", err
+	}
+	pathToTexFile := "userFiles/" + hashStr + ".tex"
+	return pathToTexFile, nil
 }

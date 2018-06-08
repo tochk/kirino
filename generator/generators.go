@@ -12,6 +12,7 @@ import (
 )
 
 type WifiUser = html.WifiUser
+type Domain = html.Domain
 
 func generateHash(word string) string {
 	hasher := sha256.New()

@@ -11,6 +11,22 @@ DepartmentId *int   `db:"departmentid"`
 }
 %}
 
+
+{% code type Domain struct {
+Id         int    `db:"id"`
+Target     string
+Department string `db:"department"`
+Name       string `db:"name"`
+Hosting    string `db:"host"`
+FIO        string `db:"username"`
+Accepted   int    `db:"accepted"`
+Position   string
+Accounts   string
+AddTime    string `db:"addtime"`
+Hash       string `db:"hash"`
+}
+%}
+
 {% func WifiUsersPage(users []WifiUser, departments []Department, pagination Pagination) %}
 {%= Head("Пользователи WiFi") %}
 {%= Menu("admin") %}
