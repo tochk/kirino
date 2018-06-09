@@ -1,5 +1,5 @@
 {% func WifiPage(pageType string) %}
-{%= Head("Создание служебной записки") %}
+{%= Head("Создание служебной записки на WiFi") %}
 <div id="blurr">
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
@@ -113,17 +113,17 @@
 
 
 {% func EthernetPage(pageType string) %}
-{%= Head("Создание служебной записки") %}
+{%= Head("Создание служебной записки на подключение компьютера") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/ethernet/generate/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Создание служебной записки для проводной сети</legend>
             <div id="input_eth" class="input_forms">
                 <div class="form-group col-12">
-                    <label for="Depart" class="col-md-2 bmd-label-static">Департамент</label>
-                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Департамент" required>
-                    <span class="bmd-help">Департамент</span>
+                    <label for="Depart" class="col-md-2 bmd-label-static">Подразделение</label>
+                    <input type="text" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
+                    <span class="bmd-help">Подразделение</span>
                 </div>
                 <h2 class='title'>Устройство #1</h2>
 
@@ -138,19 +138,19 @@
                 <div class="form-group row" style="margin-left: 14px">
                     <fieldset class="form-group">
                         <label for="room1" class="bmd-label-static">Кабинет</label>
-                        <input type="email" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
+                        <input type="text" name="room1" class="form-control" placeholder="Кабинет" id="room1" >
                         <span class="bmd-help">Кабинет</span>
                     </fieldset>
                     <fieldset class="form-group offset-1">
                         <label for="build1" class="bmd-label-static">Корпус</label>
-                        <input type="email" name="build1" class="form-control" placeholder="Корпус" id="build1">
+                        <input type="text" name="build1" class="form-control" placeholder="Корпус" id="build1">
                         <span class="bmd-help">Корпус</span>
                     </fieldset>
                 </div>
                 <div class="form-group">
                     <label for="descrip" class="col-md-2 control-label bmd-label-static">Описание</label>
                     <div class="col-md-10">
-                        <input type="name" name="descrip" class="form-control name" id="descrip"
+                        <input type="text" name="descrip1" class="form-control name" id="descrip"
                                placeholder="Описание" maxlength="200" required>
                         <span class="help-block bmd-help">Описание</span>
                     </div>
@@ -172,65 +172,6 @@
         </fieldset>
     </form>
 </div>
-<div class="conteiner_for_windows">
-    <div id="window" class="window">
-        <div class="closee"></div>
-        <div class="bs-component">
-            <ul class="menu_help nav nav-pills">
-                <li id="win7"><a href="#">Windows XP и 7</a></li>
-                <li id="win8"><a href="#">Windows 8</a></li>
-                <li id="mac"><a href="#">Mac OS</a></li>
-                <li id="android"><a href="#">ОС Android</a></li>
-                <li id="ios"><a href="#">iOS</a></li>
-            </ul>
-        </div>
-        <div class="info">
-            <ul class="info_sl">
-                <li id="info_win7">
-                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
-                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
-                    (без кавычек) и нажать клавишу «Enter».
-                    <img src="/static/win1.jpg">
-                    Откроется окно командной строки:
-                    <img src="/static/win2.jpg">
-                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
-                    <b>ipconfig /all</b>
-                    и нажать клавишу «Enter».
-                    <img src="/static/win3.jpg">
-                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
-                    подключение), пункт «Физический адрес»:
-                    <img src="/static/win5.jpg">
-                </li>
-                <li id="info_win8">
-                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
-                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
-                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
-                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
-                </li>
-                <li id="info_mac">
-                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
-                    <img src="/static/mac1.jpg">
-                </li>
-                <li id="info_android">
-                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
-                    проблематичным.
-                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
-                    / «Общая информация».
-                    <img src="/static/android1.png">
-                </li>
-                <li id="info_ios">
-                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div id="window1" class="window">
-        <div class="closee"></div>
-        <div class="info">
-            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
-        </div>
-    </div>
-</div>
 <div id="black-block"></div>
 {%= Footer() %}
 {% endfunc %}
@@ -238,7 +179,7 @@
 
 
 {% func PhonePage(pageType string) %}
-{%= Head("Создание служебной записки") %}
+{%= Head("Создание служебной записки на подключение телефона") %}
 <div id="blurr">
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/phone/generate/" method="post" id="fm">
@@ -247,9 +188,9 @@
             <div id="number" class="input_forms row">
                 <h2 class='title col-12'>Абонент #1</h2>
                 <div class="form-group col-12">
-                    <label for="Depart" class="col-md-2 bmd-label-static">Департамент</label>
-                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Департамент" required>
-                    <span class="bmd-help">Департамент</span>
+                    <label for="Depart" class="col-md-2 bmd-label-static">Подразделение</label>
+                    <input type="text" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
+                    <span class="bmd-help">Подразделение</span>
                 </div>
                 <div class="numbers col-12">
                     <fieldset class="form-group">
@@ -290,7 +231,7 @@
             <div class="form-check">
                 <input class="form-check-input" name="ip_phone" type="checkbox" value="" id="ip_phone">
                 <label class="form-check-label"  for="ip_phone">
-                    Есть ли IP телефон
+                    Есть ли в подрезделении IP телефон
                 </label>
             </div>
             <div id="ip_numbers" class="input_forms row">
@@ -330,65 +271,6 @@
         </fieldset>
     </form>
 </div>
-<div class="conteiner_for_windows">
-    <div id="window" class="window">
-        <div class="closee"></div>
-        <div class="bs-component">
-            <ul class="menu_help nav nav-pills">
-                <li id="win7"><a href="#">Windows XP и 7</a></li>
-                <li id="win8"><a href="#">Windows 8</a></li>
-                <li id="mac"><a href="#">Mac OS</a></li>
-                <li id="android"><a href="#">ОС Android</a></li>
-                <li id="ios"><a href="#">iOS</a></li>
-            </ul>
-        </div>
-        <div class="info">
-            <ul class="info_sl">
-                <li id="info_win7">
-                    Для запуска командной строки зайти в меню «Пуск» → «Все программы» → «Стандартные» и выбрать
-                    «Командная строка». Можно так же нажать сочетание клавиш Win+R, и в появившемся окне набрать «cmd»
-                    (без кавычек) и нажать клавишу «Enter».
-                    <img src="/static/win1.jpg">
-                    Откроется окно командной строки:
-                    <img src="/static/win2.jpg">
-                    В этом окне нужно ввести команду, которая отобразит информацию о всех сетевых устройствах:
-                    <b>ipconfig /all</b>
-                    и нажать клавишу «Enter».
-                    <img src="/static/win3.jpg">
-                    В полученном списке всех сетевых адаптеров найти «Адаптер беспроводной локальной сети» (WI-FI
-                    подключение), пункт «Физический адрес»:
-                    <img src="/static/win5.jpg">
-                </li>
-                <li id="info_win8">
-                    В Windows 8 для вызова командной строки нажать сочетание клавиш Win+R (для тачскринов длинное
-                    нажатие на значок «Пуск» на рабочем столе и в контекстном меню пунк «Выполнить») и в появившемся
-                    окне набрать «cmd» (без кавычек) и нажать клавишу «Enter» (для тачскринов кнопка экранной клавиатуры
-                    справа на панели самая левая). Дальнейшие действия аналогичны описанным для Windows 7/XP.
-                </li>
-                <li id="info_mac">
-                    Открыть «Системные настройки» → «Сеть» → «Wi-Fi» → вкладка «Аппаратура» → «Mac-Адрес».
-                    <img src="/static/mac1.jpg">
-                </li>
-                <li id="info_android">
-                    В связи с большим разнообразием Android-устройств, привести точную инструкцию представляется
-                    проблематичным.
-                    Аппаратный адрес обычно представлен в разделе «Настройки» → «О телефоне» → «Техническая информация»
-                    / «Общая информация».
-                    <img src="/static/android1.png">
-                </li>
-                <li id="info_ios">
-                    Перейти «Настройки» → «Основные» → «О телефоне» → «Адрес Wi-Fi».
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div id="window1" class="window">
-        <div class="closee"></div>
-        <div class="info">
-            Для подключения к Wi-Fi сети выберите сеть ssu_internet введите пароль Internet
-        </div>
-    </div>
-</div>
 <div id="black-block"></div>
 {%= Footer() %}
 {% endfunc %}
@@ -396,7 +278,7 @@
 
 
 {% func DomainPage(pageType string) %}
-{%= Head("Создание служебной записки") %}
+{%= Head("Создание служебной записки на регистрацию домена") %}
 <div id="blurr">
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/domain/generate/" method="post" id="fm">
@@ -458,7 +340,7 @@
 
 
 {% func MailPage(pageType string) %}
-{%= Head("Создание служебной записки") %}
+{%= Head("Создание служебной записки на создание почты") %}
 <div id="blurr">
     {%= Menu(pageType) %}
     <form class="form-horizontal" action="/mail/generate/" method="post" id="fm">

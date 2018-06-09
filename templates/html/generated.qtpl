@@ -137,3 +137,50 @@
 <div id="black-block"></div>
 {%= Footer() %}
 {% endfunc %}
+
+
+{% func EthernetGeneratedPage(pageType, token string) %}
+{%= Head("Служебная записка") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+
+    <div style="text-align:center;font-size:20px;width:80%;margin: 0 auto;">
+        <div class="alert alert-dismissible alert-success">
+            Ваше заявление готово.<br><br> Вам нужно распечать его, подписать у руководителя вашего подразделения и отнести в 106 кабинет IX корпуса СГУ. Затем подписанную служебную записку отнести в 108 кабинет IX корпуса СГУ.
+        </div>
+
+        <div style="margin-bottom: 20px;"><a href="/userFiles/{%s token %}.pdf" class="btn btn-raised btn-info"
+                                             style="font-size: 30px">Скачать служебную записку</a></div>
+        <embed src="/userFiles/{%s token %}.pdf" width="80%" height="100%" type='application/pdf'>
+    </div>
+    <br><br>
+
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}
+
+
+{% func PhoneGeneratedPage(pageType, token string) %}
+{%= Head("Служебная записка") %}
+<div id="blurr">
+    {%= Menu(pageType) %}
+
+    <div style="text-align:center;font-size:20px;width:80%;margin: 0 auto;">
+        <div class="alert alert-dismissible alert-success">
+            Ваше заявление готово.<br><br>
+            Вам нужно распечать его, подписать у руководителя вашего подразделения и отнести в 106 кабинет IX корпуса СГУ<br><br>
+            В случае, если необходимо выделение городского телефонного номера или выход на мобильные телефоны, междугороднюю или международную связь, служебная записка предварительно заверяется начальником управления по эксплуатации имущественного комплекса (X корпус СГУ, комната 306-а).
+            <br><br> Далее служебную записку необходимо отнести в отдел СТС ПРЦ НИТ (IX корпус СГУ, комната 108).
+        </div>
+
+        <div style="margin-bottom: 20px;"><a href="/userFiles/{%s token %}.pdf" class="btn btn-raised btn-info"
+                                             style="font-size: 30px">Скачать служебную записку</a></div>
+        <embed src="/userFiles/{%s token %}.pdf" width="80%" height="100%" type='application/pdf'>
+    </div>
+    <br><br>
+
+</div>
+<div id="black-block"></div>
+{%= Footer() %}
+{% endfunc %}

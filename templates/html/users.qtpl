@@ -28,12 +28,44 @@ Hash       string `db:"hash"`
 %}
 
 {% code type Mail struct {
-Id       int    `db:"id"`
-Mail     string `db:"mail"`
-Name     string `db:"name"`
-Position string `db:"position"`
+Id           int    `db:"id"`
+Mail         string `db:"mail"`
+Name         string `db:"name"`
+Position     string `db:"position"`
+MemorandumId int    `db:"memorandumid"`
 }
 %}
+
+{% code type Ethernet struct {
+Id           int    `db:"id"`
+Mac          string `db:"mac"`
+Class        string `db:"class"`
+Building     string `db:"building"`
+Info         string `db:"info"`
+MemorandumId int    `db:"memorandumid"`
+}
+%}
+
+{% code type Phone struct {
+Id           int    `db:"id"`
+Phone        string `db:"phone"`
+Info         string `db:"info"`
+Access       int    `db:"access"`
+MemorandumId int    `db:"memorandumid"`
+}
+%}
+
+
+{% code type ExPhone struct {
+Id           int    `db:"id"`
+Phone        string `db:"phone"`
+Info         string `db:"info"`
+Class        string `db:"class"`
+Building     string `db:"building"`
+MemorandumId int    `db:"memorandumid"`
+}
+%}
+
 
 {% func WifiUsersPage(users []WifiUser, departments []Department, pagination Pagination) %}
 {%= Head("Пользователи WiFi") %}
