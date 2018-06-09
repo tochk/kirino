@@ -226,3 +226,42 @@ func generateLatexFileForPhoneMemorandum(mail []Phone, info html.PhoneMemorandum
 	pathToTexFile := "userFiles/" + hashStr + ".tex"
 	return pathToTexFile, nil
 }
+
+
+func GenerateEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) error {
+	path, err := generateLatexFileForEthernetMemorandum(ethernet, info, hashStr, memorandumId)
+	if err != nil {
+		return err
+	}
+	err = generatePdf(path)
+	return err
+}
+
+func generateEthernetLatexTable(ethernet []Ethernet, memorandumId int) EthernetMemorandum {
+	table := ""
+	for _, e := range ethernet {
+		stringInTable := e.Mac + " & " + e.Class + " & " + e.Building + " & " + e.Info + " \\\\ \n \\hline \n"
+		table += stringInTable
+	}
+	return EthernetMemorandum{Table: table, MemorandumId: memorandumId}
+}
+
+func generateLatexFileForEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) (string, error) {
+	memorandumTemplate, err := template.ParseFiles("templates/latex/ethernet.tex")
+	if err != nil {
+		return "", err
+	}
+	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
+	if err != nil {
+		return "", err
+	}
+	defer outputLatexFile.Close()
+	mm := generateEthernetLatexTable(ethernet, memorandumId)
+	mm.Department = info.Department
+	err = memorandumTemplate.Execute(outputLatexFile, mm)
+	if err != nil {
+		return "", err
+	}
+	pathToTexFile := "userFiles/" + hashStr + ".tex"
+	return pathToTexFile, nil
+}
