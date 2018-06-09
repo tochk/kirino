@@ -13,6 +13,8 @@ import (
 type WifiUser = html.WifiUser
 type Domain = html.Domain
 type Mail = html.Mail
+type Phone = html.Phone
+type Ethernet = html.Ethernet
 
 type WifiMemorandum struct {
 	Table        string
@@ -30,6 +32,18 @@ type MailMemorandum struct {
 	Table        string
 	MemorandumId int
 	Target       string
+	Department   string
+}
+
+type PhoneMemorandum struct {
+	Table        string
+	MemorandumId int
+	Department   string
+}
+
+type EthernetMemorandum struct {
+	Table        string
+	MemorandumId int
 	Department   string
 }
 
@@ -154,6 +168,56 @@ func generateLatexFileForMailMemorandum(mail []Mail, info html.MailMemorandum, h
 	defer outputLatexFile.Close()
 	mm := generateMailLatexTable(mail, memorandumId)
 	mm.Target = info.Reason
+	mm.Department = info.Department
+	err = memorandumTemplate.Execute(outputLatexFile, mm)
+	if err != nil {
+		return "", err
+	}
+	pathToTexFile := "userFiles/" + hashStr + ".tex"
+	return pathToTexFile, nil
+}
+
+
+func GeneratePhoneMemorandum(phone []Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) error {
+	path, err := generateLatexFileForPhoneMemorandum(phone, info, hashStr, memorandumId)
+	if err != nil {
+		return err
+	}
+	err = generatePdf(path)
+	return err
+}
+
+func generatePhoneLatexTable(mail []Phone, memorandumId int) MailMemorandum {
+	table := ""
+	for _, e := range mail {
+		access := "Не указано"
+		switch e.Access {
+		case 1:
+			access = "Внутренний"
+		case 2:
+			access = "Городской"
+		case 3:
+			access = "Межгородской"
+		case 4:
+			access = "Международный"
+		}
+		stringInTable := e.Phone + " & " + access + " & " + e.Info + " \\\\ \n \\hline \n"
+		table += stringInTable
+	}
+	return MailMemorandum{Table: table, MemorandumId: memorandumId}
+}
+
+func generateLatexFileForPhoneMemorandum(mail []Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) (string, error) {
+	memorandumTemplate, err := template.ParseFiles("templates/latex/phone.tex")
+	if err != nil {
+		return "", err
+	}
+	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
+	if err != nil {
+		return "", err
+	}
+	defer outputLatexFile.Close()
+	mm := generatePhoneLatexTable(mail, memorandumId)
 	mm.Department = info.Department
 	err = memorandumTemplate.Execute(outputLatexFile, mm)
 	if err != nil {

@@ -14,6 +14,9 @@ import (
 type WifiUser = html.WifiUser
 type Domain = html.Domain
 type Mail = html.Mail
+type Phone = html.Phone
+type ExPhone = html.ExPhone
+type Ethernet = html.Ethernet
 
 func generateHash(word string) string {
 	hasher := sha256.New()

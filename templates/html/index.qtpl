@@ -185,13 +185,13 @@
     <form class="form-horizontal" action="/phone/generate/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на подключения телефонов</legend>
+            <div class="form-group col-12">
+                <label for="Depart" class="col-md-2 bmd-label-static">Подразделение</label>
+                <input type="text" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
+                <span class="bmd-help">Подразделение</span>
+            </div>
             <div id="number" class="input_forms row">
                 <h2 class='title col-12'>Абонент #1</h2>
-                <div class="form-group col-12">
-                    <label for="Depart" class="col-md-2 bmd-label-static">Подразделение</label>
-                    <input type="text" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
-                    <span class="bmd-help">Подразделение</span>
-                </div>
                 <div class="numbers col-12">
                     <fieldset class="form-group">
                         <label for="TelNumb1" class="bmd-label-static">Желаемый номер</label>
@@ -228,8 +228,8 @@
                 <button type="button" id="delNumb" class="btn btn-default btn-danger">Удалить последний номер
                 </button>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" name="ip_phone" type="checkbox" value="" id="ip_phone">
+            <!--div class="form-check">
+                <input class="form-check-input" name="ip_phone" type="checkbox" id="ip_phone">
                 <label class="form-check-label"  for="ip_phone">
                     Есть ли в подрезделении IP телефон
                 </label>
@@ -253,7 +253,7 @@
                     </fieldset>
                 </div>
 
-            </div>
+            </div-->
             <a id="addNumb_ip" href="#" class="btn addNew btn-success">Добавить ещё один номер
                 <div class="ripple-container"></div>
             </a>

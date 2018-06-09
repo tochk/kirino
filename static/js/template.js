@@ -204,23 +204,23 @@ function CheckName(Name) {
         $("#delNumb_ip").css("display", "inline-block");
         $("#cancel").css("display", "inline-block");
         macAddrs = $("input.mac_valid");
-        $("#ip_numbers").append("<div class='numb_per_ip col-12'>                <fieldset class=\"form-group col-12\">\n" +
-            "                    <label for='TelNumb_ip_"+w+"' class=\"bmd-label-static\">Номер</label>\n" +
-            "                    <input type=\"text\" name='TelNumb_ip_"+w+"' class=\"form-control\" placeholder=\"Номер\" id='TelNumb_ip_"+w+"'>\n" +
-            "                    <span class=\"bmd-help\">Номер</span>\n" +
-            "                </fieldset>\n" +
-            "                <div class=\"form-group col-12 row\">\n" +
-            "                    <fieldset class=\"form-group col-2\">\n" +
-            "                        <label for='room_ip_"+w+"' class=\"bmd-label-static\">Кабинет</label>\n" +
-            "                        <input type=\"text\" name='room_ip_"+w+"' class=\"form-control\" placeholder=\"Кабинет\" id='room_ip_"+w+"' >\n" +
-            "                        <span class=\"bmd-help\">Кабинет</span>\n" +
-            "                    </fieldset>\n" +
-            "                    <fieldset class=\"form-group offset-1 col-2\">\n" +
-            "                        <label for='build_ip_"+w+"' class=\"bmd-label-static\">Корпус</label>\n" +
-            "                        <input type=\"text\" name='build_ip_"+w+"' class=\"form-control\" placeholder=\"Корпус\" id='build_ip_"+w+"'>\n" +
-            "                        <span class=\"bmd-help\">Корпус</span>\n" +
-            "                    </fieldset>\n" +
-            "                </div></div>");
+        // $("#ip_numbers").append("<div class='numb_per_ip col-12'>                <fieldset class=\"form-group col-12\">\n" +
+        //     "                    <label for='TelNumb_ip_"+w+"' class=\"bmd-label-static\">Номер</label>\n" +
+        //     "                    <input type=\"text\" name='TelNumb_ip_"+w+"' class=\"form-control\" placeholder=\"Номер\" id='TelNumb_ip_"+w+"'>\n" +
+        //     "                    <span class=\"bmd-help\">Номер</span>\n" +
+        //     "                </fieldset>\n" +
+        //     "                <div class=\"form-group col-12 row\">\n" +
+        //     "                    <fieldset class=\"form-group col-2\">\n" +
+        //     "                        <label for='room_ip_"+w+"' class=\"bmd-label-static\">Кабинет</label>\n" +
+        //     "                        <input type=\"text\" name='room_ip_"+w+"' class=\"form-control\" placeholder=\"Кабинет\" id='room_ip_"+w+"' >\n" +
+        //     "                        <span class=\"bmd-help\">Кабинет</span>\n" +
+        //     "                    </fieldset>\n" +
+        //     "                    <fieldset class=\"form-group offset-1 col-2\">\n" +
+        //     "                        <label for='build_ip_"+w+"' class=\"bmd-label-static\">Корпус</label>\n" +
+        //     "                        <input type=\"text\" name='build_ip_"+w+"' class=\"form-control\" placeholder=\"Корпус\" id='build_ip_"+w+"'>\n" +
+        //     "                        <span class=\"bmd-help\">Корпус</span>\n" +
+        //     "                    </fieldset>\n" +
+        //     "                </div></div>");
         w++;
     });
     $("#delNumb_ip").click(function () {
