@@ -12,6 +12,7 @@ import (
 
 type WifiUser = html.WifiUser
 type Domain = html.Domain
+type Mail = html.Mail
 
 type WifiMemorandum struct {
 	Table        string
@@ -19,6 +20,13 @@ type WifiMemorandum struct {
 }
 
 type DomainMemorandum struct {
+	Table        string
+	MemorandumId int
+	Target       string
+	Department   string
+}
+
+type MailMemorandum struct {
 	Table        string
 	MemorandumId int
 	Target       string
@@ -107,6 +115,47 @@ func generateLatexFileForDomainMemorandum(domain Domain, hashStr string, memoran
 	}
 	defer outputLatexFile.Close()
 	err = memorandumTemplate.Execute(outputLatexFile, generateDomainLatexTable(domain, memorandumId))
+	if err != nil {
+		return "", err
+	}
+	pathToTexFile := "userFiles/" + hashStr + ".tex"
+	return pathToTexFile, nil
+}
+
+
+
+func GenerateMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr string, memorandumId int) error {
+	path, err := generateLatexFileForMailMemorandum(mail, info, hashStr, memorandumId)
+	if err != nil {
+		return err
+	}
+	err = generatePdf(path)
+	return err
+}
+
+func generateMailLatexTable(mail []Mail, memorandumId int) MailMemorandum {
+	table := ""
+	for _, e := range mail {
+		stringInTable := e.Mail + " & " + e.Name + " & " + e.Position + " \\\\ \n \\hline \n"
+		table += stringInTable
+	}
+	return MailMemorandum{Table: table, MemorandumId: memorandumId}
+}
+
+func generateLatexFileForMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr string, memorandumId int) (string, error) {
+	memorandumTemplate, err := template.ParseFiles("templates/latex/mail.tex")
+	if err != nil {
+		return "", err
+	}
+	outputLatexFile, err := os.Create("userFiles/" + hashStr + ".tex")
+	if err != nil {
+		return "", err
+	}
+	defer outputLatexFile.Close()
+	mm := generateMailLatexTable(mail, memorandumId)
+	mm.Target = info.Reason
+	mm.Department = info.Department
+	err = memorandumTemplate.Execute(outputLatexFile, mm)
 	if err != nil {
 		return "", err
 	}

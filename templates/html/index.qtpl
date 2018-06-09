@@ -468,14 +468,14 @@
                 <div class="form-group">
                     <label for="target_mail" class="col-md-2 control-label bmd-label-static">Цель</label>
                     <div class="col-md-10">
-                        <input type="mac" name="target_mail" class="form-control mac_valid mac" id="target_mail"
+                        <input type="text" name="target_mail" class="form-control mac_valid mac" id="target_mail"
                                placeholder="Цель" required>
                         <span class="help-block bmd-help">Цель</span>
                     </div>
                 </div>
                 <div class="form-group col-12">
                     <label for="Depart" class="col-md-2 bmd-label-static">Подразделение</label>
-                    <input type="dep" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
+                    <input type="text" name="dep1" class="form-control" id="Depart" placeholder="Подразделение" required>
                     <span class="bmd-help">Подразделение</span>
                 </div>
                 <div class="input_mail">
@@ -483,7 +483,7 @@
                     <div class="form-group">
                         <label for="postAdress" class="col-md-2 control-label bmd-label-static">Адрес ящика</label>
                         <div class="col-md-10">
-                            <input type="text" name="postAdress" class="form-control name" id="postAdress"
+                            <input type="text" name="postAdress1" class="form-control name" id="postAdress"
                                    placeholder="Адрес ящика" maxlength="200" required>
                             <span class="help-block bmd-help">Адрес ящика</span>
                         </div>
@@ -491,17 +491,17 @@
                     <div class="form-group">
                         <label for="postName" class="col-md-2 control-label bmd-label-static">Ф.И.О.</label>
                         <div class="col-md-10">
-                            <input type="text" name="postName" class="form-control name" id="postName"
+                            <input type="text" name="postName1" class="form-control name" id="postName"
                                    placeholder="Ф.И.О" maxlength="200" required>
-                            <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                            <span class="help-block bmd-help">ФИО ответственного лица</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="postPosition" class="col-md-2 control-label bmd-label-static">Должность</label>
                         <div class="col-md-10">
-                            <input type="text" name="postPosition" class="form-control name" id="postPosition"
+                            <input type="text" name="postPosition1" class="form-control name" id="postPosition"
                                    placeholder="Должность" maxlength="200" required>
-                            <span class="help-block bmd-help">Для служебных устройств - наименование подразделения</span>
+                            <span class="help-block bmd-help">Должность ответственного лица</span>
                         </div>
                     </div>
 

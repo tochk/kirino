@@ -27,6 +27,14 @@ Hash       string `db:"hash"`
 }
 %}
 
+{% code type Mail struct {
+Id       int    `db:"id"`
+Mail     string `db:"mail"`
+Name     string `db:"name"`
+Position string `db:"position"`
+}
+%}
+
 {% func WifiUsersPage(users []WifiUser, departments []Department, pagination Pagination) %}
 {%= Head("Пользователи WiFi") %}
 {%= Menu("admin") %}

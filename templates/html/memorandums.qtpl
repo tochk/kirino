@@ -7,6 +7,18 @@ DepartmentId *int   `db:"departmentid"`
 }
 %}
 
+
+{% code type MailMemorandum struct {
+Id           int    `db:"id"`
+AddTime      string `db:"addtime"`
+Accepted     int    `db:"accepted"`
+Department   string `db:"department"`
+Hash         string `db:"hash"`
+Reason       string `db:reason"`
+}
+%}
+
+
 {% func WifiMemorandumsPage(memorandums []Memorandum, departments []Department, pagination Pagination) %}
 {%= Head("Служебные записки на WiFi") %}
 {%= Menu("admin") %}
