@@ -14,6 +14,7 @@ import (
 )
 
 type MailMemorandum = html.MailMemorandum
+type Mail = html.Mail
 
 func MailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -94,10 +95,28 @@ func getMailCount() (count int, err error) {
 
 func ViewMailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if auth.IsAdmin(r) {
-		fmt.Fprint(w, html.MailPage("admin"))
-	} else {
-		fmt.Fprint(w, html.MailPage("mail"))
+	session, _ := server.Core.Store.Get(r, "kirino_session")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
 	}
+	memId := r.URL.Path[len("/admin/mail/memorandum/"):]
+	if memId == "" {
+		log.Println("Invalid memorandum id")
+		return
+	}
+
+	list, err := getMailMemorandumUsers(memId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Fprint(w, html.MailMemorandumPage(list))
+}
+
+func getMailMemorandumUsers(id string) (list []Mail, err error) {
+	err = server.Core.Db.Select(&list, "SELECT * FROM mailusers WHERE memorandumid = $1", id)
+	return
 }
 
