@@ -553,7 +553,7 @@ Exist        int    `db:"exist"`
 {%= Footer() %}
 {% endfunc %}
 
-{% func EthernetMemorandumPage(users []Mail) %}
+{% func EthernetMemorandumPage(users []Ethernet) %}
 {%= Head("Просмотр служебки") %}
 {%= Menu("admin") %}
 <div class="table_wrapper">

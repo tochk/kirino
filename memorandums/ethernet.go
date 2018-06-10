@@ -14,6 +14,7 @@ import (
 )
 
 type EthernetMemorandum = html.EthernetMemorandum
+type Ethernet = html.Ethernet
 
 func EthernetHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -91,11 +92,30 @@ func getEthernetCount() (count int, err error) {
 	return
 }
 
+
 func ViewEthernetHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if auth.IsAdmin(r) {
-		fmt.Fprint(w, html.EthernetPage("admin"))
-	} else {
-		fmt.Fprint(w, html.EthernetPage("ethernet"))
+	session, _ := server.Core.Store.Get(r, "kirino_session")
+	if session.Values["userName"] == nil {
+		http.Redirect(w, r, "/admin/", 302)
+		return
 	}
+	memId := r.URL.Path[len("/admin/ethernet/memorandum/"):]
+	if memId == "" {
+		log.Println("Invalid memorandum id")
+		return
+	}
+
+	list, err := getEthernetMemorandumUsers(memId)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Fprint(w, html.EthernetMemorandumPage(list))
+}
+
+func getEthernetMemorandumUsers(id string) (list []Ethernet, err error) {
+	err = server.Core.Db.Select(&list, "SELECT * FROM ethusers WHERE memorandumid = $1", id)
+	return
 }
