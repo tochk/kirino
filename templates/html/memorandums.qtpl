@@ -14,7 +14,7 @@ AddTime      string `db:"addtime"`
 Accepted     int    `db:"accepted"`
 Department   string `db:"department"`
 Hash         string `db:"hash"`
-Reason       string `db:reason"`
+Reason       string `db:"reason"`
 }
 %}
 
