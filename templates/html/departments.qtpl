@@ -11,8 +11,8 @@ Selected bool
 {%= Menu("admin") %}
 
 <div class="table_wrapper">
-    <table class="table table-striped table-hover memorand">
-        <thead>
+    <table class="table">
+        <thead class="thead-dark">
         <tr>
             <th>Department</th>
             <th>Actions</th>
