@@ -17,7 +17,7 @@ import (
 func DomainGenerateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if err := r.ParseForm(); err != nil {
-		log.Println(err)
+		http.Error(w, err.String(), http.StatusBadRequest)
 		return
 	}
 	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
