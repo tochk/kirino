@@ -125,7 +125,6 @@ Exist        int    `db:"exist"`
     </table>
     {%= PrintPagination(pagination, "/admin/wifi/memorandums/") %}
 </div>
-
 {%= Footer() %}
 {% endfunc %}
 
@@ -267,6 +266,60 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
+</div>
+{%= Footer() %}
+{% endfunc %}
+
+
+
+{% func DomainMemorandumsPage(memorandums []Domain, pagination Pagination) %}
+{%= Head("Служебные записки на регистрацию домена") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Name</th>
+            <th>Host</th>
+            <th>Username</th>
+            <th>Accept</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, memorandum := range memorandums %}
+        {% if memorandum.Accepted == 1 %}
+        <tr class="table-success">
+            {% else %}
+        <tr>
+            {% endif %}
+            <td class="table_first_rows">{%d memorandum.Id %}</td>
+            <td class="table_first_rows">{%s memorandum.AddTime %}</td>
+            <td class="table_first_rows">{%s memorandum.Department %}</td>
+            <td class="table_first_rows">{%s memorandum.Name %}</td>
+            <td class="table_first_rows">{%s memorandum.Hosting %}</td>
+            <td class="table_first_rows">{%s memorandum.FIO %}</td>
+            <td>
+                {% if memorandum.Accepted != 1 %}
+                <a href="/admin/domain/memorandums/accept/{%d memorandum.Id %}"
+                   class="btn btn-success btn-on-table hint-act">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешить служебку</span>
+                </a>
+                {% else %}
+                <a href="#" class="btn btn-danger btn-on-table hint-act disabled">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешено</span>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {%= PrintPagination(pagination, "/admin/domain/memorandums/") %}
 </div>
 {%= Footer() %}
 {% endfunc %}
