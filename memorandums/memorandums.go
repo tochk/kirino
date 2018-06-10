@@ -44,7 +44,7 @@ func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 	var paging pagination.Pagination
 	var memorandums []WifiMemorandum
 	var err error
-	count, err := getWifiUserCount()
+	count, err := getWifiMemorandumsCount()
 	if err != nil {
 		log.Println(err)
 		return
@@ -121,6 +121,11 @@ func rejectMemorandum(id string) (err error) {
 
 func getWifiUserCount() (count int, err error) {
 	err = server.Core.Db.Get(&count, "SELECT COUNT(*) FROM wifiUsers")
+	return
+}
+
+func getWifiMemorandumsCount() (count int, err error) {
+	err = server.Core.Db.Get(&count, "SELECT COUNT(*) FROM memorandums")
 	return
 }
 
