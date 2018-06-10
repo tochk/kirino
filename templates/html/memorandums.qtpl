@@ -323,3 +323,166 @@ Exist        int    `db:"exist"`
 </div>
 {%= Footer() %}
 {% endfunc %}
+
+
+{% func MailMemorandumsPage(memorandums []MailMemorandum, pagination Pagination) %}
+{%= Head("Служебные записки на создание почты") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Reason</th>
+            <th>Show</th>
+            <th>Accept</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, memorandum := range memorandums %}
+        {% if memorandum.Accepted == 1 %}
+        <tr class="table-success">
+            {% else %}
+        <tr>
+            {% endif %}
+            <td class="table_first_rows">{%d memorandum.Id %}</td>
+            <td class="table_first_rows">{%s memorandum.AddTime %}</td>
+            <td class="table_first_rows">{%s memorandum.Department %}</td>
+            <td class="table_first_rows">{%s memorandum.Reason %}</td>
+            <td>
+                <a href="/admin/mail/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="oi oi-list" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+            </td>
+            <td>
+                {% if memorandum.Accepted != 1 %}
+                <a href="/admin/mail/memorandums/accept/{%d memorandum.Id %}"
+                   class="btn btn-success btn-on-table hint-act">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешить служебку</span>
+                </a>
+                {% else %}
+                <a href="#" class="btn btn-danger btn-on-table hint-act disabled">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешено</span>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {%= PrintPagination(pagination, "/admin/mail/memorandums/") %}
+</div>
+{%= Footer() %}
+{% endfunc %}
+
+{% func EthernetMemorandumsPage(memorandums []EthernetMemorandum, pagination Pagination) %}
+{%= Head("Служебные записки на проводное подключение") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Show</th>
+            <th>Accept</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, memorandum := range memorandums %}
+        {% if memorandum.Accepted == 1 %}
+        <tr class="table-success">
+            {% else %}
+        <tr>
+            {% endif %}
+            <td class="table_first_rows">{%d memorandum.Id %}</td>
+            <td class="table_first_rows">{%s memorandum.AddTime %}</td>
+            <td class="table_first_rows">{%s memorandum.Department %}</td>
+            <td>
+                <a href="/admin/ethernet/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="oi oi-list" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+            </td>
+            <td>
+                {% if memorandum.Accepted != 1 %}
+                <a href="/admin/ethernet/memorandums/accept/{%d memorandum.Id %}"
+                   class="btn btn-success btn-on-table hint-act">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешить служебку</span>
+                </a>
+                {% else %}
+                <a href="#" class="btn btn-danger btn-on-table hint-act disabled">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешено</span>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {%= PrintPagination(pagination, "/admin/ethernet/memorandums/") %}
+</div>
+{%= Footer() %}
+{% endfunc %}
+
+
+{% func PhoneMemorandumsPage(memorandums []PhoneMemorandum, pagination Pagination) %}
+{%= Head("Служебные записки на подключение телефона") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Number</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Show</th>
+            <th>Accept</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, memorandum := range memorandums %}
+        {% if memorandum.Accepted == 1 %}
+        <tr class="table-success">
+            {% else %}
+        <tr>
+            {% endif %}
+            <td class="table_first_rows">{%d memorandum.Id %}</td>
+            <td class="table_first_rows">{%s memorandum.AddTime %}</td>
+            <td class="table_first_rows">{%s memorandum.Department %}</td>
+            <td>
+                <a href="/admin/phone/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="oi oi-list" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+            </td>
+            <td>
+                {% if memorandum.Accepted != 1 %}
+                <a href="/admin/phone/memorandums/accept/{%d memorandum.Id %}"
+                   class="btn btn-success btn-on-table hint-act">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешить служебку</span>
+                </a>
+                {% else %}
+                <a href="#" class="btn btn-danger btn-on-table hint-act disabled">
+                    <span class="oi oi-check" aria-hidden="true"></span>
+                    <span class="hint">Разрешено</span>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {%= PrintPagination(pagination, "/admin/phone/memorandums/") %}
+</div>
+{%= Footer() %}
+{% endfunc %}
