@@ -486,3 +486,97 @@ Exist        int    `db:"exist"`
 </div>
 {%= Footer() %}
 {% endfunc %}
+
+
+{% func PhoneMemorandumPage(users []Phone) %}
+{%= Head("Просмотр служебки") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Phone</th>
+            <th>Info</th>
+            <th>Access</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, user := range users %}
+        <tr>
+            <td style="padding: 20px;">{%s user.Phone %}</td>
+            <td style="padding: 20px;">{%s user.Info %}</td>
+            <td>
+            {% switch user.Access %}
+            {% case 1 %}
+            Внутренний
+            {% case 2 %}
+            Городской
+            {% case 3 %}
+            Межгородской
+            {% case 4 %}
+            Международный
+            {% endswitch %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%= Footer() %}
+{% endfunc %}
+
+
+
+{% func MailMemorandumPage(users []Mail) %}
+{%= Head("Просмотр служебки") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Mail</th>
+            <th>Name</th>
+            <th>Position</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, user := range users %}
+        <tr>
+            <td style="padding: 20px;">{%s user.Mail %}</td>
+            <td style="padding: 20px;">{%s user.Name %}</td>
+            <td style="padding: 20px;">{%s user.Position %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%= Footer() %}
+{% endfunc %}
+
+{% func EthernetMemorandumPage(users []Mail) %}
+{%= Head("Просмотр служебки") %}
+{%= Menu("admin") %}
+<div class="table_wrapper">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Mac</th>
+            <th>Class</th>
+            <th>Building</th>
+            <th>Info</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for _, user := range users %}
+        <tr>
+            <td style="padding: 20px;">{%s user.Mac %}</td>
+            <td style="padding: 20px;">{%s user.Class %}</td>
+            <td style="padding: 20px;">{%s user.Building %}</td>
+            <td style="padding: 20px;">{%s user.Info %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%= Footer() %}
+{% endfunc %}
