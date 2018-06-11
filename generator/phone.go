@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
+	"github.com/tochk/kirino/common"
 	"github.com/tochk/kirino/latex"
 	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
@@ -82,19 +84,16 @@ func checkPhoneData(list []Phone) ([]Phone, error) {
 }
 
 func writePhoneDataToDb(data []Phone, info PhoneMemorandum, hash string) (int, error) {
-	tx, err := server.Core.Db.Beginx()
+	var id int
+	err := common.RunTx(context.Background(), server.Core.Db, func(tx *sqlx.Tx) error {
+		var err error
+		id, err = tryWritePhoneDataToDb(tx, data, info, hash)
+		return err
+	})
 	if err != nil {
 		return 0, err
 	}
-	id, err := tryWritePhoneDataToDb(tx, data, info, hash)
-	if err != nil {
-		tx.Rollback()
-		return 0, err
-	}
-	if err = tx.Commit(); err == nil {
-		return id, nil
-	}
-	return 0, nil
+	return id, nil
 }
 
 func tryWritePhoneDataToDb(tx *sqlx.Tx, data []Phone, info PhoneMemorandum, hash string) (memorandumId int, err error) {
