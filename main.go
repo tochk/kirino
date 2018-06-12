@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/generator"
@@ -20,7 +21,8 @@ var (
 	servicePort = flag.Int("port", 4001, "Service port number")
 )
 
-func userFilesHandler(w http.ResponseWriter, r *http.Request) {
+func filesHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL.Path)
 	path := "." + r.URL.Path
 	if f, err := os.Stat(path); err == nil && !f.IsDir() {
 		http.ServeFile(w, r, path)
@@ -52,53 +54,51 @@ func main() {
 	defer server.Core.Db.Close()
 	log.Printf("Connected to database on %s", server.Config.DbHost)
 
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/userFiles/", userFilesHandler)
+	router := mux.NewRouter().StrictSlash(true)
 
-	http.HandleFunc("/", memorandums.WifiHandler)
+	router.Methods("GET").PathPrefix("/static/").HandlerFunc(filesHandler)
+	router.Methods("GET").PathPrefix("/userFiles/").HandlerFunc(filesHandler)
 
-	http.HandleFunc("/wifi/generate/", generator.WifiGenerateHandler)
-	http.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
+	router.HandleFunc("/", memorandums.FormsHandler)
+	router.HandleFunc("/{type}/", memorandums.FormsHandler)
 
-	http.HandleFunc("/admin/", auth.Handler)
-	http.HandleFunc("/admin/departments/", departments.Handler)
+	router.HandleFunc("/wifi/generate/", generator.WifiGenerateHandler)
+	router.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
 
-	http.HandleFunc("/admin/wifi/memorandums/", memorandums.ListWifiHandler)
-	http.HandleFunc("/admin/wifi/memorandum/", memorandums.ViewWifiHandler)
-	http.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
-	http.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
+	router.HandleFunc("/admin/", auth.Handler)
+	router.HandleFunc("/admin/departments/", departments.Handler)
 
-	http.HandleFunc("/admin/ethernet/memorandums/", memorandums.ListEthernetHandler)
-	http.HandleFunc("/admin/ethernet/memorandum/", memorandums.ViewEthernetHandler)
+	router.HandleFunc("/admin/wifi/memorandums/", memorandums.ListWifiHandler)
+	router.HandleFunc("/admin/wifi/memorandum/", memorandums.ViewWifiHandler)
+	router.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
+	router.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
 
-	http.HandleFunc("/admin/phone/memorandums/", memorandums.ListPhoneHandler)
-	http.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
+	router.HandleFunc("/admin/ethernet/memorandums/", memorandums.ListEthernetHandler)
+	router.HandleFunc("/admin/ethernet/memorandum/", memorandums.ViewEthernetHandler)
 
-	http.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
+	router.HandleFunc("/admin/phone/memorandums/", memorandums.ListPhoneHandler)
+	router.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
 
-	http.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
-	http.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
+	router.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
 
-	http.HandleFunc("/ethernet/", memorandums.EthernetHandler)
-	http.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
-	http.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
+	router.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
+	router.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
 
-	http.HandleFunc("/phone/", memorandums.PhoneHandler)
-	http.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
-	http.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
+	router.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
+	router.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
 
-	http.HandleFunc("/domain/", memorandums.DomainHandler)
-	http.HandleFunc("/domain/generate/", generator.DomainGenerateHandler)
-	http.HandleFunc("/domain/generated/", generator.DomainGeneratedHandler)
+	router.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
+	router.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
 
-	http.HandleFunc("/mail/", memorandums.MailHandler)
-	http.HandleFunc("/mail/generate/", generator.MailGenerateHandler)
-	http.HandleFunc("/mail/generated/", generator.MailGeneratedHandler)
+	router.HandleFunc("/domain/generate/", generator.DomainGenerateHandler)
+	router.HandleFunc("/domain/generated/", generator.DomainGeneratedHandler)
+
+	router.HandleFunc("/mail/generate/", generator.MailGenerateHandler)
+	router.HandleFunc("/mail/generated/", generator.MailGeneratedHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, router); err != nil {
 		log.Fatal(err)
 	}
 }

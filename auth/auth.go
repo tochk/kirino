@@ -19,10 +19,7 @@ var (
 
 func IsAdmin(r *http.Request) bool {
 	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] != nil {
-		return true
-	}
-	return false
+	return session.Values["userName"] != nil
 }
 
 func auth(login, password string) (string, error) {

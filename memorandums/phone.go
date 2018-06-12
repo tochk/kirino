@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/pagination"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
@@ -15,15 +14,6 @@ import (
 
 type PhoneMemorandum = html.PhoneMemorandum
 type Phone = html.Phone
-
-func PhoneHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if auth.IsAdmin(r) {
-		fmt.Fprint(w, html.PhonePage("admin"))
-	} else {
-		fmt.Fprint(w, html.PhonePage("phone"))
-	}
-}
 
 func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -92,7 +82,6 @@ func getPhoneCount() (count int, err error) {
 	return
 }
 
-
 func ViewPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
@@ -119,4 +108,3 @@ func getPhoneMemorandumUsers(id string) (list []Phone, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM phoneusers WHERE memorandumid = $1", id)
 	return
 }
-
