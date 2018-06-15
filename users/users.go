@@ -27,7 +27,7 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/user/"):]
+	urlInfo := r.URL.Path[len("/admin/wifi/user/"):]
 	var user WifiUser
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
