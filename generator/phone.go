@@ -2,15 +2,10 @@ package generator
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/common"
 	"github.com/tochk/kirino/latex"
@@ -99,17 +94,4 @@ func tryWritePhoneDataToDb(tx *sqlx.Tx, data []html.Phone, info html.PhoneMemora
 	}
 
 	return memorandumId, nil
-}
-
-func PhoneGeneratedHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/phone/generated/"):]
-	splittedUrl := strings.Split(memorandumInfo, "/")
-
-	pageType := "phone"
-	if auth.IsAdmin(r) {
-		pageType = "admin"
-	}
-
-	fmt.Fprint(w, html.PhoneGeneratedPage(pageType, splittedUrl[0]))
 }

@@ -2,7 +2,7 @@
 {%= Head("Создание служебной записки на WiFi") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/wifi/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/generate/wifi/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение доступа к ИКС СГУ по технологии Wi-Fi.</legend>
             <div class="input_forms">
@@ -116,7 +116,7 @@
 {%= Head("Создание служебной записки на подключение компьютера") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/ethernet/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/generate/ethernet/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Создание служебной записки для проводной сети</legend>
             <div id="input_eth" class="input_forms">
@@ -182,7 +182,7 @@
 {%= Head("Создание служебной записки на подключение телефона") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/phone/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/generate/phone/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на подключения телефонов</legend>
             <div class="form-group col-12">
@@ -281,7 +281,7 @@
 {%= Head("Создание служебной записки на регистрацию домена") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/domain/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/generate/domain/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение домена</legend>
             <div class="input_forms">
@@ -343,7 +343,7 @@
 {%= Head("Создание служебной записки на создание почты") %}
 <div id="blurr">
     {%= Menu(pageType) %}
-    <form class="form-horizontal" action="/mail/generate/" method="post" id="fm">
+    <form class="form-horizontal" action="/generate/mail/" method="post" id="fm">
         <fieldset id="form_cont">
             <legend>Формирование заявления на получение доступа к почте СГУ.</legend>
             <div class="input_forms">

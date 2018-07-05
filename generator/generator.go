@@ -44,16 +44,13 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	pageType := vars["type"]
-	if auth.IsAdmin(r) {
-		pageType = "admin"
-	}
+
 	var (
 		hash    string
 		getData string
 		err     error
 	)
-	switch pageType {
+	switch vars["type"] {
 	case "wifi":
 		hash, getData, err = generateWifi(r.PostForm)
 	case "domain":
@@ -75,18 +72,27 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 
 func GeneratedHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/wifi/generated/"):]
-	splittedUrl := strings.Split(memorandumInfo, "/")
-
-	var exist []string
-	if splittedUrl[1] != "0" {
-		exist = strings.Split(splittedUrl[1], ",")
-	}
-	pageType := "wifi"
+	vars := mux.Vars(r)
+	pageType := vars["type"]
 	if auth.IsAdmin(r) {
 		pageType = "admin"
 	}
 
-	fmt.Fprint(w, html.GeneratedPage(pageType, splittedUrl[0], splittedUrl[2], exist))
+	switch vars["type"] {
+	case "wifi":
+		var exist []string
+		if r.URL.Query().Get("exist") != "0" {
+			exist = strings.Split(r.URL.Query().Get("exist"), ",")
+		}
 
+		fmt.Fprint(w, html.GeneratedPage(pageType, vars["token"], r.URL.Query().Get("count"), exist))
+	case "ethernet":
+		fmt.Fprint(w, html.EthernetGeneratedPage(pageType, vars["token"]))
+	case "phone":
+		fmt.Fprint(w, html.PhoneGeneratedPage(pageType, vars["token"]))
+	case "domain":
+		fmt.Fprint(w, html.DomainGeneratedPage(pageType, vars["token"]))
+	case "mail":
+		fmt.Fprint(w, html.MailGeneratedPage(pageType, vars["token"]))
+	}
 }

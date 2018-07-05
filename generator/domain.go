@@ -1,13 +1,9 @@
 package generator
 
 import (
-	"fmt"
-	"log"
-	"net/http"
 	"net/url"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/latex"
 	"github.com/tochk/kirino/server"
@@ -82,16 +78,4 @@ func tryWriteDomainDataToDb(tx *sqlx.Tx, data html.Domain, hash string) (memoran
 	}
 
 	return memorandumId, nil
-}
-
-func DomainGeneratedHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/domain/generated/"):]
-
-	pageType := "domain"
-	if auth.IsAdmin(r) {
-		pageType = "admin"
-	}
-
-	fmt.Fprint(w, html.DomainGeneratedPage(pageType, memorandumInfo))
 }

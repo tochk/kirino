@@ -1,19 +1,16 @@
 package generator
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"net/url"
-	"strconv"
-	"strings"
 
-	"github.com/jmoiron/sqlx"
-	"github.com/tochk/kirino/auth"
-	"github.com/tochk/kirino/check"
-	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/server"
-	"github.com/tochk/kirino/templates/html"
+"net/url"
+"strconv"
+
+"github.com/jmoiron/sqlx"
+"github.com/tochk/kirino/check"
+"github.com/tochk/kirino/latex"
+"github.com/tochk/kirino/server"
+"github.com/tochk/kirino/templates/html"
+
 )
 
 func generateMail(form url.Values) (string, string, error) {
@@ -98,17 +95,4 @@ func tryWriteMailDataToDb(tx *sqlx.Tx, data []html.Mail, info html.MailMemorandu
 	}
 
 	return memorandumId, nil
-}
-
-func MailGeneratedHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/mail/generated/"):]
-	splittedUrl := strings.Split(memorandumInfo, "/")
-
-	pageType := "mail"
-	if auth.IsAdmin(r) {
-		pageType = "admin"
-	}
-
-	fmt.Fprint(w, html.MailGeneratedPage(pageType, splittedUrl[0]))
 }
