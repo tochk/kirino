@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -11,64 +12,46 @@ import (
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
 
-type EthernetMemorandum = html.EthernetMemorandum
-
-func EthernetGenerateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if err := r.ParseForm(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
-		log.Println(err)
-		fmt.Fprint(w, "Капча введена неправильно")
-		return
+func generateEthernet(form url.Values) (string, string, error) {
+	info := html.EthernetMemorandum{
+		Department: form.Get("dep1"),
 	}
 
-	info := EthernetMemorandum{
-		Department: r.PostForm.Get("dep1"),
-	}
-
-	list := make([]Ethernet, 0, (len(r.Form)-2)/3)
-	for i := 1; i <= (len(r.Form)-2)/4; i++ {
-		tempUserData := Ethernet{
-			Mac :  latex.TexEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
-			Info:   latex.TexEscape(r.PostFormValue("descrip"+strconv.Itoa(i))),
-			Class: latex.TexEscape(r.PostForm.Get("room" + strconv.Itoa(i))),
-			Building: latex.TexEscape(r.PostForm.Get("build"+ strconv.Itoa(i))),
+	list := make([]html.Ethernet, 0, (len(form)-2)/3)
+	for i := 1; i <= (len(form)-2)/4; i++ {
+		tempUserData := html.Ethernet{
+			Mac:      latex.TexEscape(form.Get("mac" + strconv.Itoa(i))),
+			Info:     latex.TexEscape(form.Get("descrip" + strconv.Itoa(i))),
+			Class:    latex.TexEscape(form.Get("room" + strconv.Itoa(i))),
+			Building: latex.TexEscape(form.Get("build" + strconv.Itoa(i))),
 		}
 		list = append(list, tempUserData)
 	}
 
-	hash := generateHash(r.PostFormValue("mac1"))
+	hash := generateHash(form.Get("mac1"))
 
 	list, err := checkEthernetData(list)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	memorandumId, err := writeEthernetDataToDb(list, info, hash)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	if err = latex.GenerateEthernetMemorandum(list, info, hash, memorandumId); err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
-	http.Redirect(w, r, "/ethernet/generated/"+hash+"/", 302)
-
+	return hash, "", nil
 }
 
-func checkEthernetData(list []Ethernet) ([]Ethernet, error) {
+func checkEthernetData(list []html.Ethernet) ([]html.Ethernet, error) {
 	var err error
 	for i, user := range list {
 		user.Mac, err = check.Mac(user.Mac)
@@ -83,7 +66,7 @@ func checkEthernetData(list []Ethernet) ([]Ethernet, error) {
 	return list, nil
 }
 
-func writeEthernetDataToDb(data []Ethernet, info EthernetMemorandum, hash string) (int, error) {
+func writeEthernetDataToDb(data []html.Ethernet, info html.EthernetMemorandum, hash string) (int, error) {
 	tx, err := server.Core.Db.Beginx()
 	if err != nil {
 		return 0, err
@@ -99,7 +82,7 @@ func writeEthernetDataToDb(data []Ethernet, info EthernetMemorandum, hash string
 	return 0, nil
 }
 
-func tryWriteEthernetDataToDb(tx *sqlx.Tx, data []Ethernet, info EthernetMemorandum, hash string) (memorandumId int, err error) {
+func tryWriteEthernetDataToDb(tx *sqlx.Tx, data []html.Ethernet, info html.EthernetMemorandum, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM ethmemorandums"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0

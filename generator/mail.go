@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -11,64 +12,46 @@ import (
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
 
-type MailMemorandum = html.MailMemorandum
-
-func MailGenerateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if err := r.ParseForm(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
-		log.Println(err)
-		fmt.Fprint(w, "Капча введена неправильно")
-		return
+func generateMail(form url.Values) (string, string, error) {
+	info := html.MailMemorandum{
+		Reason:     form.Get("target_mail"),
+		Department: form.Get("dep1"),
 	}
 
-	info := MailMemorandum{
-		Reason:     r.PostForm.Get("target_mail"),
-		Department: r.PostForm.Get("dep1"),
-	}
-
-	list := make([]Mail, 0, (len(r.Form)-3)/3)
-	for i := 1; i <= (len(r.Form)-3)/3; i++ {
-		tempUserData := Mail{
-			Mail:     latex.TexEscape(r.PostFormValue("postAdress" + strconv.Itoa(i))),
-			Name:     latex.TexEscape(r.PostFormValue("postName" + strconv.Itoa(i))),
-			Position: latex.TexEscape(r.PostFormValue("postPosition" + strconv.Itoa(i))),
+	list := make([]html.Mail, 0, (len(form)-3)/3)
+	for i := 1; i <= (len(form)-3)/3; i++ {
+		tempUserData := html.Mail{
+			Mail:     latex.TexEscape(form.Get("postAdress" + strconv.Itoa(i))),
+			Name:     latex.TexEscape(form.Get("postName" + strconv.Itoa(i))),
+			Position: latex.TexEscape(form.Get("postPosition" + strconv.Itoa(i))),
 		}
 		list = append(list, tempUserData)
 	}
 
-	hash := generateHash(r.PostFormValue("postAdress1"))
+	hash := generateHash(form.Get("postAdress1"))
 
 	list, err := checkMailData(list)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	memorandumId, err := writeMailDataToDb(list, info, hash)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	if err = latex.GenerateMailMemorandum(list, info, hash, memorandumId); err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
-	http.Redirect(w, r, "/mail/generated/"+hash+"/", 302)
-
+	return hash, "", nil
 }
 
-func checkMailData(list []Mail) ([]Mail, error) {
+func checkMailData(list []html.Mail) ([]html.Mail, error) {
 	for i, user := range list {
 		user.Mail = check.All(user.Mail)
 		user.Position = check.All(user.Position)
@@ -78,7 +61,7 @@ func checkMailData(list []Mail) ([]Mail, error) {
 	return list, nil
 }
 
-func writeMailDataToDb(data []Mail, info MailMemorandum, hash string) (int, error) {
+func writeMailDataToDb(data []html.Mail, info html.MailMemorandum, hash string) (int, error) {
 	tx, err := server.Core.Db.Beginx()
 	if err != nil {
 		return 0, err
@@ -94,7 +77,7 @@ func writeMailDataToDb(data []Mail, info MailMemorandum, hash string) (int, erro
 	return 0, nil
 }
 
-func tryWriteMailDataToDb(tx *sqlx.Tx, data []Mail, info MailMemorandum, hash string) (memorandumId int, err error) {
+func tryWriteMailDataToDb(tx *sqlx.Tx, data []html.Mail, info html.MailMemorandum, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM mailmemorandums"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0

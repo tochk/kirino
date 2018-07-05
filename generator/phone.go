@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -13,68 +14,49 @@ import (
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/common"
 	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
 
-type PhoneMemorandum = html.PhoneMemorandum
-
-func PhoneGenerateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if err := r.ParseForm(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
-		log.Println(err)
-		fmt.Fprint(w, "Капча введена неправильно")
-		return
+func generatePhone(form url.Values) (string, string, error) {
+	info := html.PhoneMemorandum{
+		Department: form.Get("num1"),
 	}
 
-	info := PhoneMemorandum{
-		Department: r.PostForm.Get("num1"),
-	}
-
-	list := make([]Phone, 0, (len(r.Form)-2)/3)
-	for i := 1; i <= (len(r.Form)-2)/4; i++ {
-		access, err := strconv.Atoi(latex.TexEscape(r.PostFormValue("typePhone" + strconv.Itoa(i))))
+	list := make([]html.Phone, 0, (len(form)-2)/3)
+	for i := 1; i <= (len(form)-2)/4; i++ {
+		access, err := strconv.Atoi(latex.TexEscape(form.Get("typePhone" + strconv.Itoa(i))))
 		if err != nil {
-			log.Println(err)
-			return
+			return "", "", err
 		}
-		tempUserData := Phone{
-			Phone:  latex.TexEscape(r.PostFormValue("num" + strconv.Itoa(i))),
-			Info:   latex.TexEscape(r.PostFormValue("room"+strconv.Itoa(i)) + " кабинет " + r.PostForm.Get("build"+strconv.Itoa(i)) + " корпуса"),
+		tempUserData := html.Phone{
+			Phone:  latex.TexEscape(form.Get("num" + strconv.Itoa(i))),
+			Info:   latex.TexEscape(form.Get("room"+strconv.Itoa(i)) + " кабинет " + form.Get("build"+strconv.Itoa(i)) + " корпуса"),
 			Access: access,
 		}
 		list = append(list, tempUserData)
 	}
 
-	hash := generateHash(r.PostFormValue("postAdress1"))
+	hash := generateHash(form.Get("postAdress1"))
 
 	list, err := checkPhoneData(list)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	memorandumId, err := writePhoneDataToDb(list, info, hash)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	if err = latex.GeneratePhoneMemorandum(list, info, hash, memorandumId); err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
-	http.Redirect(w, r, "/phone/generated/"+hash+"/", 302)
-
+	return hash, "", nil
 }
 
-func checkPhoneData(list []Phone) ([]Phone, error) {
+func checkPhoneData(list []html.Phone) ([]html.Phone, error) {
 	for i, user := range list {
 		user.Phone = check.All(user.Phone)
 		user.Info = check.All(user.Info)
@@ -83,7 +65,7 @@ func checkPhoneData(list []Phone) ([]Phone, error) {
 	return list, nil
 }
 
-func writePhoneDataToDb(data []Phone, info PhoneMemorandum, hash string) (int, error) {
+func writePhoneDataToDb(data []html.Phone, info html.PhoneMemorandum, hash string) (int, error) {
 	var id int
 	err := common.RunTx(context.Background(), server.Core.Db, func(tx *sqlx.Tx) error {
 		var err error
@@ -96,7 +78,7 @@ func writePhoneDataToDb(data []Phone, info PhoneMemorandum, hash string) (int, e
 	return id, nil
 }
 
-func tryWritePhoneDataToDb(tx *sqlx.Tx, data []Phone, info PhoneMemorandum, hash string) (memorandumId int, err error) {
+func tryWritePhoneDataToDb(tx *sqlx.Tx, data []html.Phone, info html.PhoneMemorandum, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM phonememorandums"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0

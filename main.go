@@ -59,11 +59,10 @@ func main() {
 	router.Methods("GET").PathPrefix("/static/").HandlerFunc(filesHandler)
 	router.Methods("GET").PathPrefix("/userFiles/").HandlerFunc(filesHandler)
 
-	router.HandleFunc("/", memorandums.FormsHandler)
-	router.HandleFunc("/{type}/", memorandums.FormsHandler)
-
-	router.HandleFunc("/wifi/generate/", generator.WifiGenerateHandler)
-	router.HandleFunc("/wifi/generated/", generator.WifiGeneratedHandler)
+	router.HandleFunc("/", memorandums.FormsHandler).Methods("GET")
+	router.HandleFunc("/{type}/", memorandums.FormsHandler).Methods("GET")
+	router.HandleFunc("/generate/{type}/", generator.GenerateHandler).Methods("POST")
+	router.HandleFunc("/generated/{type}/{token}/", generator.GeneratedHandler).Methods("GET")
 
 	router.HandleFunc("/admin/", auth.Handler)
 	router.HandleFunc("/admin/departments/", departments.Handler)
@@ -84,17 +83,6 @@ func main() {
 	router.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
 	router.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
 
-	router.HandleFunc("/ethernet/generate/", generator.EthernetGenerateHandler)
-	router.HandleFunc("/ethernet/generated/", generator.EthernetGeneratedHandler)
-
-	router.HandleFunc("/phone/generate/", generator.PhoneGenerateHandler)
-	router.HandleFunc("/phone/generated/", generator.PhoneGeneratedHandler)
-
-	router.HandleFunc("/domain/generate/", generator.DomainGenerateHandler)
-	router.HandleFunc("/domain/generated/", generator.DomainGeneratedHandler)
-
-	router.HandleFunc("/mail/generate/", generator.MailGenerateHandler)
-	router.HandleFunc("/mail/generated/", generator.MailGeneratedHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

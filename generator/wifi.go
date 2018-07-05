@@ -2,50 +2,35 @@ package generator
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
-	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 	"github.com/tochk/kirino/users"
 )
 
-func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if err := r.ParseForm(); err != nil {
-		log.Println(err)
-		return
-	}
-	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
-		log.Println(err)
-		fmt.Fprint(w, "Капча введена неправильно")
-		return
-	}
+func generateWifi(form url.Values) (string, string, error) {
 	exist := make([]string, 0, 5)
 	list := make([]latex.WifiUser, 0, 5)
-	for i := 1; i <= len(r.Form)/3; i++ {
+	for i := 1; i <= len(form)/3; i++ {
 		tempUserData := latex.WifiUser{
-			MacAddress:  latex.TexEscape(r.PostFormValue("mac" + strconv.Itoa(i))),
-			UserName:    latex.TexEscape(r.PostFormValue("user" + strconv.Itoa(i))),
-			PhoneNumber: latex.TexEscape(r.PostFormValue("tel" + strconv.Itoa(i))),
+			MacAddress:  latex.TexEscape(form.Get("mac" + strconv.Itoa(i))),
+			UserName:    latex.TexEscape(form.Get("user" + strconv.Itoa(i))),
+			PhoneNumber: latex.TexEscape(form.Get("tel" + strconv.Itoa(i))),
 		}
 		list = append(list, tempUserData)
 	}
 
-	hash := generateHash(r.PostFormValue("mac1"))
+	hash := generateHash(form.Get("mac1"))
 
 	list, err := checkWifiData(list)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	for _, e := range list {
@@ -71,47 +56,27 @@ func WifiGenerateHandler(w http.ResponseWriter, r *http.Request) {
 	if len(listToWrite) > 0 {
 		memorandumId, err := writeWifiUserDataToDb(listToWrite, hash)
 		if err != nil {
-			log.Println(err)
-			return
+			return "", "", err
 		}
 
 		if err = latex.GenerateWifiMemorandum(listToWrite, hash, memorandumId); err != nil {
-			log.Println(err)
-			return
+			return "", "", err
 		}
 	}
-	if len(exist) == 0 {
-		http.Redirect(w, r, "/wifi/generated/"+hash+"/0/"+strconv.Itoa(len(listToWrite)), 302)
-	} else {
-		http.Redirect(w, r, "/wifi/generated/"+hash+"/"+strings.Join(exist, ",")+"/"+strconv.Itoa(len(listToWrite)), 302)
+
+	existList := "0"
+	if len(exist) != 0 {
+		existList = strings.Join(exist, ",")
 	}
+	return hash, "?exist=" + existList + "&count=" + strconv.Itoa(len(listToWrite)), nil
 }
 
-func WifiGeneratedHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	memorandumInfo := r.URL.Path[len("/wifi/generated/"):]
-	splittedUrl := strings.Split(memorandumInfo, "/")
-
-	var exist []string
-	if splittedUrl[1] != "0" {
-		exist = strings.Split(splittedUrl[1], ",")
-	}
-
-	pageType := "wifi"
-	if auth.IsAdmin(r) {
-		pageType = "admin"
-	}
-
-	fmt.Fprint(w, html.GeneratedPage(pageType, splittedUrl[0], splittedUrl[2], exist))
-}
-
-
-func checkWifiData(list []WifiUser) ([]WifiUser, error) {
+func checkWifiData(list []html.WifiUser) ([]html.WifiUser, error) {
 	var err error
 	for i, user := range list {
 		user.MacAddress, err = check.Mac(user.MacAddress)
 		if err != nil {
-			return make([]WifiUser, 0), err
+			return nil, err
 		}
 		user.UserName = check.Name(user.UserName)
 		user.PhoneNumber = check.Phone(user.PhoneNumber)

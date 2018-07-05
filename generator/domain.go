@@ -4,55 +4,42 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/latex"
-	"github.com/tochk/kirino/memorandums"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
 
-func DomainGenerateHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	if err := memorandums.CheckRecaptcha(r.FormValue("g-recaptcha-response")); err != nil {
-		log.Println(err)
-		fmt.Fprint(w, "Капча введена неправильно")
-		return
-	}
+func generateDomain(form url.Values) (string, string, error) {
+	hash := generateHash(form.Get("nameHost"))
 
-	hash := generateHash(r.PostFormValue("nameHost"))
-
-	domain := checkDomainData(Domain{
-		Hosting:    r.PostForm.Get("locationHost"),
-		FIO:        r.PostForm.Get("FIOHost"),
-		Position:   r.PostForm.Get("posHost"),
-		Accounts:   r.PostForm.Get("accountHost"),
-		Target:     r.PostForm.Get("target_mail"),
-		Department: r.PostForm.Get("dep1"),
-		Name:       r.PostForm.Get("nameHost"),
+	domain := checkDomainData(html.Domain{
+		Hosting:    form.Get("locationHost"),
+		FIO:        form.Get("FIOHost"),
+		Position:   form.Get("posHost"),
+		Accounts:   form.Get("accountHost"),
+		Target:     form.Get("target_mail"),
+		Department: form.Get("dep1"),
+		Name:       form.Get("nameHost"),
 	})
 
 	memorandumId, err := writeDomainDataToDb(domain, hash)
 	if err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
 	if err = latex.GenerateDomainMemorandum(domain, hash, memorandumId); err != nil {
-		log.Println(err)
-		return
+		return "", "", err
 	}
 
-	http.Redirect(w, r, "/domain/generated/"+hash, 302)
+	return hash, "", nil
 }
 
-func checkDomainData(domain Domain) Domain {
+func checkDomainData(domain html.Domain) html.Domain {
 	domain.Hosting = check.All(domain.Hosting)
 	domain.FIO = check.All(domain.FIO)
 	domain.Position = check.All(domain.Position)
@@ -64,7 +51,7 @@ func checkDomainData(domain Domain) Domain {
 	return domain
 }
 
-func writeDomainDataToDb(data Domain, hash string) (int, error) {
+func writeDomainDataToDb(data html.Domain, hash string) (int, error) {
 	tx, err := server.Core.Db.Beginx()
 	if err != nil {
 		return 0, err
@@ -80,7 +67,7 @@ func writeDomainDataToDb(data Domain, hash string) (int, error) {
 	return 0, nil
 }
 
-func tryWriteDomainDataToDb(tx *sqlx.Tx, data Domain, hash string) (memorandumId int, err error) {
+func tryWriteDomainDataToDb(tx *sqlx.Tx, data html.Domain, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM domains"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0
