@@ -16,12 +16,15 @@ func FormsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	vars := mux.Vars(r)
 	pageType := vars["type"]
+	if pageType == "" {
+		pageType = "wifi"
+	}
 	if auth.IsAdmin(r) {
 		pageType = "admin"
 	}
 	switch vars["type"] {
 	case "wifi", "":
-		fmt.Fprint(w, html.WifiPage("wifi"))
+		fmt.Fprint(w, html.WifiPage(pageType))
 	case "phone":
 		fmt.Fprint(w, html.PhonePage(pageType))
 	case "mail":
@@ -30,5 +33,11 @@ func FormsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, html.DomainPage(pageType))
 	case "ethernet":
 		fmt.Fprint(w, html.EthernetPage(pageType))
+	case "admin":
+		if auth.IsAdmin(r) {
+			http.Redirect(w, r, "/wifi/memorandums/", 302)
+			return
+		}
+		fmt.Fprint(w, html.AdminPage())
 	}
 }

@@ -2,13 +2,11 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/server"
-	"github.com/tochk/kirino/templates/html"
 	"gopkg.in/ldap.v2"
 )
 
@@ -65,33 +63,26 @@ func auth(login, password string) (string, error) {
 func Handler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
-	url := strings.Split(r.URL.Path, "/")
-	switch url[2] {
+	r.ParseForm()
+	vars := mux.Vars(r)
+	pageType := vars["type"]
+	switch pageType {
 	case "login":
 		if IsAdmin(r) {
-			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
+			http.Redirect(w, r, "/wifi/memorandums/", 302)
 			return
 		}
-		r.ParseForm()
-		session, _ := server.Core.Store.Get(r, "kirino_session")
-		if userName, err := auth(r.Form["login"][0], r.Form["password"][0]); err != nil {
+		if userName, err := auth(r.PostForm.Get("login"), r.Form["password"][0]); err != nil {
 			log.Println(err)
 			http.Redirect(w, r, "/admin/", 302)
 		} else {
-			session, _ = server.Core.Store.Get(r, "kirino_session")
 			session.Values["userName"] = userName
 			session.Save(r, w)
-			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
+			http.Redirect(w, r, "/wifi/memorandums/", 302)
 		}
 	case "logout":
 		session.Values["userName"] = nil
 		session.Save(r, w)
 		http.Redirect(w, r, "/admin/", 302)
-	default:
-		if IsAdmin(r) {
-			http.Redirect(w, r, "/admin/wifi/memorandums/", 302)
-			return
-		}
-		fmt.Fprint(w, html.AdminPage())
 	}
 }

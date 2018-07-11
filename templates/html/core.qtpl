@@ -48,6 +48,18 @@ PerPage     int
         <ul class="navbar-nav mr-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Create
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/">WiFi</a></a>
+                    <a class="dropdown-item" href="/ethernet/">Проводная сеть</a>
+                    <a class="dropdown-item" href="/phone/">Получение номера телефона</a>
+                    <a class="dropdown-item" href="/domain/">Регистрация доменного имени</a>
+                    <a class="dropdown-item" href="/mail/">Создание почты</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     WiFi
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -79,7 +91,6 @@ PerPage     int
             <li class="nav-item"><a class="nav-link" id="guide" href="javascript:void(0)">Как подключиться к WI-FI</a></li>
         </ul>
     </div>
-    {% case "login" %}
     {% case "ethernet" %}
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav mr-auto">
@@ -127,6 +138,19 @@ PerPage     int
             <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
             <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
             <li class="nav-item active"><a class="nav-link" href="/mail/">Создание почты</a></li>
+        </ul>
+        <ul class="navbar-nav navbar-right">
+
+        </ul>
+    </div>
+    {% case "login" %}
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item"><a class="nav-link" href="/">WiFi</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/">Проводная сеть</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/">Получение номера телефона</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/">Регистрация доменного имени</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/">Создание почты</a></li>
         </ul>
         <ul class="navbar-nav navbar-right">
 

@@ -64,24 +64,24 @@ func main() {
 	router.HandleFunc("/generate/{type}/", generator.GenerateHandler).Methods("POST")
 	router.HandleFunc("/generated/{type}/{token}/", generator.GeneratedHandler).Methods("GET")
 
-	router.HandleFunc("/admin/", auth.Handler)
-	router.HandleFunc("/admin/departments/", departments.Handler)
+	router.HandleFunc("/admin/{type}/", auth.Handler)
+	router.HandleFunc("/departments/", departments.Handler)
 
-	router.HandleFunc("/admin/wifi/memorandums/", memorandums.ListWifiHandler)
-	router.HandleFunc("/admin/wifi/memorandum/", memorandums.ViewWifiHandler)
-	router.HandleFunc("/admin/wifi/users/", users.WifiUsersHandler)
-	router.HandleFunc("/admin/wifi/user/", users.WifiUserHandler)
+	router.HandleFunc("/wifi/memorandums/", memorandums.ListWifiHandler)
+	router.HandleFunc("/wifi/memorandum/", memorandums.ViewWifiHandler)
+	router.HandleFunc("/wifi/users/", users.WifiUsersHandler)
+	router.HandleFunc("/wifi/user/", users.WifiUserHandler)
 
-	router.HandleFunc("/admin/ethernet/memorandums/", memorandums.ListEthernetHandler)
-	router.HandleFunc("/admin/ethernet/memorandum/", memorandums.ViewEthernetHandler)
+	router.HandleFunc("/ethernet/memorandums/", memorandums.ListEthernetHandler)
+	router.HandleFunc("/ethernet/memorandum/", memorandums.ViewEthernetHandler)
 
-	router.HandleFunc("/admin/phone/memorandums/", memorandums.ListPhoneHandler)
-	router.HandleFunc("/admin/phone/memorandum/", memorandums.ViewPhoneHandler)
+	router.HandleFunc("/phone/memorandums/", memorandums.ListPhoneHandler)
+	router.HandleFunc("/phone/memorandum/", memorandums.ViewPhoneHandler)
 
-	router.HandleFunc("/admin/domain/memorandums/", memorandums.ListDomainHandler)
+	router.HandleFunc("/domain/memorandums/", memorandums.ListDomainHandler)
 
-	router.HandleFunc("/admin/mail/memorandums/", memorandums.ListMailHandler)
-	router.HandleFunc("/admin/mail/memorandum/", memorandums.ViewMailHandler)
+	router.HandleFunc("/mail/memorandums/", memorandums.ListMailHandler)
+	router.HandleFunc("/mail/memorandum/", memorandums.ViewMailHandler)
 
 
 	port := strconv.Itoa(*servicePort)

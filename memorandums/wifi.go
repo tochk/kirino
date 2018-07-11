@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/pagination"
 	"github.com/tochk/kirino/server"
@@ -24,11 +25,11 @@ type MemAccepted struct {
 
 func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
+	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
+
 	var paging pagination.Pagination
 	var memorandums []WifiMemorandum
 	var err error
@@ -38,7 +39,7 @@ func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/wifi/memorandums/"):]
+	urlInfo := r.URL.Path[len("/wifi/memorandums/"):]
 	splittedUrl := strings.Split(urlInfo, "/")
 	switch splittedUrl[0] {
 	case "save":
