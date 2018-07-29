@@ -1,18 +1,16 @@
 package departments
 
 import (
-
-"fmt"
-"log"
-"net/http"
+	"fmt"
+	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
-"github.com/tochk/kirino/auth"
-"github.com/tochk/kirino/pagination"
-"github.com/tochk/kirino/server"
-"github.com/tochk/kirino/templates/html"
-
+	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/pagination"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -31,19 +29,14 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	var paging pagination.Pagination
 
 	vars := mux.Vars(r)
-	page := vars["page"]
-	switch page {
-	case "":
-		paging = pagination.Calc(1, count)
-	default:
-		page, err := strconv.Atoi(page)
-		if err != nil {
-			log.Println("Error on departments page: ", err)
-			fmt.Fprint(w, html.ErrorPage(err))
-			return
-		}
-		paging = pagination.Calc(page, count)
+
+	page, err := strconv.Atoi(vars["page"])
+	if err != nil {
+		log.Println("Error on departments page: ", err)
+		fmt.Fprint(w, html.ErrorPage(err))
+		return
 	}
+	paging = pagination.Calc(page, count)
 
 	departments, err := getDepartmentsPagination(paging.PerPage, paging.Offset)
 	if err != nil {

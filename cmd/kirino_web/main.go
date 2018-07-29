@@ -66,7 +66,7 @@ func main() {
 
 	router.HandleFunc("/admin/{type}/", auth.Handler)
 
-	router.HandleFunc("/departments/view/{page:[0-9]+}", departments.Handler)
+	router.HandleFunc("/departments/view/{page:[0-9]+}", departments.Handler).Methods("GET")
 
 	router.HandleFunc("/wifi/memorandums/", memorandums.ListWifiHandler)
 	router.HandleFunc("/wifi/memorandum/", memorandums.ViewWifiHandler)
@@ -78,8 +78,8 @@ func main() {
 
 	router.HandleFunc("/phone/memorandums/", memorandums.ListPhoneHandler)
 	router.HandleFunc("/phone/memorandum/", memorandums.ViewPhoneHandler)
-
-	router.HandleFunc("/domain/memorandums/", memorandums.ListDomainHandler)
+//todo think
+	router.HandleFunc("/domain/{action}/{page:[0-9]+}", memorandums.ListDomainHandler)
 
 	router.HandleFunc("/mail/memorandums/", memorandums.ListMailHandler)
 	router.HandleFunc("/mail/memorandum/", memorandums.ViewMailHandler)
