@@ -1,15 +1,13 @@
 package memorandums
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 
-"fmt"
-"log"
-"net/http"
-
-"github.com/gorilla/mux"
-"github.com/tochk/kirino/auth"
-"github.com/tochk/kirino/templates/html"
-
+	"github.com/gorilla/mux"
+	"github.com/tochk/kirino/auth"
+	"github.com/tochk/kirino/templates/html"
 )
 
 func FormsHandler(w http.ResponseWriter, r *http.Request) {

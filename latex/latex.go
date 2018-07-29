@@ -136,8 +136,6 @@ func generateLatexFileForDomainMemorandum(domain Domain, hashStr string, memoran
 	return pathToTexFile, nil
 }
 
-
-
 func GenerateMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForMailMemorandum(mail, info, hashStr, memorandumId)
 	if err != nil {
@@ -176,7 +174,6 @@ func generateLatexFileForMailMemorandum(mail []Mail, info html.MailMemorandum, h
 	pathToTexFile := "userFiles/" + hashStr + ".tex"
 	return pathToTexFile, nil
 }
-
 
 func GeneratePhoneMemorandum(phone []Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForPhoneMemorandum(phone, info, hashStr, memorandumId)
@@ -226,7 +223,6 @@ func generateLatexFileForPhoneMemorandum(mail []Phone, info html.PhoneMemorandum
 	pathToTexFile := "userFiles/" + hashStr + ".tex"
 	return pathToTexFile, nil
 }
-
 
 func GenerateEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForEthernetMemorandum(ethernet, info, hashStr, memorandumId)

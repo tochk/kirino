@@ -65,7 +65,8 @@ func main() {
 	router.HandleFunc("/generated/{type}/{token}/", generator.GeneratedHandler).Methods("GET")
 
 	router.HandleFunc("/admin/{type}/", auth.Handler)
-	router.HandleFunc("/departments/", departments.Handler)
+
+	router.HandleFunc("/departments/view/{page:[0-9]+}", departments.Handler)
 
 	router.HandleFunc("/wifi/memorandums/", memorandums.ListWifiHandler)
 	router.HandleFunc("/wifi/memorandum/", memorandums.ViewWifiHandler)
@@ -82,7 +83,6 @@ func main() {
 
 	router.HandleFunc("/mail/memorandums/", memorandums.ListMailHandler)
 	router.HandleFunc("/mail/memorandum/", memorandums.ViewMailHandler)
-
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

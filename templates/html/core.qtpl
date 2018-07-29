@@ -15,13 +15,9 @@ PerPage     int
     <link rel="stylesheet"
           href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
           integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-    <!--link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/ripples.min.css">
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-material-design.min.css"-->
     <link href="/static/open-iconic/font/css/open-iconic-bootstrap.min.css" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="/static/css/template.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
-    <!--link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"-->
     <meta name="viewport" content="height=device-height,width=device-width"/>
     <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
@@ -67,11 +63,11 @@ PerPage     int
                     <a class="dropdown-item" href="/admin/wifi/users/">Users</a>
                 </div>
             </li>
-            <li class="nav-item"><a class="nav-link" href="/admin/ethernet/memorandums/">Ethernet</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin/phone/memorandums/">Phone</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin/domain/memorandums/">Domain</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin/mail/memorandums/">Mail</a></li>
-            <li class="nav-item"><a class="nav-link" href="/admin/departments/">Departments</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/memorandums/">Ethernet</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/memorandums/">Phone</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/memorandums/">Domain</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/memorandums/">Mail</a></li>
+            <li class="nav-item"><a class="nav-link" href="/departments/view/1">Departments</a></li>
         </ul>
         <ul class="navbar-nav navbar-right">
             <li class="nav-item"><a class="nav-link" href="/admin/logout/">Logout</a></li>
@@ -173,14 +169,8 @@ PerPage     int
 <script>$(document).ready(function () {
     $('body').bootstrapMaterialDesign();
 });</script>
-<!--script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<script src="/static/js/bootstrap.min.js"></script>
-<script src="/static/js/ripples.min.js"></script>
-<script src="/static/js/material.min.js"></script-->
 <script src="/static/js/template.js"></script>
 <script src="/static/js/jquery.maskedinput.min.js"></script>
-<!--script>$.material.init();</script-->
-<!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-45903713-3"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -216,27 +206,27 @@ PerPage     int
         </li>
         {% else %}
         <li class="page-item">
-            <a class="page-link" href="{%s baseUrl %}page/{%d pagination.PrevPage %}" tabindex="-1">Previous</a>
+            <a class="page-link" href="{%s baseUrl %}/{%d pagination.PrevPage %}" tabindex="-1">Previous</a>
         </li>
         {% endif %}
         {% if pagination.CurrentPage != 1 %}
-        <li class="page-item"><a class="page-link" href="{%s baseUrl %}">1</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}/1">1</a></li>
         {% endif %}
         {% if pagination.PrevPage > 1 %}
-        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}/{%d pagination.PrevPage %}">{%d pagination.PrevPage %}</a></li>
         {% endif %}
-        <li class="page-item active"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a>
+        <li class="page-item active"><a class="page-link" href="{%s baseUrl %}/{%d pagination.CurrentPage %}">{%d pagination.CurrentPage %}</a>
         </li>
 
         {% if pagination.NextPage != 0 %}
-        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}/{%d pagination.NextPage %}">{%d pagination.NextPage %}</a></li>
         {% endif %}
         {% if pagination.LastPage != 0 %}
-        <li class="page-item"><a class="page-link" href="{%s baseUrl %}page/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
+        <li class="page-item"><a class="page-link" href="{%s baseUrl %}/{%d pagination.LastPage %}">{%d pagination.LastPage %}</a></li>
         {% endif %}
         {% if pagination.NextPage != 0 %}
         <li class="page-item">
-            <a class="page-link" href="{%s baseUrl %}page/{%d pagination.NextPage %}">Next</a>
+            <a class="page-link" href="{%s baseUrl %}/{%d pagination.NextPage %}">Next</a>
         </li>
         {% else %}
         <li class="page-item disabled">

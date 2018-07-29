@@ -1,16 +1,14 @@
 package generator
 
 import (
+	"net/url"
+	"strconv"
 
-"net/url"
-"strconv"
-
-"github.com/jmoiron/sqlx"
-"github.com/tochk/kirino/check"
-"github.com/tochk/kirino/latex"
-"github.com/tochk/kirino/server"
-"github.com/tochk/kirino/templates/html"
-
+	"github.com/jmoiron/sqlx"
+	"github.com/tochk/kirino/check"
+	"github.com/tochk/kirino/latex"
+	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 )
 
 func generateEthernet(form url.Values) (string, string, error) {

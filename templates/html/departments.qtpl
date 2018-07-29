@@ -9,7 +9,6 @@ Selected bool
 {% func DepartmentsPage(departments []Department, pagination Pagination) %}
 {%= Head("Подразделения") %}
 {%= Menu("admin") %}
-
 <div class="table_wrapper">
     <table class="table">
         <thead class="thead-dark">
@@ -28,7 +27,6 @@ Selected bool
         </tbody>
     </table>
 </div>
-{%= PrintPagination(pagination, "/admin/departments/") %}
-
+{%= PrintPagination(pagination, "/departments/view/") %}
 {%= Footer() %}
 {% endfunc %}
