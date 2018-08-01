@@ -22,29 +22,32 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	count, err := getCount()
 	if err != nil {
-		log.Println(err)
+		log.Println("Error on departments page: ", err)
+		fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
 		return
 	}
 
 	var paging pagination.Pagination
 
 	vars := mux.Vars(r)
+	switch vars["action"] {
+	case "view":
+		page, err := strconv.Atoi(vars["num"])
+		if err != nil {
+			log.Println("Error on departments page: ", err)
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			return
+		}
+		paging = pagination.Calc(page, count)
 
-	page, err := strconv.Atoi(vars["page"])
-	if err != nil {
-		log.Println("Error on departments page: ", err)
-		fmt.Fprint(w, html.ErrorPage(err))
-		return
+		departments, err := getDepartmentsPagination(paging.PerPage, paging.Offset)
+		if err != nil {
+			log.Println("Error on departments page: ", err)
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			return
+		}
+		fmt.Fprint(w, html.DepartmentsPage(departments, paging))
 	}
-	paging = pagination.Calc(page, count)
-
-	departments, err := getDepartmentsPagination(paging.PerPage, paging.Offset)
-	if err != nil {
-		log.Println("Error on departments page: ", err)
-		fmt.Fprint(w, html.ErrorPage(err))
-		return
-	}
-	fmt.Fprint(w, html.DepartmentsPage(departments, paging))
 }
 
 func GetAll() (departments []html.Department, err error) {

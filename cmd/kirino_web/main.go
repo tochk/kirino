@@ -66,23 +66,18 @@ func main() {
 
 	router.HandleFunc("/admin/{type}/", auth.Handler)
 
-	router.HandleFunc("/departments/view/{page:[0-9]+}", departments.Handler).Methods("GET")
+	router.HandleFunc("/wifi/memorandums/{action}/{num:[0-9]+}", memorandums.ListWifiHandler)
+	router.HandleFunc("/wifi/users/{action}/{num:[0-9]+}", users.WifiUsersHandler)
 
-	router.HandleFunc("/wifi/memorandums/", memorandums.ListWifiHandler)
-	router.HandleFunc("/wifi/memorandum/", memorandums.ViewWifiHandler)
-	router.HandleFunc("/wifi/users/", users.WifiUsersHandler)
-	router.HandleFunc("/wifi/user/", users.WifiUserHandler)
+	router.HandleFunc("/departments/{action}/{num:[0-9]+}", departments.Handler).Methods("GET")
 
-	router.HandleFunc("/ethernet/memorandums/", memorandums.ListEthernetHandler)
-	router.HandleFunc("/ethernet/memorandum/", memorandums.ViewEthernetHandler)
+	router.HandleFunc("/ethernet/memorandums/{action}/{num:[0-9]+}", memorandums.ListEthernetHandler)
 
-	router.HandleFunc("/phone/memorandums/", memorandums.ListPhoneHandler)
-	router.HandleFunc("/phone/memorandum/", memorandums.ViewPhoneHandler)
-//todo think
-	router.HandleFunc("/domain/{action}/{page:[0-9]+}", memorandums.ListDomainHandler)
+	router.HandleFunc("/phone/memorandums/{action}/{num:[0-9]+}", memorandums.ListPhoneHandler)
 
-	router.HandleFunc("/mail/memorandums/", memorandums.ListMailHandler)
-	router.HandleFunc("/mail/memorandum/", memorandums.ViewMailHandler)
+	router.HandleFunc("/domain/memorandums/{action}/{num:[0-9]+}", memorandums.ListDomainHandler)
+
+	router.HandleFunc("/mail/memorandums/{action}/{num:[0-9]+}", memorandums.ListMailHandler)
 
 	port := strconv.Itoa(*servicePort)
 	log.Println("Server started at port", port)

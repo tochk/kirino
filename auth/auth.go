@@ -2,11 +2,13 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/server"
+	"github.com/tochk/kirino/templates/html"
 	"gopkg.in/ldap.v2"
 )
 
@@ -73,8 +75,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if userName, err := auth(r.PostForm.Get("login"), r.Form["password"][0]); err != nil {
-			log.Println(err)
-			http.Redirect(w, r, "/admin/", 302)
+			fmt.Fprint(w, html.ErrorPage(IsAdmin(r), err))
+			return
 		} else {
 			session.Values["userName"] = userName
 			session.Save(r, w)

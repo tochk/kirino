@@ -64,7 +64,7 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if err != nil {
 		log.Println("Error on generate page: ", err)
-		fmt.Fprint(w, html.ErrorPage(err))
+		fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
 		return
 	}
 	http.Redirect(w, r, "/generated/"+vars["type"]+"/"+hash+"/"+getData, 302)

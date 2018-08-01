@@ -1,6 +1,10 @@
-{% func ErrorPage(err error) %}
+{% func ErrorPage(isAdmin bool, err error) %}
 {%= Head("Ошибка!") %}
 {%= Menu("login") %}
-Произошла ошибка! {%s err.Error() %}. Обратитесь в 108 аудиторию 9 корпуса или позвоните по телефону 210-665.
+<div>
+    <div class="alert alert-danger col-md-6 error" role="alert" >
+        Произошла ошибка! {%s err.Error() %}. Обратитесь в 108 аудиторию 9 корпуса или позвоните по телефону 210-665.
+    </div>
+</div>
 {%= Footer() %}
 {% endfunc %}

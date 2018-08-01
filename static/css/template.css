@@ -47,10 +47,10 @@
 }
 
 /*.form-group.has-error1.is-focused .form-control {*/
-    /*background-image: -webkit-gradient(linear, left top, left bottom, from(#f44336), to(#f44336)), -webkit-gradient(linear, left top, left bottom, from(#D2D2D2), to(#D2D2D2));*/
-    /*background-image: -webkit-linear-gradient(#f44336, #f44336), -webkit-linear-gradient(#D2D2D2, #D2D2D2);*/
-    /*background-image: -o-linear-gradient(#f44336, #f44336), -o-linear-gradient(#D2D2D2, #D2D2D2);*/
-    /*background-image: linear-gradient(#f44336, #f44336), linear-gradient(#D2D2D2, #D2D2D2)*/
+/*background-image: -webkit-gradient(linear, left top, left bottom, from(#f44336), to(#f44336)), -webkit-gradient(linear, left top, left bottom, from(#D2D2D2), to(#D2D2D2));*/
+/*background-image: -webkit-linear-gradient(#f44336, #f44336), -webkit-linear-gradient(#D2D2D2, #D2D2D2);*/
+/*background-image: -o-linear-gradient(#f44336, #f44336), -o-linear-gradient(#D2D2D2, #D2D2D2);*/
+/*background-image: linear-gradient(#f44336, #f44336), linear-gradient(#D2D2D2, #D2D2D2)*/
 /*}*/
 
 .form-group.has-error1 label.control-label, .form-group.has-error1 .help-block {
@@ -269,19 +269,23 @@ td {
     margin: 0 auto;
     overflow: hidden;
 }
-#delNumb{
-    display: none;
-}
-#delNumb_ip{
-    display: none;
-}
-#ip_numbers, #addNumb_ip, #cancelEth, #cancelMail{
+
+#delNumb {
     display: none;
 }
 
-.numb_per, .numb_per_ip{
+#delNumb_ip {
+    display: none;
+}
+
+#ip_numbers, #addNumb_ip, #cancelEth, #cancelMail {
+    display: none;
+}
+
+.numb_per, .numb_per_ip {
     padding: 0;
 }
+
 #denied_host, #null_memorandum, #allowed_host {
     display: none;
 }
@@ -411,11 +415,17 @@ td {
     padding-top: 18px !important;
     padding-left: 10px !important;
 }
-legend{
+
+legend {
     margin-bottom: 22px;
     font-size: 23px;
     margin-top: 40px;
 }
-.recapcha{
- height: 75px;
+
+.recapcha {
+    height: 75px;
+}
+
+.error {
+    margin: 30px auto 0;
 }
