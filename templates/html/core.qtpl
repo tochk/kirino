@@ -59,14 +59,14 @@ PerPage     int
                     WiFi
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="/admin/wifi/memorandums/">Memorandums</a>
-                    <a class="dropdown-item" href="/admin/wifi/users/">Users</a>
+                    <a class="dropdown-item" href="/wifi/memorandums/view/1">Memorandums</a>
+                    <a class="dropdown-item" href="/wifi/users/view/1">Users</a>
                 </div>
             </li>
-            <li class="nav-item"><a class="nav-link" href="/ethernet/memorandums/">Ethernet</a></li>
-            <li class="nav-item"><a class="nav-link" href="/phone/memorandums/">Phone</a></li>
-            <li class="nav-item"><a class="nav-link" href="/domain/memorandums/">Domain</a></li>
-            <li class="nav-item"><a class="nav-link" href="/mail/memorandums/">Mail</a></li>
+            <li class="nav-item"><a class="nav-link" href="/ethernet/memorandums/view/1">Ethernet</a></li>
+            <li class="nav-item"><a class="nav-link" href="/phone/memorandums/view/1">Phone</a></li>
+            <li class="nav-item"><a class="nav-link" href="/domain/memorandums/view/1">Domain</a></li>
+            <li class="nav-item"><a class="nav-link" href="/mail/memorandums/view/1">Mail</a></li>
             <li class="nav-item"><a class="nav-link" href="/departments/view/1">Departments</a></li>
         </ul>
         <ul class="navbar-nav navbar-right">
