@@ -2,7 +2,7 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,9 +12,6 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-type PhoneMemorandum = html.PhoneMemorandum
-type Phone = html.Phone
-
 func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
@@ -22,8 +19,8 @@ func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging pagination.Pagination
-	var memorandums []PhoneMemorandum
+	var paging html.Pagination
+	var memorandums []html.PhoneMemorandum
 	var err error
 	count, err := getPhoneCount()
 	if err != nil {
@@ -72,7 +69,7 @@ func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.PhoneMemorandumsPage(memorandums, paging))
 }
 
-func getPhoneMemorandums(limit, offset int) (domains []PhoneMemorandum, err error) {
+func getPhoneMemorandums(limit, offset int) (domains []html.PhoneMemorandum, err error) {
 	err = server.Core.Db.Select(&domains, "SELECT * FROM phonememorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
@@ -104,7 +101,7 @@ func ViewPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.PhoneMemorandumPage(list))
 }
 
-func getPhoneMemorandumUsers(id string) (list []Phone, err error) {
+func getPhoneMemorandumUsers(id string) (list []html.Phone, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM phoneusers WHERE memorandumid = $1", id)
 	return
 }

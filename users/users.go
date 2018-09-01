@@ -2,12 +2,12 @@ package users
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/memorandums"
@@ -15,8 +15,6 @@ import (
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
-
-type WifiUser = html.WifiUser
 
 func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -28,7 +26,7 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/wifi/user/"):]
-	var user WifiUser
+	var user html.WifiUser
 	if len(urlInfo) > 0 {
 		splittedUrl := strings.Split(urlInfo, "/")
 		switch splittedUrl[0] {
@@ -73,7 +71,7 @@ func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.WifiUserPage(user, depts))
 }
 
-func getUserList(limit, offset int) (userList []WifiUser, err error) {
+func getUserList(limit, offset int) (userList []html.WifiUser, err error) {
 	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
@@ -83,12 +81,12 @@ func getUserCount() (count int, err error) {
 	return
 }
 
-func GetWifiUserById(id int) (user WifiUser, err error) {
+func GetWifiUserById(id int) (user html.WifiUser, err error) {
 	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE id = $1", id)
 	return
 }
 
-func GetWifiUserByMac(mac string) (user WifiUser, err error) {
+func GetWifiUserByMac(mac string) (user html.WifiUser, err error) {
 	err = server.Core.Db.Get(&user, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE accepted = 1 AND mac = $1", mac)
 	return
 }
@@ -113,8 +111,8 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	urlInfo := r.URL.Path[len("/admin/wifi/users/"):]
 	var (
-		usersList []WifiUser
-		paging    pagination.Pagination
+		usersList []html.WifiUser
+		paging    html.Pagination
 		err       error
 	)
 	count, err := getUserCount()
@@ -231,7 +229,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //todo search
-func getSearchResult(values url.Values) (userList []WifiUser, err error) {
+func getSearchResult(values url.Values) (userList []html.WifiUser, err error) {
 	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
 	return
 }

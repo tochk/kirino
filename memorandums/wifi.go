@@ -2,7 +2,7 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,9 +13,6 @@ import (
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
-
-type WifiMemorandum = html.Memorandum
-type WifiUser = html.WifiUser
 
 type MemAccepted struct {
 	MemorandumId int `db:"memorandumid"`
@@ -30,8 +27,8 @@ func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var paging pagination.Pagination
-	var memorandums []WifiMemorandum
+	var paging html.Pagination
+	var memorandums []html.Memorandum
 	var err error
 	count, err := getWifiMemorandumsCount()
 	if err != nil {
@@ -143,7 +140,7 @@ func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.Referer(), 302)
 		return
 	}
-	clientsInMemorandum := make([]WifiUser, 0)
+	clientsInMemorandum := make([]html.WifiUser, 0)
 	if err := server.Core.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
 		log.Println(err)
 		return
@@ -161,7 +158,7 @@ func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var memorandum WifiMemorandum
+	var memorandum html.Memorandum
 	if err := server.Core.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
 		log.Println(err)
 		return
@@ -170,7 +167,7 @@ func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.WifiMemorandumPage(memorandum, clientsInMemorandum, departmentList))
 }
 
-func getMemorandums(limit, offset int) (memorandums []WifiMemorandum, err error) {
+func getMemorandums(limit, offset int) (memorandums []html.Memorandum, err error) {
 	if err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset); err != nil {
 		return
 	}

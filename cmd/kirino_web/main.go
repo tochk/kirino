@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/departments"

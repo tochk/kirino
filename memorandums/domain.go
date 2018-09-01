@@ -2,17 +2,15 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/tochk/kirino/pagination"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
 )
-
-type Domain = html.Domain
 
 func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
@@ -21,8 +19,8 @@ func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging pagination.Pagination
-	var memorandums []Domain
+	var paging html.Pagination
+	var memorandums []html.Domain
 	var err error
 	count, err := getDomainsCount()
 	if err != nil {
@@ -71,7 +69,7 @@ func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.DomainMemorandumsPage(memorandums, paging))
 }
 
-func getDomainMemorandums(limit, offset int) (domains []Domain, err error) {
+func getDomainMemorandums(limit, offset int) (domains []html.Domain, err error) {
 	err = server.Core.Db.Select(&domains, "SELECT * FROM domains ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }

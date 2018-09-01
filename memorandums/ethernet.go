@@ -2,7 +2,7 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,9 +12,6 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-type EthernetMemorandum = html.EthernetMemorandum
-type Ethernet = html.Ethernet
-
 func ListEthernetHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
@@ -22,8 +19,8 @@ func ListEthernetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging pagination.Pagination
-	var memorandums []EthernetMemorandum
+	var paging html.Pagination
+	var memorandums []html.EthernetMemorandum
 	var err error
 	count, err := getEthernetCount()
 	if err != nil {
@@ -72,7 +69,7 @@ func ListEthernetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.EthernetMemorandumsPage(memorandums, paging))
 }
 
-func getEthernetMemorandums(limit, offset int) (domains []EthernetMemorandum, err error) {
+func getEthernetMemorandums(limit, offset int) (domains []html.EthernetMemorandum, err error) {
 	err = server.Core.Db.Select(&domains, "SELECT * FROM ethmemorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
@@ -104,7 +101,7 @@ func ViewEthernetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.EthernetMemorandumPage(list))
 }
 
-func getEthernetMemorandumUsers(id string) (list []Ethernet, err error) {
+func getEthernetMemorandumUsers(id string) (list []html.Ethernet, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM ethusers WHERE memorandumid = $1", id)
 	return
 }

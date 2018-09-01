@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"net/http"
 	"os"

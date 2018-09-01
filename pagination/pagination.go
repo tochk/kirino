@@ -5,9 +5,7 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-type Pagination = html.Pagination
-
-func Calc(page, count int) (pagination Pagination) {
+func Calc(page, count int) (pagination html.Pagination) {
 	if page < 1 {
 		page = 1
 	}

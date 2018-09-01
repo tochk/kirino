@@ -16,9 +16,9 @@ import (
 
 func generateWifi(form url.Values) (string, string, error) {
 	exist := make([]string, 0, 5)
-	list := make([]latex.WifiUser, 0, 5)
+	list := make([]html.WifiUser, 0, 5)
 	for i := 1; i <= len(form)/3; i++ {
-		tempUserData := latex.WifiUser{
+		tempUserData := html.WifiUser{
 			MacAddress:  latex.TexEscape(form.Get("mac" + strconv.Itoa(i))),
 			UserName:    latex.TexEscape(form.Get("user" + strconv.Itoa(i))),
 			PhoneNumber: latex.TexEscape(form.Get("tel" + strconv.Itoa(i))),
@@ -39,7 +39,7 @@ func generateWifi(form url.Values) (string, string, error) {
 		}
 	}
 
-	listToWrite := make([]latex.WifiUser, 0, 5)
+	listToWrite := make([]html.WifiUser, 0, 5)
 	for i, e := range list {
 		duplicate := false
 		for i2, e2 := range listToWrite {
@@ -85,7 +85,7 @@ func checkWifiData(list []html.WifiUser) ([]html.WifiUser, error) {
 	return list, nil
 }
 
-func writeWifiUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
+func writeWifiUserDataToDb(data []html.WifiUser, hash string) (int, error) {
 	for {
 		tx, err := server.Core.Db.Beginx()
 		if err != nil {
@@ -102,7 +102,7 @@ func writeWifiUserDataToDb(data []latex.WifiUser, hash string) (int, error) {
 	}
 }
 
-func tryWriteWifiUserDataToDb(tx *sqlx.Tx, data []latex.WifiUser, hash string) (memorandumId int, err error) {
+func tryWriteWifiUserDataToDb(tx *sqlx.Tx, data []html.WifiUser, hash string) (memorandumId int, err error) {
 	if err = tx.Get(&memorandumId, "SELECT max(id) FROM memorandums"); err != nil {
 		if err.Error() == "sql: Scan error on column index 0: converting driver.Value type <nil> (\"<nil>\") to a int: invalid syntax" {
 			memorandumId = 0

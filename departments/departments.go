@@ -2,7 +2,7 @@ package departments
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 
@@ -27,7 +27,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var paging pagination.Pagination
+	var paging html.Pagination
 
 	vars := mux.Vars(r)
 	switch vars["action"] {

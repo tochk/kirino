@@ -2,7 +2,7 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 
 	"github.com/gorilla/mux"

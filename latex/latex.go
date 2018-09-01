@@ -1,20 +1,14 @@
 package latex
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"text/template"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/tochk/kirino/templates/html"
 )
-
-type WifiUser = html.WifiUser
-type Domain = html.Domain
-type Mail = html.Mail
-type Phone = html.Phone
-type Ethernet = html.Ethernet
 
 type WifiMemorandum struct {
 	Table        string
@@ -57,7 +51,7 @@ func TexEscape(s string) string {
 	return s
 }
 
-func generateWifiLatexTable(list []WifiUser, memorandumId int) WifiMemorandum {
+func generateWifiLatexTable(list []html.WifiUser, memorandumId int) WifiMemorandum {
 	table := ""
 	for _, tempData := range list {
 		stringInTable := tempData.MacAddress + " & " + tempData.UserName + " & " + tempData.PhoneNumber + " & \\\\ \n \\hline \n"
@@ -66,7 +60,7 @@ func generateWifiLatexTable(list []WifiUser, memorandumId int) WifiMemorandum {
 	return WifiMemorandum{Table: table, MemorandumId: memorandumId}
 }
 
-func generateLatexFileForWifiMemorandum(list []WifiUser, hashStr string, memorandumId int) (string, error) {
+func generateLatexFileForWifiMemorandum(list []html.WifiUser, hashStr string, memorandumId int) (string, error) {
 	wifiMemorandumTemplate, err := template.ParseFiles("templates/latex/wifi.tex")
 	if err != nil {
 		return "", err
@@ -93,7 +87,7 @@ func generatePdf(path string) error {
 	return err
 }
 
-func GenerateWifiMemorandum(list []WifiUser, hashStr string, memorandumId int) error {
+func GenerateWifiMemorandum(list []html.WifiUser, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForWifiMemorandum(list, hashStr, memorandumId)
 	if err != nil {
 		return err
@@ -102,7 +96,7 @@ func GenerateWifiMemorandum(list []WifiUser, hashStr string, memorandumId int) e
 	return err
 }
 
-func GenerateDomainMemorandum(domain Domain, hashStr string, memorandumId int) error {
+func GenerateDomainMemorandum(domain html.Domain, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForDomainMemorandum(domain, hashStr, memorandumId)
 	if err != nil {
 		return err
@@ -111,14 +105,14 @@ func GenerateDomainMemorandum(domain Domain, hashStr string, memorandumId int) e
 	return err
 }
 
-func generateDomainLatexTable(domain Domain, memorandumId int) DomainMemorandum {
+func generateDomainLatexTable(domain html.Domain, memorandumId int) DomainMemorandum {
 	table := ""
 	stringInTable := domain.Name + " & " + domain.Hosting + " & " + domain.FIO + " & " + domain.Accounts + " \\\\ \n \\hline \n"
 	table += stringInTable
 	return DomainMemorandum{Table: table, MemorandumId: memorandumId, Target: domain.Target, Department: domain.Department}
 }
 
-func generateLatexFileForDomainMemorandum(domain Domain, hashStr string, memorandumId int) (string, error) {
+func generateLatexFileForDomainMemorandum(domain html.Domain, hashStr string, memorandumId int) (string, error) {
 	memorandumTemplate, err := template.ParseFiles("templates/latex/domain.tex")
 	if err != nil {
 		return "", err
@@ -136,7 +130,7 @@ func generateLatexFileForDomainMemorandum(domain Domain, hashStr string, memoran
 	return pathToTexFile, nil
 }
 
-func GenerateMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr string, memorandumId int) error {
+func GenerateMailMemorandum(mail []html.Mail, info html.MailMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForMailMemorandum(mail, info, hashStr, memorandumId)
 	if err != nil {
 		return err
@@ -145,7 +139,7 @@ func GenerateMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr strin
 	return err
 }
 
-func generateMailLatexTable(mail []Mail, memorandumId int) MailMemorandum {
+func generateMailLatexTable(mail []html.Mail, memorandumId int) MailMemorandum {
 	table := ""
 	for _, e := range mail {
 		stringInTable := e.Mail + " & " + e.Name + " & " + e.Position + " \\\\ \n \\hline \n"
@@ -154,7 +148,7 @@ func generateMailLatexTable(mail []Mail, memorandumId int) MailMemorandum {
 	return MailMemorandum{Table: table, MemorandumId: memorandumId}
 }
 
-func generateLatexFileForMailMemorandum(mail []Mail, info html.MailMemorandum, hashStr string, memorandumId int) (string, error) {
+func generateLatexFileForMailMemorandum(mail []html.Mail, info html.MailMemorandum, hashStr string, memorandumId int) (string, error) {
 	memorandumTemplate, err := template.ParseFiles("templates/latex/mail.tex")
 	if err != nil {
 		return "", err
@@ -175,7 +169,7 @@ func generateLatexFileForMailMemorandum(mail []Mail, info html.MailMemorandum, h
 	return pathToTexFile, nil
 }
 
-func GeneratePhoneMemorandum(phone []Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) error {
+func GeneratePhoneMemorandum(phone []html.Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForPhoneMemorandum(phone, info, hashStr, memorandumId)
 	if err != nil {
 		return err
@@ -184,7 +178,7 @@ func GeneratePhoneMemorandum(phone []Phone, info html.PhoneMemorandum, hashStr s
 	return err
 }
 
-func generatePhoneLatexTable(mail []Phone, memorandumId int) MailMemorandum {
+func generatePhoneLatexTable(mail []html.Phone, memorandumId int) MailMemorandum {
 	table := ""
 	for _, e := range mail {
 		access := "Не указано"
@@ -204,7 +198,7 @@ func generatePhoneLatexTable(mail []Phone, memorandumId int) MailMemorandum {
 	return MailMemorandum{Table: table, MemorandumId: memorandumId}
 }
 
-func generateLatexFileForPhoneMemorandum(mail []Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) (string, error) {
+func generateLatexFileForPhoneMemorandum(mail []html.Phone, info html.PhoneMemorandum, hashStr string, memorandumId int) (string, error) {
 	memorandumTemplate, err := template.ParseFiles("templates/latex/phone.tex")
 	if err != nil {
 		return "", err
@@ -224,7 +218,7 @@ func generateLatexFileForPhoneMemorandum(mail []Phone, info html.PhoneMemorandum
 	return pathToTexFile, nil
 }
 
-func GenerateEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) error {
+func GenerateEthernetMemorandum(ethernet []html.Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) error {
 	path, err := generateLatexFileForEthernetMemorandum(ethernet, info, hashStr, memorandumId)
 	if err != nil {
 		return err
@@ -233,7 +227,7 @@ func GenerateEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandu
 	return err
 }
 
-func generateEthernetLatexTable(ethernet []Ethernet, memorandumId int) EthernetMemorandum {
+func generateEthernetLatexTable(ethernet []html.Ethernet, memorandumId int) EthernetMemorandum {
 	table := ""
 	for _, e := range ethernet {
 		stringInTable := e.Mac + " & " + e.Class + " & " + e.Building + " & " + e.Info + " \\\\ \n \\hline \n"
@@ -242,7 +236,7 @@ func generateEthernetLatexTable(ethernet []Ethernet, memorandumId int) EthernetM
 	return EthernetMemorandum{Table: table, MemorandumId: memorandumId}
 }
 
-func generateLatexFileForEthernetMemorandum(ethernet []Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) (string, error) {
+func generateLatexFileForEthernetMemorandum(ethernet []html.Ethernet, info html.EthernetMemorandum, hashStr string, memorandumId int) (string, error) {
 	memorandumTemplate, err := template.ParseFiles("templates/latex/ethernet.tex")
 	if err != nil {
 		return "", err

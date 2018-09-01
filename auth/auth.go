@@ -3,7 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -71,7 +71,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch pageType {
 	case "login":
 		if IsAdmin(r) {
-			http.Redirect(w, r, "/wifi/memorandums/", 302)
+			http.Redirect(w, r, "/wifi/memorandums/view/1", 302)
 			return
 		}
 		if userName, err := auth(r.PostForm.Get("login"), r.Form["password"][0]); err != nil {
@@ -80,7 +80,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			session.Values["userName"] = userName
 			session.Save(r, w)
-			http.Redirect(w, r, "/wifi/memorandums/", 302)
+			http.Redirect(w, r, "/wifi/memorandums/view/1", 302)
 		}
 	case "logout":
 		session.Values["userName"] = nil

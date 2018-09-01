@@ -2,7 +2,7 @@ package memorandums
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,9 +12,6 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-type MailMemorandum = html.MailMemorandum
-type Mail = html.Mail
-
 func ListMailHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	session, _ := server.Core.Store.Get(r, "kirino_session")
@@ -22,8 +19,8 @@ func ListMailHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging pagination.Pagination
-	var memorandums []MailMemorandum
+	var paging html.Pagination
+	var memorandums []html.MailMemorandum
 	var err error
 	count, err := getMailCount()
 	if err != nil {
@@ -72,7 +69,7 @@ func ListMailHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.MailMemorandumsPage(memorandums, paging))
 }
 
-func getMailMemorandums(limit, offset int) (domains []MailMemorandum, err error) {
+func getMailMemorandums(limit, offset int) (domains []html.MailMemorandum, err error) {
 	err = server.Core.Db.Select(&domains, "SELECT * FROM mailmemorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset)
 	return
 }
@@ -104,7 +101,7 @@ func ViewMailHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, html.MailMemorandumPage(list))
 }
 
-func getMailMemorandumUsers(id string) (list []Mail, err error) {
+func getMailMemorandumUsers(id string) (list []html.Mail, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM mailusers WHERE memorandumid = $1", id)
 	return
 }
