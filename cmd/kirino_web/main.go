@@ -4,7 +4,6 @@ import (
 	"flag"
 	"net/http"
 	"os"
-	"strconv"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -18,7 +17,7 @@ import (
 
 var (
 	configFile  = flag.String("config", "conf.json", "Where to read the config from")
-	servicePort = flag.Int("port", 4001, "Service port number")
+	servicePort = flag.String("port", ":4001", "Service port number")
 )
 
 func filesHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,10 +65,10 @@ func main() {
 
 	router.HandleFunc("/admin/{type}/", auth.Handler)
 
-	router.HandleFunc("/wifi/memorandums/{action}/{num:[0-9]+}", memorandums.ListWifiHandler)
+	router.HandleFunc("/wifi/memorandums/{action}/{num:[0-9]+}", memorandums.WifiMemorandumsHandler)
 	router.HandleFunc("/wifi/users/{action}/{num:[0-9]+}", users.WifiUsersHandler)
 
-	router.HandleFunc("/departments/{action}/{num:[0-9]+}", departments.Handler).Methods("GET")
+	router.HandleFunc("/departments/{action}/{num:[0-9]+}", departments.Handler)
 
 	router.HandleFunc("/ethernet/memorandums/{action}/{num:[0-9]+}", memorandums.ListEthernetHandler)
 
@@ -79,9 +78,8 @@ func main() {
 
 	router.HandleFunc("/mail/memorandums/{action}/{num:[0-9]+}", memorandums.ListMailHandler)
 
-	port := strconv.Itoa(*servicePort)
-	log.Println("Server started at port", port)
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	log.Println("Server started at", *servicePort)
+	if err := http.ListenAndServe(*servicePort, router); err != nil {
 		log.Fatal(err)
 	}
 }

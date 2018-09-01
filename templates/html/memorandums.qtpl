@@ -68,7 +68,7 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%d memorandum.Id %}</td>
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td style="margin: 0; padding: 0; padding-top: 10px">
-                <form class="mob_v_f" action="/admin/wifi/memorandums/save/{%d memorandum.Id %}" method="post" style="margin: 0">
+                <form class="mob_v_f" action="/wifi/memorandums/save/{%d memorandum.Id %}" method="post" style="margin: 0">
                     <div class="form-group row" style="margin: 0; padding: 0">
                         <div class="col-md-6" style="margin: 0">
                             <select id="select{%d memorandum.Id %}" class="form-control" name="department" style="padding: 0">
@@ -99,20 +99,20 @@ Exist        int    `db:"exist"`
                 </form>
             </td>
             <td>
-                <a href="/admin/wifi/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/wifi/memorandums/show/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/wifi/memorandum/accept/{%d memorandum.Id %}"
+                <a href="/wifi/memorandums/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
                 </a>
                 {% else %}
-                <a href="/admin/wifi/memorandum/reject/{%d memorandum.Id %}"
+                <a href="/wifi/memorandums/reject/{%d memorandum.Id %}"
                    class="btn btn-danger btn-on-table hint-act">
                     <span class="oi oi-x" aria-hidden="true"></span>
                     <span class="hint">Запретить служебку</span>
@@ -123,7 +123,7 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/wifi/memorandums/") %}
+    {%= PrintPagination(pagination, "/wifi/memorandums/view") %}
 </div>
 {%= Footer() %}
 {% endfunc %}
@@ -134,13 +134,13 @@ Exist        int    `db:"exist"`
 <div style="width: 80%; margin: 0 auto">
     <div class="btn-group btn-group-justified">
 
-        <a href="/admin/wifi/memorandum/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
+        <a href="/wifi/memorandum/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
             memorandum</a>
-        <a href="/admin/wifi/memorandum/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
+        <a href="/wifi/memorandum/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
             memorandum</a>
     </div>
     <div style="margin: 0 auto; text-align: center;width: 50%">
-        <form action="/admin/memorandums/save/{%d memorandum.Id %}" method="post">
+        <form action="/memorandums/save/{%d memorandum.Id %}" method="post">
             <div class="form-group" style="margin: 0">
                 <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -197,7 +197,7 @@ Exist        int    `db:"exist"`
             <td style="padding: 20px;">{%s user.PhoneNumber %}</td>
 
             <td>
-                <form action="/admin/wifi/users/savedept/{%d user.Id %}" method="post">
+                <form action="/wifi/users/savedept/{%d user.Id %}" method="post">
                     <div class="form-group" style="margin: 0">
                         <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -231,32 +231,32 @@ Exist        int    `db:"exist"`
             </td>
             <td>
                 {% if user.Accepted != 1 %}
-                <a href="/admin/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
+                <a href="/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                     <span class="hint">Разблокировать</span>
                 </a>
                 {% else %}
-                <a href="/admin/wifi/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
+                <a href="/wifi/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     <span class="hint">Заблокировать</span>
                 </a>
                 {% endif %}
             </td>
-            <td><a href="/admin/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
+            <td><a href="/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
             </td>
             {% if user.Disabled == 0 %}
             <td>
-                <a href="/admin/wifi/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
+                <a href="/wifi/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>
             {% else %}
             <td>
-                <a href="/admin/wifi/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
+                <a href="/wifi/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
                     <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
@@ -303,7 +303,7 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.FIO %}</td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/domain/memorandums/accept/{%d memorandum.Id %}"
+                <a href="/domain/memorandums/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
@@ -319,7 +319,7 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/domain/memorandums/") %}
+    {%= PrintPagination(pagination, "/domain/memorandums/") %}
 </div>
 {%= Footer() %}
 {% endfunc %}
@@ -352,14 +352,14 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td class="table_first_rows">{%s memorandum.Reason %}</td>
             <td>
-                <a href="/admin/mail/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/mail/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/mail/memorandums/accept/{%d memorandum.Id %}"
+                <a href="/mail/memorandums/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
@@ -375,7 +375,7 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/mail/memorandums/") %}
+    {%= PrintPagination(pagination, "/mail/memorandums/") %}
 </div>
 {%= Footer() %}
 {% endfunc %}
@@ -405,14 +405,14 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td>
-                <a href="/admin/ethernet/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/ethernet/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/ethernet/memorandums/accept/{%d memorandum.Id %}"
+                <a href="/ethernet/memorandums/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
@@ -428,7 +428,7 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/ethernet/memorandums/") %}
+    {%= PrintPagination(pagination, "/ethernet/memorandums/") %}
 </div>
 {%= Footer() %}
 {% endfunc %}
@@ -459,14 +459,14 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td>
-                <a href="/admin/phone/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/phone/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
             </td>
             <td>
                 {% if memorandum.Accepted != 1 %}
-                <a href="/admin/phone/memorandums/accept/{%d memorandum.Id %}"
+                <a href="/phone/memorandums/accept/{%d memorandum.Id %}"
                    class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разрешить служебку</span>
@@ -482,7 +482,7 @@ Exist        int    `db:"exist"`
         {% endfor %}
         </tbody>
     </table>
-    {%= PrintPagination(pagination, "/admin/phone/memorandums/") %}
+    {%= PrintPagination(pagination, "/phone/memorandums/") %}
 </div>
 {%= Footer() %}
 {% endfunc %}

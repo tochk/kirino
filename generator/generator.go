@@ -4,13 +4,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
@@ -46,9 +47,8 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	var (
-		hash    string
-		getData string
-		err     error
+		hash, getData string
+		err           error
 	)
 	switch vars["type"] {
 	case "wifi":
@@ -63,8 +63,8 @@ func GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		hash, getData, err = generatePhone(r.PostForm)
 	}
 	if err != nil {
-		log.Println("Error on generate page: ", err)
 		fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+		log.Print("Error on generate page: ", err)
 		return
 	}
 	http.Redirect(w, r, "/generated/"+vars["type"]+"/"+hash+"/"+getData, 302)
@@ -84,7 +84,6 @@ func GeneratedHandler(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Query().Get("exist") != "0" {
 			exist = strings.Split(r.URL.Query().Get("exist"), ",")
 		}
-
 		fmt.Fprint(w, html.GeneratedPage(pageType, vars["token"], r.URL.Query().Get("count"), exist))
 	case "ethernet":
 		fmt.Fprint(w, html.EthernetGeneratedPage(pageType, vars["token"]))

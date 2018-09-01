@@ -142,7 +142,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			return
 		}
-		if err = memorandums.CheckMemorandumAccepted(id); err != nil {
+		if err = memorandums.CheckWifiMemorandumAccepted(id); err != nil {
 			log.Println(err)
 			return
 		}

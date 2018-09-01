@@ -2,11 +2,12 @@ package memorandums
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/pagination"
@@ -14,71 +15,98 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-type MemAccepted struct {
+type memAccepted struct {
 	MemorandumId int `db:"memorandumid"`
 	MaxAccepted  int `db:"maxaccepted"`
 	MinAccepted  int `db:"minaccepted"`
 }
 
-func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
+func WifiMemorandumsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
 	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
+	vars := mux.Vars(r)
 
-	var paging html.Pagination
-	var memorandums []html.Memorandum
-	var err error
-	count, err := getWifiMemorandumsCount()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	r.ParseForm()
-	urlInfo := r.URL.Path[len("/wifi/memorandums/"):]
-	splittedUrl := strings.Split(urlInfo, "/")
-	switch splittedUrl[0] {
+	switch vars["action"] {
 	case "save":
-		if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
-			if _, err := server.Core.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
-				log.Println(err)
-				return
-			}
-			if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
-				log.Println(err)
-				return
-			}
+		r.ParseForm()
+		err := saveWifiMemorandumDepartment(vars["num"], r.PostForm.Get("department"))
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
 		}
 		http.Redirect(w, r, r.Referer(), 302)
-		return
+	case "view":
+		memorandums, departmentList, paging, err := viewWifiMemorandums(vars["num"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.WifiMemorandumsPage(memorandums, departmentList, paging))
+	case "show":
+		memorandum, clientsInMemorandum, departmentList, err := showWifiMemorandum(vars["num"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.WifiMemorandumPage(memorandum, clientsInMemorandum, departmentList))
+	case "accept":
+		if err := acceptWifiMemorandum(vars["num"]); err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+	case "reject":
+		if err := rejectWifiMemorandum(vars["num"]); err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+	}
+}
 
-	case "page":
-		page, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		paging = pagination.Calc(page, count)
-		memorandums, err = getMemorandums(paging.PerPage, paging.Offset)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	default:
-		if paging.CurrentPage == 0 {
-			memorandums, err = getMemorandums(50, 0)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			paging = pagination.Calc(1, count)
-		}
+func showWifiMemorandum(id string) (memorandum html.Memorandum, clientsInMemorandum []html.WifiUser, departmentList []html.Department, err error) {
+	clientsInMemorandum, err = getWifiMemorandumClients(id)
+	if err != nil {
+		return
 	}
 
-	departmentList, err := departments.GetAll()
+	departmentList, err = departments.GetAll()
 	if err != nil {
-		log.Println(err)
+		return
+	}
+
+	memorandum, err = getWifiMemorandum(id)
+	return
+}
+
+func viewWifiMemorandums(pageNum string) (memorandums []html.Memorandum, departmentList []html.Department, paging html.Pagination, err error) {
+	page, err := strconv.Atoi(pageNum)
+	if err != nil {
+		return
+	}
+
+	count, err := getWifiMemorandumsCount()
+	if err != nil {
+		return
+	}
+
+	paging = pagination.Calc(page, count)
+
+	memorandums, err = getWifiMemorandums(paging.PerPage, paging.Offset)
+	if err != nil {
+		return
+	}
+
+	departmentList, err = departments.GetAll()
+	if err != nil {
 		return
 	}
 
@@ -86,10 +114,18 @@ func ListWifiHandler(w http.ResponseWriter, r *http.Request) {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
 
-	fmt.Fprint(w, html.WifiMemorandumsPage(memorandums, departmentList, paging))
+	return
 }
 
-func acceptMemorandum(id string) (err error) {
+func saveWifiMemorandumDepartment(id, department string) (err error) {
+	if _, err = server.Core.Db.Exec("UPDATE memorandums SET departmentid = $1 WHERE id = $2", department, id); err != nil {
+		return
+	}
+	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE memorandumid = $2", department, id)
+	return
+}
+
+func acceptWifiMemorandum(id string) (err error) {
 	if _, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = 1 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
@@ -97,7 +133,7 @@ func acceptMemorandum(id string) (err error) {
 	return
 }
 
-func rejectMemorandum(id string) (err error) {
+func rejectWifiMemorandum(id string) (err error) {
 	if _, err = server.Core.Db.Exec("UPDATE wifiUsers SET accepted = 2 WHERE memorandumId = $1", id); err != nil {
 		return
 	}
@@ -110,68 +146,11 @@ func getWifiMemorandumsCount() (count int, err error) {
 	return
 }
 
-func ViewWifiHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
-		http.Redirect(w, r, "/admin/", 302)
-		return
-	}
-	memId := r.URL.Path[len("/admin/checkMemorandum/"):]
-	if memId == "" {
-		log.Println("Invalid memorandum id")
-		return
-	}
-
-	if len(memId) > len("accept/") {
-		if memId[0:len("accept/")] == "accept/" {
-			memId = memId[len("accept/"):]
-			if err := acceptMemorandum(memId); err != nil {
-				log.Println(err)
-				return
-			}
-		} else if memId[0:len("reject/")] == "reject/" {
-			memId = memId[len("reject/"):]
-			if err := rejectMemorandum(memId); err != nil {
-				log.Println(err)
-				return
-			}
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	}
-	clientsInMemorandum := make([]html.WifiUser, 0)
-	if err := server.Core.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", memId); err != nil {
-		log.Println(err)
-		return
-	}
-
-	for i, e := range clientsInMemorandum {
-		if len(e.UserName) > 65 {
-			clientsInMemorandum[i].UserName = e.UserName[:66] + "..."
-		}
-	}
-
-	departmentList, err := departments.GetAll()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	var memorandum html.Memorandum
-	if err := server.Core.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", memId); err != nil {
-		log.Println(err)
-		return
-	}
-
-	fmt.Fprint(w, html.WifiMemorandumPage(memorandum, clientsInMemorandum, departmentList))
-}
-
-func getMemorandums(limit, offset int) (memorandums []html.Memorandum, err error) {
+func getWifiMemorandums(limit, offset int) (memorandums []html.Memorandum, err error) {
 	if err = server.Core.Db.Select(&memorandums, "SELECT id, addTime, accepted, departmentid FROM memorandums ORDER BY id DESC LIMIT $1 OFFSET $2 ", limit, offset); err != nil {
 		return
 	}
-	var accepted []MemAccepted
+	var accepted []memAccepted
 	err = server.Core.Db.Select(&accepted, "SELECT max(accepted) as maxAccepted, min(accepted) as minAccepted, memorandumid FROM wifiusers WHERE memorandumid IN (SELECT id FROM memorandums) GROUP BY memorandumid ORDER BY memorandumid desc LIMIT $1 OFFSET $2 ", limit, offset)
 	for i, e := range memorandums {
 		for _, em := range accepted {
@@ -183,13 +162,31 @@ func getMemorandums(limit, offset int) (memorandums []html.Memorandum, err error
 	return
 }
 
-//todo rewrite
-func CheckMemorandumAccepted(userId int) error {
-	_, err := server.Core.Db.Exec("UPDATE memorandums SET accepted = 1 "+
+func getWifiMemorandum(id string) (memorandum html.Memorandum, err error) {
+	err = server.Core.Db.Get(&memorandum, "SELECT id, addTime, accepted, departmentid FROM memorandums WHERE id = $1", id)
+	return
+}
+
+func getWifiMemorandumClients(id string) (clientsInMemorandum []html.WifiUser, err error) {
+	err = server.Core.Db.Select(&clientsInMemorandum, "SELECT id, mac, userName, phoneNumber, hash, memorandumId, accepted, disabled, departmentid FROM wifiUsers WHERE memorandumId = $1", id)
+	return
+}
+
+func CheckWifiMemorandumAccepted(userId int) (err error) {
+	_, err = server.Core.Db.Exec("UPDATE memorandums SET accepted = 1 "+
 		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+
 		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
 		"(SELECT memorandumid FROM wifiusers WHERE id = $1))"+
 		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
 		"(SELECT memorandumid FROM wifiusers WHERE id = $1) AND accepted = 1) = 0;", userId)
-	return err
+	if err != nil {
+		return
+	}
+	_, err = server.Core.Db.Exec("UPDATE memorandums SET accepted = 2 "+
+		"WHERE id = (SELECT memorandumid FROM wifiusers WHERE id = $1) AND "+
+		"(SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
+		"(SELECT memorandumid FROM wifiusers WHERE id = $1))"+
+		" - (SELECT COUNT(*) FROM wifiusers WHERE memorandumid = "+
+		"(SELECT memorandumid FROM wifiusers WHERE id = $1) AND accepted = 2) = 0;", userId)
+	return
 }
