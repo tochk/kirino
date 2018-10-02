@@ -2,12 +2,13 @@ package users
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
+	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/memorandums"
@@ -16,59 +17,104 @@ import (
 	"github.com/tochk/kirino/templates/html"
 )
 
-func WifiUserHandler(w http.ResponseWriter, r *http.Request) {
+const (
+	acceptUser  = 1
+	rejectUser  = 2
+	enableUser  = 0
+	disableUser = 1
+)
+
+func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
+	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
+	vars := mux.Vars(r)
 
-	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/wifi/user/"):]
-	var user html.WifiUser
-	if len(urlInfo) > 0 {
-		splittedUrl := strings.Split(urlInfo, "/")
-		switch splittedUrl[0] {
-		case "edit":
-			if len(splittedUrl[1]) > 0 {
-				userId, err := strconv.Atoi(splittedUrl[1])
-				if err != nil {
-					log.Println(err)
-					return
-				}
-				user, err = GetWifiUserById(userId)
-				if err != nil {
-					log.Println(err)
-					return
-				}
-			}
-		case "save":
-			clearMac, err := check.Mac(r.PostForm.Get("mac1"))
+	switch vars["action"] {
+	case "save_dept":
+		err := saveDepartment(vars["num"], r.PostForm.Get("department"))
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "accept":
+		err := acceptOrRejectWifiUser(vars["num"], acceptUser)
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "reject":
+		err := acceptOrRejectWifiUser(vars["num"], rejectUser)
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "enable":
+		err := enableOrDisableWifiUser(vars["num"], enableUser)
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "disable":
+		err := enableOrDisableWifiUser(vars["num"], disableUser)
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+		return
+	case "view":
+		usersList, departmentsList, paging, err := viewWifiUsers(vars["num"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.WifiUsersPage(usersList, departmentsList, paging))
+	case "search":
+		usersList, departmentsList, err := getSearchResult(r.URL.Query())
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.WifiUsersPage(usersList, departmentsList, html.Pagination{CurrentPage:1}))
+	case "edit":
+		if r.Method == "GET" {
+			user, depts, err := getUser(vars["num"])
 			if err != nil {
-				log.Println(err)
+				fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+				log.Print(err)
 				return
 			}
-			clearName := check.Name(r.PostForm.Get("user1"))
-			clearPhone := check.Phone(r.PostForm.Get("tel1"))
-
-			_, err = server.Core.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, splittedUrl[1])
+			fmt.Fprint(w, html.WifiUserPage(user, depts))
+			return
+		} else {
+			err := updateUser(vars["num"], r.PostForm.Get("mac1"), r.PostForm.Get("user1"), r.PostForm.Get("tel1"))
 			if err != nil {
-				log.Println(err)
+				fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+				log.Print(err)
 				return
 			}
 			http.Redirect(w, r, "/admin/wifi/users/", 302)
 			return
 		}
 	}
-
-	depts, err := departments.GetAll()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	fmt.Fprint(w, html.WifiUserPage(user, depts))
 }
 
 func getUserList(limit, offset int) (userList []html.WifiUser, err error) {
@@ -101,135 +147,92 @@ func setAccepted(status, id int) (err error) {
 	return
 }
 
-func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
-		http.Redirect(w, r, "/admin/", 302)
-		return
-	}
-	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/wifi/users/"):]
-	var (
-		usersList []html.WifiUser
-		paging    html.Pagination
-		err       error
-	)
-	count, err := getUserCount()
+func getSearchResult(values url.Values) (userList []html.WifiUser, departmentsList []html.Department, err error) {
+	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, nil, err
 	}
-
-	splittedUrl := strings.Split(urlInfo, "/")
-	switch splittedUrl[0] {
-	case "savedept":
-		if len(splittedUrl[1]) > 0 && r.PostForm.Get("department") != "" {
-			if _, err := server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", r.PostForm.Get("department"), splittedUrl[1]); err != nil {
-				log.Println(err)
-				return
-			}
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	case "accept":
-		id, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if err = setAccepted(1, id); err != nil {
-			log.Println(err)
-			return
-		}
-		if err = memorandums.CheckWifiMemorandumAccepted(id); err != nil {
-			log.Println(err)
-			return
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	case "reject":
-		id, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if err = setAccepted(2, id); err != nil {
-			log.Println(err)
-			return
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	case "enable":
-		id, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if err = setDisabled(0, id); err != nil {
-			log.Println(err)
-			return
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	case "disable":
-		id, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		if err = setDisabled(1, id); err != nil {
-			log.Println(err)
-			return
-		}
-		http.Redirect(w, r, r.Referer(), 302)
-		return
-	case "page":
-		page, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		paging = pagination.Calc(page, count)
-		usersList, err = getUserList(paging.PerPage, paging.Offset)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	case "search":
-		var err error
-		usersList, err = getSearchResult(r.URL.Query())
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	default:
-		usersList, err = getUserList(50, 0)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		paging = pagination.Calc(1, count)
-	}
-
-	for i, e := range usersList {
-		if len(e.UserName) > 65 {
-			usersList[i].UserName = e.UserName[:66] + "..."
-		}
-	}
-
-	depts, err := departments.GetAll()
+	departmentsList, err = departments.GetAll()
 	if err != nil {
-		log.Println(err)
-		return
+		return nil, nil, err
 	}
-
-	fmt.Fprint(w, html.WifiUsersPage(usersList, depts, paging))
+	return
 }
 
-//todo search
-func getSearchResult(values url.Values) (userList []html.WifiUser, err error) {
-	err = server.Core.Db.Select(&userList, "SELECT id, mac, userName, phoneNumber, accepted, disabled, departmentid, memorandumId FROM wifiUsers WHERE mac LIKE CONCAT(CONCAT('%', $1), '%') AND username LIKE CONCAT(CONCAT('%', $2), '%') AND phonenumber LIKE CONCAT(CONCAT('%', $3), '%') ORDER BY id DESC ", values.Get("mac"), values.Get("name"), values.Get("phone"))
+func filterUserNames(users []html.WifiUser) {
+	for i, e := range users {
+		if len(e.UserName) > 50 {
+			users[i].UserName = string([]rune(e.UserName)[:50]) + "..."
+		}
+	}
+}
+
+func acceptOrRejectWifiUser(idString string, num int) error {
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		return err
+	}
+	if err = setAccepted(num, id); err != nil {
+		return err
+	}
+	err = memorandums.CheckWifiMemorandumAccepted(id)
+	return err
+}
+
+func enableOrDisableWifiUser(idString string, num int) error {
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		return err
+	}
+	err = setDisabled(num, id)
+	return err
+}
+
+func saveDepartment(id, departmentId string) (err error) {
+	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET departmentid = $1 WHERE id = $2", departmentId, id)
+	return
+}
+
+func viewWifiUsers(pageString string) (usersList []html.WifiUser, departmentList []html.Department, paging html.Pagination, err error) {
+	page, err := strconv.Atoi(pageString)
+	if err != nil {
+		return nil, nil, html.Pagination{}, err
+	}
+	count, err := getUserCount()
+	if err != nil {
+		return nil, nil, html.Pagination{}, err
+	}
+	departmentList, err = departments.GetAll()
+	if err != nil {
+		return nil, nil, html.Pagination{}, err
+	}
+	paging = pagination.Calc(page, count)
+	usersList, err = getUserList(paging.PerPage, paging.Offset)
+	filterUserNames(usersList)
+	return
+}
+
+func getUser(id string) (html.WifiUser, []html.Department, error) {
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		return html.WifiUser{}, nil, err
+	}
+	user, err := GetWifiUserById(userId)
+	if err != nil {
+		return html.WifiUser{}, nil, err
+	}
+	depts, err := departments.GetAll()
+	return user, depts, err
+}
+
+func updateUser(id, mac, name, phone string) (err error) {
+	clearMac, err := check.Mac(mac)
+	if err != nil {
+		return
+	}
+	clearName := check.Name(name)
+	clearPhone := check.Phone(phone)
+
+	_, err = server.Core.Db.Exec("UPDATE wifiUsers SET mac = $1, username = $2, phonenumber = $3 WHERE id = $4", clearMac, clearName, clearPhone, id)
 	return
 }
