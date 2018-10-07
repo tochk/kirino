@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
+	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/pagination"
 	"github.com/tochk/kirino/server"
 	"github.com/tochk/kirino/templates/html"
@@ -14,59 +16,55 @@ import (
 
 func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
+	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging html.Pagination
-	var memorandums []html.Domain
-	var err error
-	count, err := getDomainsCount()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/domain/memorandums/"):]
-	splittedUrl := strings.Split(urlInfo, "/")
-	switch splittedUrl[0] {
+	vars := mux.Vars(r)
+
+	switch vars["action"] {
 	case "page":
-		page, err := strconv.Atoi(splittedUrl[1])
+		paging, memorandums, err := viewDomainMemorandums(vars["num"])
 		if err != nil {
-			log.Println(err)
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
 			return
 		}
-		paging = pagination.Calc(page, count)
-		memorandums, err = getDomainMemorandums(paging.PerPage, paging.Offset)
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		fmt.Fprint(w, html.DomainMemorandumsPage(memorandums, paging))
 	case "accept":
-		_, err := server.Core.Db.Exec("UPDATE domains SET accepted = 1 WHERE id = $1", splittedUrl[1])
+		err := acceptDomainMemorandum(vars["num"])
 		if err != nil {
-			log.Println(err)
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
 			return
 		}
 		http.Redirect(w, r, "/admin/domain/memorandums/", 302)
-		return
-	default:
-		if paging.CurrentPage == 0 {
-			memorandums, err = getDomainMemorandums(50, 0)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			paging = pagination.Calc(1, count)
-		}
 	}
+}
 
+func viewDomainMemorandums(pageString string) (paging html.Pagination, memorandums []html.Domain, err error) {
+	page, err := strconv.Atoi(pageString)
+	if err != nil {
+		return html.Pagination{}, nil, err
+	}
+	count, err := getDomainsCount()
+	if err != nil {
+		return html.Pagination{}, nil, err
+	}
+	paging = pagination.Calc(page, count)
+	memorandums, err = getDomainMemorandums(paging.PerPage, paging.Offset)
+	if err != nil {
+		return html.Pagination{}, nil, err
+	}
 	for index, memorandum := range memorandums {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
+	return
+}
 
-	fmt.Fprint(w, html.DomainMemorandumsPage(memorandums, paging))
+func acceptDomainMemorandum(id string) (err error) {
+	_, err = server.Core.Db.Exec("UPDATE domains SET accepted = 1 WHERE id = $1", id)
+	return
 }
 
 func getDomainMemorandums(limit, offset int) (domains []html.Domain, err error) {
