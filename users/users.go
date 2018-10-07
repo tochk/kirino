@@ -93,7 +93,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 			log.Print(err)
 			return
 		}
-		fmt.Fprint(w, html.WifiUsersPage(usersList, departmentsList, html.Pagination{CurrentPage:1}))
+		fmt.Fprint(w, html.WifiUsersPage(usersList, departmentsList, html.Pagination{CurrentPage: 1}))
 	case "edit":
 		if r.Method == "GET" {
 			user, depts, err := getUser(vars["num"])

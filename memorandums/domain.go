@@ -38,7 +38,7 @@ func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 			log.Print(err)
 			return
 		}
-		http.Redirect(w, r, "/admin/domain/memorandums/", 302)
+		http.Redirect(w, r, r.Referer(), 302)
 	}
 }
 

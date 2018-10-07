@@ -86,7 +86,6 @@ func getPhoneCount() (count int, err error) {
 	return
 }
 
-
 func getPhoneMemorandumUsers(id string) (list []html.Phone, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM phoneusers WHERE memorandumid = $1", id)
 	return
