@@ -132,19 +132,18 @@ Exist        int    `db:"exist"`
 {%= Head("Просмотр служебных записок") %}
 {%= Menu("admin") %}
 <div style="width: 80%; margin: 0 auto">
-    <div class="btn-group btn-group-justified">
-
-        <a href="/wifi/memorandums/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
-            memorandum</a>
-        <a href="/wifi/memorandums/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
-            memorandum</a>
+    <div class="text-center">
+        <div class="btn-group">
+            <a href="/wifi/memorandums/accept/{%d memorandum.Id %}" class="btn btn-outline-success">Accept all users in
+                memorandum</a>
+            <a href="/wifi/memorandums/reject/{%d memorandum.Id %}" class="btn btn-outline-danger">Reject all users in
+                memorandum</a>
+        </div>
     </div>
-    <div style="margin: 0 auto; text-align: center;width: 50%">
+    <div style="margin: 0 auto; text-align: center;width: 50%" class="text-center">
         <form action="/wifi/memorandums/save/{%d memorandum.Id %}" method="post">
-            <div class="form-group" style="margin: 0">
-                <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
-
-                <div class="col-md-6">
+            <div class="form-group row" style="margin: 0; padding: 0">
+                <div class="col-md-6" style="margin: 0">
                     <select id="select{%d memorandum.Id %}" class="form-control" name="department">
                         {% if memorandum.DepartmentId == nil %}
                         <option disabled selected>None</option>
@@ -186,23 +185,21 @@ Exist        int    `db:"exist"`
         <tbody>
         {% for _, user := range users %}
         {% if user.Accepted == 1 %}
-        <tr class="success">
+        <tr class="table-success">
             {% elseif user.Accepted == 2 %}
-        <tr class="danger">
+        <tr class="table-danger">
             {% else %}
         <tr>
             {% endif %}
-            <td style="padding: 20px;">{%s user.MacAddress %}</td>
-            <td style="padding: 20px;">{%s user.UserName %}</td>
-            <td style="padding: 20px;">{%s user.PhoneNumber %}</td>
+            <td class="table_first_rows">{%s user.MacAddress %}</td>
+            <td class="table_first_rows">{%s user.UserName %}</td>
+            <td class="table_first_rows">{%s user.PhoneNumber %}</td>
 
             <td>
                 <form action="/wifi/users/save_dept/{%d user.Id %}" method="post">
-                    <div class="form-group" style="margin: 0">
-                        <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
-
-                        <div class="col-md-6">
-                            <select id="select{%d user.Id %}" class="form-control" name="department">
+                    <div class="form-group row" style="margin: 0; padding: 0">
+                        <div class="col-md-6" style="margin: 0">
+                            <select id="select{%d user.Id %}" class="form-control" name="department" style="padding: 0">
                                 {% if user.DepartmentId == nil %}
                                 <option disabled selected>None</option>
                                 {% for _, department := range departments %}
@@ -220,8 +217,8 @@ Exist        int    `db:"exist"`
                                 {% endif %}
                             </select>
                         </div>
-                        <div class="form-group" style="margin: 0">
-                            <div class="col-md-3">
+                        <div class="form-group col-md-3" style="margin: 0">
+                            <div class="col-md-3" style="margin: 0">
                                 <input type="submit" class="btn btn-primary" value="save"
                                        style="margin: 3px 0 0;padding: 10px">
                             </div>
@@ -230,34 +227,47 @@ Exist        int    `db:"exist"`
                 </form>
             </td>
             <td>
+                {% if user.MemorandumId != nil %}
+                <a href="/wifi/memorandums/show/{%d *user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
+                    <span class="oi oi-list hint-act" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+                {% else %}
+                <a href="javascript:void(0)" class="btn btn-info btn-on-table hint-act disabled">
+                    <span class="oi oi-list disabled" aria-hidden="true"></span>
+                    <span class="hint">Посмотреть  служебку</span>
+                </a>
+                {% endif %}
+            </td>
+            <td>
                 {% if user.Accepted != 1 %}
                 <a href="/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    <span class="oi oi-check" aria-hidden="true"></span>
                     <span class="hint">Разблокировать</span>
                 </a>
                 {% else %}
                 <a href="/wifi/users/reject/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    <span class="oi oi-x" aria-hidden="true"></span>
                     <span class="hint">Заблокировать</span>
                 </a>
                 {% endif %}
             </td>
             <td><a href="/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
-                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                <span class="oi oi-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
             </td>
             {% if user.Disabled == 0 %}
             <td>
                 <a href="/wifi/users/disable/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>
             {% else %}
             <td>
                 <a href="/wifi/users/enable/{%d user.Id %}" class="btn btn-danger btn-on-table hint-act">
-                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                    <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Бумажная версия</span>
                 </a>
             </td>

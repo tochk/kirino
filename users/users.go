@@ -2,11 +2,11 @@ package users
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/check"
@@ -34,6 +34,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch vars["action"] {
 	case "save_dept":
+		r.ParseForm()
 		err := saveDepartment(vars["num"], r.PostForm.Get("department"))
 		if err != nil {
 			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
@@ -87,6 +88,7 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, html.WifiUsersPage(usersList, departmentsList, paging))
 	case "search":
+		r.ParseForm()
 		usersList, departmentsList, err := getSearchResult(r.URL.Query())
 		if err != nil {
 			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
@@ -105,13 +107,14 @@ func WifiUsersHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprint(w, html.WifiUserPage(user, depts))
 			return
 		} else {
+			r.ParseForm()
 			err := updateUser(vars["num"], r.PostForm.Get("mac1"), r.PostForm.Get("user1"), r.PostForm.Get("tel1"))
 			if err != nil {
 				fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
 				log.Print(err)
 				return
 			}
-			http.Redirect(w, r, "/admin/wifi/users/", 302)
+			http.Redirect(w, r, r.Referer(), 302)
 			return
 		}
 	}

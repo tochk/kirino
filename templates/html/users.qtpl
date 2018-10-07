@@ -184,7 +184,7 @@ MemorandumId int    `db:"memorandumid"`
                 </a>
                 {% endif %}
             </td>
-            <td><a href="/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
+            <td><a href="/wifi/users/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
                 <span class="oi oi-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
@@ -217,7 +217,7 @@ MemorandumId int    `db:"memorandumid"`
 {% func WifiUserPage(user WifiUser, departments []Department) %}
 {%= Head("Редактирование пользователя") %}
 {%= Menu("admin") %}
-<form class="form-horizontal" action="/wifi/user/save/{%d user.Id %}" method="post">
+<form class="form-horizontal" action="/wifi/users/edit/{%d user.Id %}" method="post">
     <fieldset id="form_cont">
         <div class="input_forms">
             <h2 class='title'>Редактирование пользователя</h2>

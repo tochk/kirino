@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/GeertJohan/go.rice"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/tochk/kirino/auth"
@@ -55,7 +56,10 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.Methods("GET").PathPrefix("/static/").HandlerFunc(filesHandler)
+	static := rice.MustFindBox("../../static")
+	s := http.StripPrefix("/static/", http.FileServer(static.HTTPBox()))
+	router.PathPrefix("/static/").Handler(s)
+
 	router.Methods("GET").PathPrefix("/userFiles/").HandlerFunc(filesHandler)
 
 	router.HandleFunc("/", memorandums.FormsHandler).Methods("GET")
