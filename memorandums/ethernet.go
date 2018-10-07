@@ -41,7 +41,6 @@ func ListEthernetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Redirect(w, r, r.Referer(), 302)
-		return
 	case "show":
 		list, err := getEthernetMemorandumUsers(vars["num"])
 		if err != nil {

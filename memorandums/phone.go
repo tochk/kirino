@@ -3,6 +3,9 @@ package memorandums
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/mux"
+	"github.com/tochk/kirino/auth"
+
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,59 +17,63 @@ import (
 
 func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
+	if !auth.IsAdmin(r) {
 		http.Redirect(w, r, "/admin/", 302)
 		return
 	}
-	var paging html.Pagination
-	var memorandums []html.PhoneMemorandum
-	var err error
+	vars := mux.Vars(r)
+
+	switch vars["action"] {
+	case "view":
+		paging, memorandums, err := viewPhoneMemorandums(vars["num"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.PhoneMemorandumsPage(memorandums, paging))
+	case "accept":
+		err := acceptPhoneMemorandum(vars["num"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		http.Redirect(w, r, r.Referer(), 302)
+	case "show":
+		list, err := getPhoneMemorandumUsers(vars["id"])
+		if err != nil {
+			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
+			log.Print(err)
+			return
+		}
+		fmt.Fprint(w, html.PhoneMemorandumPage(list))
+	}
+}
+
+func viewPhoneMemorandums(pageString string) (paging html.Pagination, memorandums []html.PhoneMemorandum, err error) {
+	page, err := strconv.Atoi(pageString)
+	if err != nil {
+		return html.Pagination{}, nil, err
+	}
 	count, err := getPhoneCount()
 	if err != nil {
-		log.Println(err)
-		return
+		return html.Pagination{}, nil, err
 	}
-	r.ParseForm()
-	urlInfo := r.URL.Path[len("/admin/phone/memorandums/"):]
-	splittedUrl := strings.Split(urlInfo, "/")
-	switch splittedUrl[0] {
-	case "page":
-		page, err := strconv.Atoi(splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		paging = pagination.Calc(page, count)
-		memorandums, err = getPhoneMemorandums(paging.PerPage, paging.Offset)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-	case "accept":
-		_, err := server.Core.Db.Exec("UPDATE phonememorandums SET accepted = 1 WHERE id = $1", splittedUrl[1])
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		http.Redirect(w, r, "/admin/phone/memorandums/", 302)
-		return
-	default:
-		if paging.CurrentPage == 0 {
-			memorandums, err = getPhoneMemorandums(50, 0)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			paging = pagination.Calc(1, count)
-		}
+	paging = pagination.Calc(page, count)
+	memorandums, err = getPhoneMemorandums(paging.PerPage, paging.Offset)
+	if err != nil {
+		return html.Pagination{}, nil, err
 	}
-
 	for index, memorandum := range memorandums {
 		memorandums[index].AddTime = strings.Split(memorandum.AddTime, "T")[0]
 	}
+	return
+}
 
-	fmt.Fprint(w, html.PhoneMemorandumsPage(memorandums, paging))
+func acceptPhoneMemorandum(id string) (err error) {
+	_, err = server.Core.Db.Exec("UPDATE phonememorandums SET accepted = 1 WHERE id = $1", id)
+	return
 }
 
 func getPhoneMemorandums(limit, offset int) (domains []html.PhoneMemorandum, err error) {
@@ -79,27 +86,6 @@ func getPhoneCount() (count int, err error) {
 	return
 }
 
-func ViewPhoneHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Loaded %s page from %s", r.URL.Path, r.Header.Get("X-Real-IP"))
-	session, _ := server.Core.Store.Get(r, "kirino_session")
-	if session.Values["userName"] == nil {
-		http.Redirect(w, r, "/admin/", 302)
-		return
-	}
-	memId := r.URL.Path[len("/admin/phone/memorandum/"):]
-	if memId == "" {
-		log.Println("Invalid memorandum id")
-		return
-	}
-
-	list, err := getPhoneMemorandumUsers(memId)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	fmt.Fprint(w, html.PhoneMemorandumPage(list))
-}
 
 func getPhoneMemorandumUsers(id string) (list []html.Phone, err error) {
 	err = server.Core.Db.Select(&list, "SELECT * FROM phoneusers WHERE memorandumid = $1", id)
