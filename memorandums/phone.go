@@ -41,7 +41,7 @@ func ListPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		http.Redirect(w, r, r.Referer(), 302)
 	case "show":
-		list, err := getPhoneMemorandumUsers(vars["id"])
+		list, err := getPhoneMemorandumUsers(vars["num"])
 		if err != nil {
 			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
 			log.Print(err)

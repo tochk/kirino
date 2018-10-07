@@ -23,7 +23,7 @@ func ListDomainHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	switch vars["action"] {
-	case "page":
+	case "view":
 		paging, memorandums, err := viewDomainMemorandums(vars["num"])
 		if err != nil {
 			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))

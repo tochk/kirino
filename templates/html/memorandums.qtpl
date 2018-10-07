@@ -134,13 +134,13 @@ Exist        int    `db:"exist"`
 <div style="width: 80%; margin: 0 auto">
     <div class="btn-group btn-group-justified">
 
-        <a href="/wifi/memorandum/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
+        <a href="/wifi/memorandums/accept/{%d memorandum.Id %}" class="btn btn-success">Accept all users in
             memorandum</a>
-        <a href="/wifi/memorandum/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
+        <a href="/wifi/memorandums/reject/{%d memorandum.Id %}" class="btn btn-danger">Reject all users in
             memorandum</a>
     </div>
     <div style="margin: 0 auto; text-align: center;width: 50%">
-        <form action="/memorandums/save/{%d memorandum.Id %}" method="post">
+        <form action="/wifi/memorandums/save/{%d memorandum.Id %}" method="post">
             <div class="form-group" style="margin: 0">
                 <label for="select{%d memorandum.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -197,7 +197,7 @@ Exist        int    `db:"exist"`
             <td style="padding: 20px;">{%s user.PhoneNumber %}</td>
 
             <td>
-                <form action="/wifi/users/savedept/{%d user.Id %}" method="post">
+                <form action="/wifi/users/save_dept/{%d user.Id %}" method="post">
                     <div class="form-group" style="margin: 0">
                         <label for="select{%d user.Id %}" class="col-md-2 control-label">Department</label>
 
@@ -352,7 +352,7 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td class="table_first_rows">{%s memorandum.Reason %}</td>
             <td>
-                <a href="/mail/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/mail/memorandums/show/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
@@ -405,7 +405,7 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td>
-                <a href="/ethernet/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/ethernet/memorandums/show/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>
@@ -459,7 +459,7 @@ Exist        int    `db:"exist"`
             <td class="table_first_rows">{%s memorandum.AddTime %}</td>
             <td class="table_first_rows">{%s memorandum.Department %}</td>
             <td>
-                <a href="/phone/memorandum/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
+                <a href="/phone/memorandums/show/{%d memorandum.Id %}" class="btn btn-info btn-on-table hint-act">
                     <span class="oi oi-list" aria-hidden="true"></span>
                     <span class="hint">Посмотреть  служебку</span>
                 </a>

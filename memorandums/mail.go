@@ -24,7 +24,7 @@ func ListMailHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	switch vars["action"] {
-	case "page":
+	case "view":
 		paging, memorandums, err := viewMailMemorandums(vars["num"])
 		if err != nil {
 			fmt.Fprint(w, html.ErrorPage(auth.IsAdmin(r), err))
