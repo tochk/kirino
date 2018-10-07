@@ -34,7 +34,7 @@ func FormsHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, html.EthernetPage(pageType))
 	case "admin":
 		if auth.IsAdmin(r) {
-			http.Redirect(w, r, "/wifi/memorandums/", 302)
+			http.Redirect(w, r, "/wifi/memorandums/view/1", 302)
 			return
 		}
 		fmt.Fprint(w, html.AdminPage())

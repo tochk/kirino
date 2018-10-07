@@ -164,7 +164,7 @@ func getSearchResult(values url.Values) (userList []html.WifiUser, departmentsLi
 
 func filterUserNames(users []html.WifiUser) {
 	for i, e := range users {
-		if len(e.UserName) > 50 {
+		if len([]rune(e.UserName)) > 50 {
 			users[i].UserName = string([]rune(e.UserName)[:50]) + "..."
 		}
 	}
