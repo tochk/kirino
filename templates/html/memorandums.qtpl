@@ -179,7 +179,6 @@ Exist        int    `db:"exist"`
             <th></th>
             <th></th>
             <th></th>
-            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -227,19 +226,6 @@ Exist        int    `db:"exist"`
                 </form>
             </td>
             <td>
-                {% if user.MemorandumId != nil %}
-                <a href="/wifi/memorandums/show/{%d *user.MemorandumId %}" class="btn btn-info btn-on-table hint-act">
-                    <span class="oi oi-list hint-act" aria-hidden="true"></span>
-                    <span class="hint">Посмотреть  служебку</span>
-                </a>
-                {% else %}
-                <a href="javascript:void(0)" class="btn btn-info btn-on-table hint-act disabled">
-                    <span class="oi oi-list disabled" aria-hidden="true"></span>
-                    <span class="hint">Посмотреть  служебку</span>
-                </a>
-                {% endif %}
-            </td>
-            <td>
                 {% if user.Accepted != 1 %}
                 <a href="/wifi/users/accept/{%d user.Id %}" class="btn btn-success btn-on-table hint-act">
                     <span class="oi oi-check" aria-hidden="true"></span>
@@ -252,7 +238,7 @@ Exist        int    `db:"exist"`
                 </a>
                 {% endif %}
             </td>
-            <td><a href="/wifi/user/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
+            <td><a href="/wifi/users/edit/{%d user.Id %}" class="btn btn-primary btn-on-table hint-act">
                 <span class="oi oi-pencil" aria-hidden="true"></span>
                 <span class="hint">Редактировать</span>
             </a>
