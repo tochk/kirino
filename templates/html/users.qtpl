@@ -72,7 +72,7 @@ MemorandumId int    `db:"memorandumid"`
 {%= Menu("admin") %}
 
 <div class="table_wrapper">
-    <form class="search_form" action="/wifi/users/search/">
+    <form class="search_form" action="/wifi/users/search/0/">
         <div class="form-group is-empty">
             <input type="text" name="mac" class="form-control" placeholder="Mac address">
         </div>
