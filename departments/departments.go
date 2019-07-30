@@ -2,7 +2,7 @@ package departments
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 

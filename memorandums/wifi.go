@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"github.com/tochk/kirino/auth"
 	"github.com/tochk/kirino/departments"
 	"github.com/tochk/kirino/pagination"
